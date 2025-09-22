@@ -1,0 +1,338 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Employee Details</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard" class="text-decoration-none">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/employees" class="text-decoration-none">Employees</a>
+          </li>
+          <li class="breadcrumb-item active">Details</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="action-buttons">
+      <button type="button" class="btn btn-outline-secondary me-2" (click)="onBack()">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+      </button>
+      <button type="button" class="btn btn-outline-primary me-2" (click)="onPrint()">
+        <i class="fas fa-print me-2"></i>Print
+      </button>
+      <button 
+        *ngIf="canEdit()" 
+        type="button" 
+        class="btn btn-primary me-2" 
+        (click)="onEdit()">
+        <i class="fas fa-edit me-2"></i>Edit
+      </button>
+      <button 
+        *ngIf="canDelete()" 
+        type="button" 
+        class="btn btn-outline-danger" 
+        (click)="onDelete()">
+        <i class="fas fa-trash me-2"></i>Delete
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading employee details...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ errorMessage }}
+    <button type="button" class="btn-close" (click)="clearError()"></button>
+  </div>
+
+  <!-- Employee Details -->
+  <div *ngIf="!isLoading && employee" class="row">
+    <!-- Main Information Card -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-user me-2"></i>
+              {{ employee.prenom }} {{ employee.nom }}
+            </h5>
+            <div class="status-container">
+              <span 
+                class="badge status-badge" 
+                [ngClass]="getStatusBadgeClass(employee.statut)">
+                {{ employee.statut }}
+              </span>
+              <!-- Status Update Dropdown for authorized users -->
+              <div 
+                *ngIf="canUpdateStatus()" 
+                class="dropdown d-inline-block ms-2">
+                <button 
+                  class="btn btn-sm btn-outline-light dropdown-toggle" 
+                  type="button" 
+                  id="statusDropdown" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false">
+                  Change Status
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+                  <li *ngFor="let status of statusOptions">
+                    <a 
+                      class="dropdown-item" 
+                      href="#" 
+                      (click)="onStatusChange(status.value); $event.preventDefault()"
+                      [class.active]="status.value === employee.statut">
+                      <span class="badge me-2" [ngClass]="'badge-' + status.class">{{ status.value }}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Personal Information Section -->
+          <div class="info-section">
+            <h6 class="section-title">
+              <i class="fas fa-user me-2"></i>Personal Information
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>First Name:</label>
+                  <span>{{ employee.prenom }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Last Name:</label>
+                  <span>{{ employee.nom }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Full Name:</label>
+                  <span>{{ employee.nomComplet }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>CIN:</label>
+                  <span>{{ employee.cin }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Email:</label>
+                  <span>
+                    <a [href]="'mailto:' + employee.email" class="text-decoration-none">
+                      {{ employee.email }}
+                    </a>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <label>Phone:</label>
+                  <span>
+                    <a [href]="'tel:' + employee.telephone" class="text-decoration-none">
+                      {{ employee.telephone }}
+                    </a>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Employment Information Section -->
+          <div class="info-section">
+            <h6 class="section-title">
+              <i class="fas fa-briefcase me-2"></i>Employment Information
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Department:</label>
+                  <span class="badge bg-secondary">{{ employee.departement }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Position:</label>
+                  <span class="badge bg-info">{{ employee.poste }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Hire Date:</label>
+                  <span>{{ formatDate(employee.dateEmbauche.toString()) }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Tenure:</label>
+                  <span class="text-success fw-bold">{{ getEmployeeTenure() }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Status:</label>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(employee.statut)">
+                    {{ employee.statut }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salary Information Section -->
+          <div class="info-section">
+            <h6 class="section-title">
+              <i class="fas fa-dollar-sign me-2"></i>Salary Information
+            </h6>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="salary-card">
+                  <div class="salary-label">Base Salary</div>
+                  <div class="salary-value">{{ formatCurrency(employee.salaireBase) }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="salary-card">
+                  <div class="salary-label">Prime</div>
+                  <div class="salary-value">{{ formatCurrency(employee.prime) }}</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="salary-card total-salary">
+                  <div class="salary-label">Total Salary</div>
+                  <div class="salary-value">{{ formatCurrency(employee.salaireTotal) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Account Information Section -->
+          <div class="info-section" *ngIf="employee.hasUserAccount">
+            <h6 class="section-title">
+              <i class="fas fa-user-cog me-2"></i>User Account
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Has User Account:</label>
+                  <span class="badge bg-success">
+                    <i class="fas fa-check me-1"></i>Yes
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-6" *ngIf="employee.userRole">
+                <div class="info-item">
+                  <label>User Role:</label>
+                  <span class="badge bg-primary">{{ employee.userRole }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Information Section -->
+          <div class="info-section">
+            <h6 class="section-title">
+              <i class="fas fa-info-circle me-2"></i>System Information
+            </h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Created:</label>
+                  <span>{{ formatDate(employee.dateCreation.toString()) }}</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-item">
+                  <label>Last Modified:</label>
+                  <span>{{ formatDate(employee.dateModification.toString()) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Sidebar -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">
+            <i class="fas fa-bolt me-2"></i>Quick Actions
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="quick-action-item">
+            <button 
+              *ngIf="canEdit()" 
+              class="btn btn-outline-primary w-100 mb-2" 
+              (click)="onEdit()">
+              <i class="fas fa-edit me-2"></i>Edit Employee
+            </button>
+          </div>
+          <div class="quick-action-item">
+            <button 
+              class="btn btn-outline-info w-100 mb-2" 
+              (click)="onPrint()">
+              <i class="fas fa-print me-2"></i>Print Details
+            </button>
+          </div>
+          <div class="quick-action-item" *ngIf="employee.email">
+            <a 
+              [href]="'mailto:' + employee.email" 
+              class="btn btn-outline-secondary w-100 mb-2">
+              <i class="fas fa-envelope me-2"></i>Send Email
+            </a>
+          </div>
+          <div class="quick-action-item" *ngIf="employee.telephone">
+            <a 
+              [href]="'tel:' + employee.telephone" 
+              class="btn btn-outline-secondary w-100 mb-2">
+              <i class="fas fa-phone me-2"></i>Call Employee
+            </a>
+          </div>
+          <div class="quick-action-item">
+            <button 
+              *ngIf="canDelete()" 
+              class="btn btn-outline-danger w-100" 
+              (click)="onDelete()">
+              <i class="fas fa-trash me-2"></i>Delete Employee
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Stats Card -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>Employee Stats
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="stat-item">
+            <div class="stat-label">Employee ID</div>
+            <div class="stat-value">#{{ employee.id }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Tenure</div>
+            <div class="stat-value">{{ getEmployeeTenure() }}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Total Compensation</div>
+            <div class="stat-value text-success">{{ formatCurrency(employee.salaireTotal) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="!isLoading && !employee" class="text-center py-5">
+    <i class="fas fa-user-slash text-muted" style="font-size: 4rem;"></i>
+    <h4 class="text-muted mt-3">Employee Not Found</h4>
+    <p class="text-muted">The requested employee could not be found.</p>
+    <button type="button" class="btn btn-primary" (click)="onBack()">
+      <i class="fas fa-arrow-left me-2"></i>Back to Employee List
+    </button>
+  </div>
+</div>

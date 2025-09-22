@@ -1,0 +1,174 @@
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-4">
+          <h3 class="mb-0">
+            <i class="fas fa-user-plus me-2"></i>
+            Créer un nouvel utilisateur
+          </h3>
+        </div>
+        
+        <div class="card-body p-4">
+          <!-- Success Alert -->
+          <div *ngIf="successMessage" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ successMessage }}
+          </div>
+
+          <!-- Error Alert -->
+          <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <!-- Registration Form -->
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="row">
+              <!-- Username Field -->
+              <div class="col-md-6 mb-3">
+                <label for="nomUtilisateur" class="form-label">
+                  <i class="fas fa-user me-2"></i>Nom d'utilisateur *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nomUtilisateur"
+                  formControlName="nomUtilisateur"
+                  [class.is-invalid]="isFieldInvalid('nomUtilisateur')"
+                  placeholder="Nom d'utilisateur"
+                  (blur)="onUsernameChange()"
+                  autocomplete="username"
+                >
+                <div *ngIf="isFieldInvalid('nomUtilisateur')" class="invalid-feedback">
+                  {{ getFieldError('nomUtilisateur') }}
+                </div>
+              </div>
+
+              <!-- Role Field -->
+              <div class="col-md-6 mb-3">
+                <label for="role" class="form-label">
+                  <i class="fas fa-user-tag me-2"></i>Rôle *
+                </label>
+                <select
+                  class="form-select"
+                  id="role"
+                  formControlName="role"
+                  [class.is-invalid]="isFieldInvalid('role')"
+                >
+                  <option value="">Sélectionner un rôle</option>
+                  <option *ngFor="let role of availableRoles" [value]="role.value">
+                    {{ role.label }}
+                  </option>
+                </select>
+                <div *ngIf="isFieldInvalid('role')" class="invalid-feedback">
+                  {{ getFieldError('role') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- Password Field -->
+              <div class="col-md-6 mb-3">
+                <label for="motDePasse" class="form-label">
+                  <i class="fas fa-lock me-2"></i>Mot de passe *
+                </label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="motDePasse"
+                  formControlName="motDePasse"
+                  [class.is-invalid]="isFieldInvalid('motDePasse')"
+                  placeholder="Mot de passe"
+                  autocomplete="new-password"
+                >
+                <div *ngIf="isFieldInvalid('motDePasse')" class="invalid-feedback">
+                  {{ getFieldError('motDePasse') }}
+                </div>
+              </div>
+
+              <!-- Confirm Password Field -->
+              <div class="col-md-6 mb-3">
+                <label for="confirmerMotDePasse" class="form-label">
+                  <i class="fas fa-lock me-2"></i>Confirmer le mot de passe *
+                </label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirmerMotDePasse"
+                  formControlName="confirmerMotDePasse"
+                  [class.is-invalid]="isFieldInvalid('confirmerMotDePasse')"
+                  placeholder="Confirmer le mot de passe"
+                  autocomplete="new-password"
+                >
+                <div *ngIf="isFieldInvalid('confirmerMotDePasse')" class="invalid-feedback">
+                  {{ getFieldError('confirmerMotDePasse') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Employee Field -->
+            <div class="mb-4">
+              <label for="employeId" class="form-label">
+                <i class="fas fa-id-badge me-2"></i>Employé associé *
+              </label>
+              <select
+                class="form-select"
+                id="employeId"
+                formControlName="employeId"
+                [class.is-invalid]="isFieldInvalid('employeId')"
+              >
+                <option value="">Sélectionner un employé</option>
+                <option *ngFor="let employee of availableEmployees" [value]="employee.id">
+                  {{ getEmployeeName(employee) }}
+                </option>
+              </select>
+              <div *ngIf="isFieldInvalid('employeId')" class="invalid-feedback">
+                {{ getFieldError('employeId') }}
+              </div>
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>
+                Seuls les employés sans compte utilisateur sont affichés
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between gap-3">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="onCancel()"
+                [disabled]="isLoading"
+              >
+                <i class="fas fa-times me-2"></i>Annuler
+              </button>
+              
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="isLoading || registerForm.invalid"
+              >
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <i *ngIf="!isLoading" class="fas fa-user-plus me-2"></i>
+                {{ isLoading ? 'Création...' : 'Créer l\'utilisateur' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Information Card -->
+      <div class="card mt-4 border-info">
+        <div class="card-body">
+          <h6 class="card-title text-info">
+            <i class="fas fa-info-circle me-2"></i>Information
+          </h6>
+          <p class="card-text mb-0">
+            La création d'un utilisateur nécessite qu'un employé soit préalablement enregistré dans le système.
+            Le nom d'utilisateur doit être unique et contenir entre 3 et 50 caractères.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

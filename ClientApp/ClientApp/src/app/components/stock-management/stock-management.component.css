@@ -1,0 +1,270 @@
+/* Stock Management Component Styles */
+
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Table styling */
+.table th {
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+  color: #495057;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Badge styling */
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Button group styling */
+.btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Modal styling */
+.modal-dialog {
+  max-width: 800px;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+}
+
+/* Form styling */
+.form-label {
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  color: #6c757d;
+}
+
+/* Stock status indicators */
+.stock-indicator {
+  position: relative;
+  display: inline-block;
+}
+
+.stock-indicator::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stock-indicator.low-stock::after {
+  background-color: #ffc107;
+}
+
+.stock-indicator.out-of-stock::after {
+  background-color: #dc3545;
+}
+
+.stock-indicator.in-stock::after {
+  background-color: #28a745;
+}
+
+/* Progress bars for stock levels */
+.stock-progress {
+  height: 4px;
+  border-radius: 2px;
+  background-color: #e9ecef;
+  overflow: hidden;
+}
+
+.stock-progress .progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.stock-progress .progress-bar.low-stock {
+  background-color: #ffc107;
+}
+
+.stock-progress .progress-bar.out-of-stock {
+  background-color: #dc3545;
+}
+
+.stock-progress .progress-bar.in-stock {
+  background-color: #28a745;
+}
+
+/* Variant dropdown */
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+}
+
+/* Animation for loading states */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card,
+.modal-content {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-group-sm .btn {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.7rem;
+  }
+  
+  .modal-dialog {
+    margin: 0.5rem;
+    max-width: none;
+  }
+}
+
+/* Empty state styling */
+.text-center i {
+  opacity: 0.5;
+}
+
+/* Alert styling */
+.alert {
+  border: none;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+
+.alert-success {
+  border-left-color: #28a745;
+}
+
+.alert-danger {
+  border-left-color: #dc3545;
+}
+
+/* Loading spinner enhancement */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Custom spacing */
+.py-4 {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* Pagination styling */
+.pagination .page-link {
+  border: none;
+  color: #6c757d;
+  background-color: transparent;
+  margin: 0 2px;
+  border-radius: 6px;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination .page-link:hover {
+  background-color: #e9ecef;
+  color: #007bff;
+}
+
+/* Quantity input styling */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Stock movement type colors */
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-info {
+  color: #17a2b8 !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+/* Card header enhancement */
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Form validation styling */
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Button loading state */
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal backdrop custom */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}

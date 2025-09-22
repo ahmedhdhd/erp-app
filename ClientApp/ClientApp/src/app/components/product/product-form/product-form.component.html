@@ -1,0 +1,487 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">{{ isEditing ? 'Modifier le produit' : 'Ajouter un produit' }}</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard" class="text-decoration-none">Tableau de bord</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/products" class="text-decoration-none">Produits</a>
+          </li>
+          <li class="breadcrumb-item active">{{ isEditing ? 'Modifier' : 'Ajouter' }}</li>
+        </ol>
+      </nav>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+      <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2 text-muted">Chargement des données du produit...</p>
+  </div>
+
+  <!-- Product Form -->
+  <div *ngIf="!loading" class="row">
+    <div class="col-lg-10 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-box-seam me-2"></i>
+            Informations du produit
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Alert Messages -->
+          <div *ngIf="errors['general'] && errors['general'].length > 0" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <ul class="mb-0">
+              <li *ngFor="let error of errors['general']">{{ error }}</li>
+            </ul>
+            <button type="button" class="btn-close" (click)="errors['general'] = []"></button>
+          </div>
+
+          <!-- Success Message -->
+          <div *ngIf="submitted && !errors['general']" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>Formulaire soumis avec succès!
+            <button type="button" class="btn-close" (click)="submitted = false"></button>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="productForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- General Information Section -->
+            <div class="form-section">
+              <h6 class="section-title">
+                <i class="bi bi-info-circle me-2"></i>Informations générales
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="reference" class="form-label required">Référence *</label>
+                  <input
+                    type="text"
+                    id="reference"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('reference')"
+                    formControlName="reference"
+                    placeholder="Entrez la référence du produit"
+                    maxlength="50">
+                  <div *ngIf="isFieldInvalid('reference')" class="invalid-feedback">
+                    {{ getFieldError('reference') }}
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="designation" class="form-label required">Désignation *</label>
+                  <input
+                    type="text"
+                    id="designation"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('designation')"
+                    formControlName="designation"
+                    placeholder="Entrez la désignation du produit"
+                    maxlength="200">
+                  <div *ngIf="isFieldInvalid('designation')" class="invalid-feedback">
+                    {{ getFieldError('designation') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  id="description"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('description')"
+                  formControlName="description"
+                  placeholder="Entrez la description du produit"
+                  rows="3"
+                  maxlength="1000"></textarea>
+                <div *ngIf="isFieldInvalid('description')" class="invalid-feedback">
+                  {{ getFieldError('description') }}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="categorieId" class="form-label required">Catégorie *</label>
+                  <select
+                    id="categorieId"
+                    class="form-select"
+                    [class.is-invalid]="isFieldInvalid('categorieId')"
+                    formControlName="categorieId">
+                    <option value="">Sélectionnez une catégorie</option>
+                    <option *ngFor="let category of categories" [value]="category.id">
+                      {{ category.nom }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('categorieId')" class="invalid-feedback">
+                    {{ getFieldError('categorieId') }}
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="sousCategorie" class="form-label">Sous-catégorie</label>
+                  <input
+                    type="text"
+                    id="sousCategorie"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('sousCategorie')"
+                    formControlName="sousCategorie"
+                    placeholder="Entrez la sous-catégorie"
+                    maxlength="100">
+                  <div *ngIf="isFieldInvalid('sousCategorie')" class="invalid-feedback">
+                    {{ getFieldError('sousCategorie') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="unite" class="form-label required">Unité *</label>
+                  <select
+                    id="unite"
+                    class="form-select"
+                    [class.is-invalid]="isFieldInvalid('unite')"
+                    formControlName="unite">
+                    <option *ngFor="let unit of unitOptions" [value]="unit.value">
+                      {{ unit.label }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('unite')" class="invalid-feedback">
+                    {{ getFieldError('unite') }}
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="statut" class="form-label required">Statut *</label>
+                  <select
+                    id="statut"
+                    class="form-select"
+                    [class.is-invalid]="isFieldInvalid('statut')"
+                    formControlName="statut">
+                    <option *ngFor="let status of statusOptions" [value]="status.value">
+                      {{ status.label }}
+                    </option>
+                  </select>
+                  <div *ngIf="isFieldInvalid('statut')" class="invalid-feedback">
+                    {{ getFieldError('statut') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pricing Information Section -->
+            <div class="form-section">
+              <h6 class="section-title">
+                <i class="bi bi-currency-euro me-2"></i>Informations de prix
+              </h6>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="tauxTVA" class="form-label required">Taux TVA (%) *</label>
+                  <input
+                    type="number"
+                    id="tauxTVA"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('tauxTVA')"
+                    formControlName="tauxTVA"
+                    placeholder="Entrez le taux de TVA"
+                    min="0"
+                    max="100"
+                    step="0.01">
+                  <div *ngIf="isFieldInvalid('tauxTVA')" class="invalid-feedback">
+                    {{ getFieldError('tauxTVA') }}
+                  </div>
+                  <div class="form-text">Taux de TVA appliqué aux prix HT pour calculer les prix TTC</div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="prixAchatHT" class="form-label">Prix d'achat HT</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixAchatHT"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixAchatHT')"
+                      formControlName="prixAchatHT"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01">
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixAchatHT')" class="invalid-feedback">
+                    {{ getFieldError('prixAchatHT') }}
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="prixAchatTTC" class="form-label">Prix d'achat TTC</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixAchatTTC"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixAchatTTC')"
+                      formControlName="prixAchatTTC"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      readonly>
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixAchatTTC')" class="invalid-feedback">
+                    {{ getFieldError('prixAchatTTC') }}
+                  </div>
+                  <div class="form-text">Calculé automatiquement</div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="prixVenteHT" class="form-label required">Prix de vente HT *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixVenteHT"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixVenteHT')"
+                      formControlName="prixVenteHT"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01">
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixVenteHT')" class="invalid-feedback">
+                    {{ getFieldError('prixVenteHT') }}
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="prixVenteTTC" class="form-label">Prix de vente TTC</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixVenteTTC"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixVenteTTC')"
+                      formControlName="prixVenteTTC"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      readonly>
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixVenteTTC')" class="invalid-feedback">
+                    {{ getFieldError('prixVenteTTC') }}
+                  </div>
+                  <div class="form-text">Calculé automatiquement</div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="prixVenteMinHT" class="form-label">Prix de vente minimum HT</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixVenteMinHT"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixVenteMinHT')"
+                      formControlName="prixVenteMinHT"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01">
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixVenteMinHT')" class="invalid-feedback">
+                    {{ getFieldError('prixVenteMinHT') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="prixVenteMinTTC" class="form-label">Prix de vente minimum TTC</label>
+                  <div class="input-group">
+                    <span class="input-group-text">TND</span>
+                    <input
+                      type="number"
+                      id="prixVenteMinTTC"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('prixVenteMinTTC')"
+                      formControlName="prixVenteMinTTC"
+                      placeholder="0.00"
+                      min="0"
+                      step="0.01"
+                      readonly>
+                  </div>
+                  <div *ngIf="isFieldInvalid('prixVenteMinTTC')" class="invalid-feedback">
+                    {{ getFieldError('prixVenteMinTTC') }}
+                  </div>
+                  <div class="form-text">Calculé automatiquement</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stock Information Section -->
+            <div class="form-section">
+              <h6 class="section-title">
+                <i class="bi bi-boxes me-2"></i>Informations de stock
+              </h6>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="stockActuel" class="form-label required">Stock actuel *</label>
+                  <input
+                    type="number"
+                    id="stockActuel"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('stockActuel')"
+                    formControlName="stockActuel"
+                    placeholder="Entrez le stock actuel"
+                    min="0">
+                  <div *ngIf="isFieldInvalid('stockActuel')" class="invalid-feedback">
+                    {{ getFieldError('stockActuel') }}
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="stockMinimum" class="form-label required">Stock minimum *</label>
+                  <input
+                    type="number"
+                    id="stockMinimum"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('stockMinimum')"
+                    formControlName="stockMinimum"
+                    placeholder="Entrez le stock minimum"
+                    min="0">
+                  <div *ngIf="isFieldInvalid('stockMinimum')" class="invalid-feedback">
+                    {{ getFieldError('stockMinimum') }}
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label for="stockMaximum" class="form-label">Stock maximum</label>
+                  <input
+                    type="number"
+                    id="stockMaximum"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('stockMaximum')"
+                    formControlName="stockMaximum"
+                    placeholder="Entrez le stock maximum"
+                    min="1">
+                  <div *ngIf="isFieldInvalid('stockMaximum')" class="invalid-feedback">
+                    {{ getFieldError('stockMaximum') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants Section -->
+            <div class="form-section" *ngIf="variantesFormArray">
+              <h6 class="section-title d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-grid me-2"></i>Variantes du produit</span>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addVariant()">
+                  <i class="bi bi-plus-circle me-1"></i>Ajouter une variante
+                </button>
+              </h6>
+
+              <div formArrayName="variantes">
+                <div *ngFor="let variant of variantesFormArray.controls; let i = index" 
+                     [formGroupName]="i" class="card mb-3">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <h6 class="card-title mb-0">Variante #{{ i + 1 }}</h6>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeVariant(i)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-3 mb-3">
+                        <label [for]="'referenceVariant' + i" class="form-label required">Référence *</label>
+                        <input type="text" class="form-control" [id]="'referenceVariant' + i" 
+                               formControlName="referenceVariant"
+                               [class.is-invalid]="variant.get('referenceVariant')?.invalid && 
+                                                   (variant.get('referenceVariant')?.dirty || 
+                                                    variant.get('referenceVariant')?.touched || submitted)"
+                               placeholder="Référence de la variante">
+                        <div class="invalid-feedback" 
+                             *ngIf="variant.get('referenceVariant')?.invalid && 
+                                    (variant.get('referenceVariant')?.dirty || 
+                                     variant.get('referenceVariant')?.touched || submitted)">
+                          La référence est obligatoire
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-3 mb-3">
+                        <label [for]="'taille' + i" class="form-label">Taille</label>
+                        <input type="text" class="form-control" [id]="'taille' + i" 
+                               formControlName="taille"
+                               placeholder="Taille de la variante">
+                      </div>
+                      
+                      <div class="col-md-3 mb-3">
+                        <label [for]="'couleur' + i" class="form-label">Couleur</label>
+                        <input type="text" class="form-control" [id]="'couleur' + i" 
+                               formControlName="couleur"
+                               placeholder="Couleur de la variante">
+                      </div>
+                      
+                      <div class="col-md-3 mb-3">
+                        <label [for]="'stockActuel' + i" class="form-label required">Stock actuel *</label>
+                        <input type="number" class="form-control" [id]="'stockActuel' + i" 
+                               formControlName="stockActuel" min="0"
+                               [class.is-invalid]="variant.get('stockActuel')?.invalid && 
+                                                   (variant.get('stockActuel')?.dirty || 
+                                                    variant.get('stockActuel')?.touched || submitted)"
+                               placeholder="Stock actuel">
+                        <div class="invalid-feedback" 
+                             *ngIf="variant.get('stockActuel')?.invalid && 
+                                    (variant.get('stockActuel')?.dirty || 
+                                     variant.get('stockActuel')?.touched || submitted)">
+                          Le stock doit être positif
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="variantesFormArray.length === 0" class="text-muted text-center py-3">
+                <p class="mb-0">Aucune variante ajoutée. Cliquez sur "Ajouter une variante" pour commencer.</p>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <hr>
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+                  <i class="bi bi-x-circle me-2"></i>Annuler
+                </button>
+                <div>
+                  <button type="button" class="btn btn-info me-2" (click)="generateReference()" 
+                          *ngIf="!isEditing">
+                    <i class="bi bi-magic me-2"></i>Générer référence
+                  </button>
+                  <button type="submit" class="btn btn-primary" [disabled]="saving">
+                    <span *ngIf="saving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-save me-2" *ngIf="!saving"></i>
+                    {{ saving ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

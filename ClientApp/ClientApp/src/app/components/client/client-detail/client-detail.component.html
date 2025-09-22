@@ -1,0 +1,366 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="bi bi-person me-2"></i>
+            Détails du Client
+          </h4>
+          <div class="btn-group">
+            <button class="btn btn-light" (click)="goBack()">
+              <i class="bi bi-arrow-left me-1"></i>
+              Retour
+            </button>
+            <button *appHasRole="'Admin,Vendeur'" 
+                    class="btn btn-warning" 
+                    (click)="editClient()">
+              <i class="bi bi-pencil me-1"></i>
+              Modifier
+            </button>
+            <button *appHasRole="'Admin'" 
+                    class="btn btn-danger" 
+                    (click)="deleteClient()">
+              <i class="bi bi-trash me-1"></i>
+              Supprimer
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading Indicator -->
+          <div class="text-center py-4" *ngIf="loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <!-- Client Details -->
+          <div *ngIf="client && !loading" class="row">
+            <!-- Client Information -->
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-header bg-light">
+                  <h5 class="mb-0">Informations du Client</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Nom Complet</label>
+                      <p class="fw-bold mb-0">{{ client.nom }} {{ client.prenom }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Raison Sociale</label>
+                      <p class="fw-bold mb-0">{{ client.raisonSociale || 'Non spécifiée' }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Type de Client</label>
+                      <p class="fw-bold mb-0">
+                        <span class="badge bg-info">{{ client.typeClient }}</span>
+                      </p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Classification</label>
+                      <p class="fw-bold mb-0">
+                        <span class="badge bg-success">{{ client.classification }}</span>
+                      </p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Statut</label>
+                      <p class="fw-bold mb-0">
+                        <span [class]="'badge ' + (client.estActif ? 'bg-success' : 'bg-danger')">
+                          {{ client.estActif ? 'Actif' : 'Inactif' }}
+                        </span>
+                      </p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Date de Création</label>
+                      <p class="fw-bold mb-0">{{ formatDate(client.dateCreation) }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Limite de Crédit</label>
+                      <p class="fw-bold mb-0">{{ formatCurrency(client.limiteCredit) }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Solde Actuel</label>
+                      <p class="fw-bold mb-0">{{ formatCurrency(client.soldeActuel) }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contact Information -->
+              <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Coordonnées</h5>
+                  <button *appHasRole="'Admin,Vendeur'" 
+                          class="btn btn-sm btn-primary" 
+                          (click)="showAddContactForm()">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Ajouter Contact
+                  </button>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Adresse</label>
+                      <p class="fw-bold mb-0">{{ client.adresse || 'Non spécifiée' }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Ville</label>
+                      <p class="fw-bold mb-0">{{ client.ville || 'Non spécifiée' }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Code Postal</label>
+                      <p class="fw-bold mb-0">{{ client.codePostal || 'Non spécifié' }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Pays</label>
+                      <p class="fw-bold mb-0">{{ client.pays }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Téléphone</label>
+                      <p class="fw-bold mb-0">{{ client.telephone || 'Non spécifié' }}</p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">Email</label>
+                      <p class="fw-bold mb-0">
+                        <a *ngIf="client.email" [href]="'mailto:' + client.email">{{ client.email }}</a>
+                        <span *ngIf="!client.email">Non spécifié</span>
+                      </p>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                      <label class="text-muted">ICE</label>
+                      <p class="fw-bold mb-0">{{ client.ice || 'Non spécifié' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Contact Form (Hidden by default) -->
+              <div class="card mb-4" *ngIf="showContactForm">
+                <div class="card-header bg-light">
+                  <h5 class="mb-0">{{ isEditingContact ? 'Modifier Contact' : 'Ajouter Contact' }}</h5>
+                </div>
+                <div class="card-body">
+                  <!-- Contact Form Errors -->
+                  <div class="alert alert-danger" *ngIf="contactErrors.length > 0">
+                    <ul class="mb-0">
+                      <li *ngFor="let error of contactErrors">{{ error }}</li>
+                    </ul>
+                  </div>
+
+                  <form [formGroup]="contactForm" (ngSubmit)="saveContact()">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label for="contactNom" class="form-label">Nom *</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="contactNom" 
+                               formControlName="nom"
+                               [class.is-invalid]="isFieldInvalid('nom')">
+                        <div class="invalid-feedback" *ngIf="isFieldInvalid('nom')">
+                          {{ getFieldError('nom') }}
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <label for="contactPoste" class="form-label">Poste</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="contactPoste" 
+                               formControlName="poste"
+                               [class.is-invalid]="isFieldInvalid('poste')">
+                        <div class="invalid-feedback" *ngIf="isFieldInvalid('poste')">
+                          {{ getFieldError('poste') }}
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <label for="contactTelephone" class="form-label">Téléphone</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="contactTelephone" 
+                               formControlName="telephone"
+                               [class.is-invalid]="isFieldInvalid('telephone')">
+                        <div class="invalid-feedback" *ngIf="isFieldInvalid('telephone')">
+                          {{ getFieldError('telephone') }}
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <label for="contactEmail" class="form-label">Email</label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="contactEmail" 
+                               formControlName="email"
+                               [class.is-invalid]="isFieldInvalid('email')">
+                        <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                          {{ getFieldError('email') }}
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <label for="contactRole" class="form-label">Rôle *</label>
+                        <select class="form-select" 
+                                id="contactRole" 
+                                formControlName="role"
+                                [class.is-invalid]="isFieldInvalid('role')">
+                          <option value="Commercial">Commercial</option>
+                          <option value="Financier">Financier</option>
+                          <option value="Technique">Technique</option>
+                        </select>
+                        <div class="invalid-feedback" *ngIf="isFieldInvalid('role')">
+                          {{ getFieldError('role') }}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                      <button type="button" 
+                              class="btn btn-secondary me-2" 
+                              (click)="cancelContactForm()">
+                        Annuler
+                      </button>
+                      <button type="submit" 
+                              class="btn btn-primary">
+                        {{ isEditingContact ? 'Mettre à jour' : 'Ajouter' }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Contacts List -->
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="mb-0">Contacts</h5>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="client.contacts && client.contacts.length > 0" class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Nom</th>
+                          <th>Poste</th>
+                          <th>Téléphone</th>
+                          <th>Email</th>
+                          <th>Rôle</th>
+                          <th *appHasRole="'Admin,Vendeur'">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let contact of client.contacts">
+                          <td>{{ contact.nom }}</td>
+                          <td>{{ contact.poste || 'Non spécifié' }}</td>
+                          <td>{{ contact.telephone || 'Non spécifié' }}</td>
+                          <td>
+                            <a *ngIf="contact.email" [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+                            <span *ngIf="!contact.email">Non spécifié</span>
+                          </td>
+                          <td>
+                            <span class="badge bg-secondary">{{ contact.role }}</span>
+                          </td>
+                          <td *appHasRole="'Admin,Vendeur'">
+                            <div class="btn-group btn-group-sm" role="group">
+                              <button class="btn btn-outline-warning" 
+                                      title="Modifier"
+                                      (click)="showEditContactForm(contact)">
+                                <i class="bi bi-pencil"></i>
+                              </button>
+                              <button class="btn btn-outline-danger" 
+                                      title="Supprimer"
+                                      (click)="deleteContact(contact.id)">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <div *ngIf="!client.contacts || client.contacts.length === 0" class="text-center py-4">
+                    <i class="bi bi-person-lines-fill fs-1 text-muted mb-3"></i>
+                    <h5 class="text-muted">Aucun contact</h5>
+                    <p class="text-muted">Aucun contact n'a été ajouté pour ce client</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="mb-0">Résumé</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Statut:</span>
+                    <strong>
+                      <span [class]="'badge ' + (client.estActif ? 'bg-success' : 'bg-danger')">
+                        {{ client.estActif ? 'Actif' : 'Inactif' }}
+                      </span>
+                    </strong>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Type:</span>
+                    <strong>{{ client.typeClient }}</strong>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Classification:</span>
+                    <strong>{{ client.classification }}</strong>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Crédit:</span>
+                    <strong>{{ formatCurrency(client.limiteCredit) }}</strong>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Solde:</span>
+                    <strong>{{ formatCurrency(client.soldeActuel) }}</strong>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Contacts:</span>
+                    <strong>{{ client.contacts?.length || 0 }}</strong>
+                  </div>
+                  
+                  <hr>
+                  
+                  <div class="d-flex justify-content-between">
+                    <span>Créé le:</span>
+                    <strong>{{ formatDate(client.dateCreation) }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

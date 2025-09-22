@@ -1,0 +1,110 @@
+<div class="container-fluid py-4">
+  <!-- Welcome Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 welcome-card">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-tachometer-alt fa-4x text-primary mb-4"></i>
+          <h2 class="mb-3">Welcome to ERP System</h2>
+          <p class="lead text-muted mb-4" *ngIf="currentUser">
+            Hello {{ currentUser?.prenomEmploye }} {{ currentUser?.nomEmploye }}, 
+            you are logged in as <span class="badge bg-primary">{{ currentUser?.role }}</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access Cards -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h4 class="mb-3"><i class="fas fa-rocket me-2"></i>Quick Access</h4>
+    </div>
+    
+    <!-- Employee Management Card -->
+    <div class="col-lg-4 col-md-6 mb-3" *ngIf="canManageEmployees()">
+      <div class="card dashboard-card h-100" (click)="navigateToEmployees()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-primary text-white mb-3">
+            <i class="fas fa-users fa-2x"></i>
+          </div>
+          <h5 class="card-title">Employee Management</h5>
+          <p class="card-text text-muted">Manage employees, view details, and track performance</p>
+          <div class="mt-auto">
+            <span class="btn btn-primary btn-sm">Access Module</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employee Statistics Card -->
+    <div class="col-lg-4 col-md-6 mb-3" *ngIf="canViewStats()">
+      <div class="card dashboard-card h-100" (click)="navigateToStats()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-success text-white mb-3">
+            <i class="fas fa-chart-bar fa-2x"></i>
+          </div>
+          <h5 class="card-title">Employee Statistics</h5>
+          <p class="card-text text-muted">View comprehensive employee analytics and reports</p>
+          <div class="mt-auto">
+            <span class="btn btn-success btn-sm">View Stats</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="col-lg-4 col-md-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToProfile()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-info text-white mb-3">
+            <i class="fas fa-user-circle fa-2x"></i>
+          </div>
+          <h5 class="card-title">My Profile</h5>
+          <p class="card-text text-muted">View and update your profile information</p>
+          <div class="mt-auto">
+            <span class="btn btn-info btn-sm">View Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity or System Status -->
+  <div class="row">
+    <div class="col-12">
+      <h4 class="mb-3"><i class="fas fa-info-circle me-2"></i>System Information</h4>
+      <div class="card">
+        <div class="card-body">
+          <div class="alert alert-info" role="alert">
+            <i class="fas fa-lightbulb me-2"></i>
+            <strong>Employee Management System</strong><br>
+            The Employee Management module is now available with full CRUD operations, 
+            statistics dashboard, and role-based access control.
+          </div>
+          
+          <div class="row mt-4" *ngIf="currentUser">
+            <div class="col-md-6">
+              <h6><i class="fas fa-user me-2"></i>Your Access Level</h6>
+              <ul class="list-unstyled">
+                <li *ngIf="currentUser.role === 'Admin'"><i class="fas fa-check text-success me-2"></i>Full system administration</li>
+                <li *ngIf="currentUser.role === 'Admin' || currentUser.role === 'HR'"><i class="fas fa-check text-success me-2"></i>Employee management</li>
+                <li *ngIf="canViewStats()"><i class="fas fa-check text-success me-2"></i>Statistics and reports</li>
+                <li><i class="fas fa-check text-success me-2"></i>Profile management</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="fas fa-cog me-2"></i>Available Features</h6>
+              <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i>Employee CRUD operations</li>
+                <li><i class="fas fa-check text-success me-2"></i>Advanced search & filtering</li>
+                <li><i class="fas fa-check text-success me-2"></i>Data export (CSV)</li>
+                <li><i class="fas fa-check text-success me-2"></i>Role-based security</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

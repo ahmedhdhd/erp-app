@@ -1,0 +1,400 @@
+<div class="container-fluid">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-2">
+            <i class="fas fa-boxes"></i>
+            Gestion des Produits
+          </h2>
+          <p class="text-muted mb-0">
+            <span class="badge bg-info">{{ totalItems }}</span> produit(s) trouvé(s)
+          </p>
+        </div>
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-success" 
+            (click)="createProduct()"
+            *appHasPermission="'Admin,RH,Inventaire'">
+            <i class="fas fa-plus-circle"></i>
+            Nouveau Produit
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-primary" 
+            (click)="exportProducts()">
+            <i class="fas fa-download"></i>
+            Exporter CSV
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-outline-info" 
+            routerLink="/products/statistics">
+            <i class="fas fa-chart-bar"></i>
+            Statistiques
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <!-- Basic Search -->
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="searchTerm"
+                    placeholder="Rechercher par référence, désignation..."
+                    autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="btn-group w-100" role="group">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Rechercher
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary" 
+                    (click)="toggleFilters()">
+                    <i class="fas fa-sliders-h"></i>
+                    {{ showFilters ? 'Masquer' : 'Filtres avancés' }}
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-warning" 
+                    (click)="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Effacer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Search -->
+            <div class="advanced-search" [class.show]="showFilters">
+              <hr>
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label">Catégorie</label>
+                  <select class="form-select" formControlName="categorieId">
+                    <option value="">Toutes les catégories</option>
+                    <option *ngFor="let category of categories" [value]="category.id">
+                      {{ category.nom }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Statut</label>
+                  <select class="form-select" formControlName="statut">
+                    <option value="">Tous les statuts</option>
+                    <option [value]="ProductStatus.ACTIF">Actif</option>
+                    <option [value]="ProductStatus.INACTIF">Inactif</option>
+                    <option [value]="ProductStatus.DISCONTINUE">Discontinué</option>
+                    <option [value]="ProductStatus.RUPTURE">Rupture</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Trier par</label>
+                  <div class="row">
+                    <div class="col-8">
+                      <select class="form-select" formControlName="sortBy">
+                        <option value="reference">Référence</option>
+                        <option value="designation">Désignation</option>
+                        <option value="categorie">Catégorie</option>
+                        <option value="prixVenteHT">Prix HT</option>
+                        <option value="stockActuel">Stock</option>
+                        <option value="dateCreation">Date création</option>
+                      </select>
+                    </div>
+                    <div class="col-4">
+                      <select class="form-select" formControlName="sortDirection">
+                        <option value="asc">Croissant</option>
+                        <option value="desc">Décroissant</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Prix (TND)</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="number" class="form-control" formControlName="prixMin" placeholder="Min" min="0" step="0.01">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" class="form-control" formControlName="prixMax" placeholder="Max" min="0" step="0.01">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Stock</label>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="number" class="form-control" formControlName="stockMin" placeholder="Min" min="0">
+                    </div>
+                    <div class="col-6">
+                      <input type="number" class="form-control" formControlName="stockMax" placeholder="Max" min="0">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Alertes stock</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="stockFaible" formControlName="stockFaible">
+                    <label class="form-check-label" for="stockFaible">
+                      Stock faible
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="ruptureStock" formControlName="ruptureStock">
+                    <label class="form-check-label" for="ruptureStock">
+                      Rupture de stock
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button type="button" class="btn btn-primary" (click)="onAdvancedSearch()">
+                    <i class="fas fa-filter"></i>
+                    Appliquer les filtres
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement des produits...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="row" *ngIf="errorMessage && !loading">
+    <div class="col-12">
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="loadProducts()">
+          <i class="fas fa-redo"></i>
+          Réessayer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="row" *ngIf="!loading && !errorMessage">
+    <div class="col-12">
+      <!-- Pagination Info & Page Size -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <small class="text-muted">
+            Affichage de {{ (currentPage - 1) * pageSize + 1 }} à 
+            {{ Math.min(currentPage * pageSize, totalItems) }} sur {{ totalItems }} produit(s)
+          </small>
+        </div>
+        <div class="d-flex align-items-center">
+          <label class="form-label me-2 mb-0">Éléments par page:</label>
+          <select class="form-select form-select-sm" style="width: auto;" 
+                  [value]="pageSize" (change)="onPageSizeChange($event)">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Product Table -->
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th scope="col" style="width: 50px;">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           [checked]="selectedProducts.length === filteredProducts.length && filteredProducts.length > 0" 
+                           (change)="selectAllProducts()">
+                  </div>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 120px;" (click)="sort('reference')">
+                  Référence
+                  <i [class]="getSortIcon('reference')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer;" (click)="sort('designation')">
+                  Désignation
+                  <i [class]="getSortIcon('designation')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 130px;" (click)="sort('categorie')">
+                  Catégorie
+                  <i [class]="getSortIcon('categorie')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 120px;" (click)="sort('prixVenteHT')">
+                  Prix HT/TTC
+                  <i [class]="getSortIcon('prixVenteHT')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 60px;" (click)="sort('tauxTVA')">
+                  TVA
+                  <i [class]="getSortIcon('tauxTVA')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 80px;" (click)="sort('stockActuel')">
+                  Stock
+                  <i [class]="getSortIcon('stockActuel')"></i>
+                </th>
+                <th scope="col" style="cursor: pointer; width: 100px;" (click)="sort('statut')">
+                  Statut
+                  <i [class]="getSortIcon('statut')"></i>
+                </th>
+                <th scope="col" style="width: 100px;">
+                  Stock faible
+                </th>
+                <th scope="col" style="width: 150px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProducts; trackBy: trackByProductId" 
+                  [class.table-secondary]="selectedProducts.includes(product.id)">
+                <td>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           [checked]="selectedProducts.includes(product.id)" 
+                           (change)="toggleProductSelection(product.id)">
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ product.reference }}</strong>
+                </td>
+                <td>{{ product.designation }}</td>
+                <td>
+                  <span class="badge bg-secondary">{{ product.categorie }}</span>
+                </td>
+                <td>
+                  <div class="text-end">
+                    <div class="fw-bold">{{ formatCurrency(product.prixVenteHT) }}</div>
+                    <small class="text-muted">{{ formatCurrency(product.prixVenteTTC) }}</small>
+                  </div>
+                </td>
+                <td>{{ product.tauxTVA }}%</td>
+                <td>
+                  <span [class]="getStatusBadgeClass(product.statut)">
+                    {{ product.stockActuel }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [class]="getStatusBadgeClass(product.statut)">
+                    {{ product.statut }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngIf="product.estStockFaible && !product.estRuptureStock" class="text-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div *ngIf="product.estRuptureStock" class="text-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                  </div>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-info" 
+                      (click)="viewProduct(product.id)"
+                      title="Voir les détails">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-warning" 
+                      (click)="editProduct(product.id)"
+                      title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-danger" 
+                      (click)="deleteProduct(product.id)"
+                      title="Supprimer">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div class="card" *ngIf="filteredProducts.length === 0">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-boxes" style="font-size: 3rem; color: #6c757d;"></i>
+          <h5 class="mt-3">Aucun produit trouvé</h5>
+          <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+          <button type="button" class="btn btn-primary" (click)="clearFilters()">
+            <i class="fas fa-times-circle"></i>
+            Effacer les filtres
+          </button>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <nav aria-label="Pagination des produits" *ngIf="totalPages > 1">
+        <ul class="pagination justify-content-center mt-4">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="onPageChange(1); $event.preventDefault()">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          </li>
+          
+          <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" href="#" (click)="onPageChange(page); $event.preventDefault()">
+              {{ page }}
+            </a>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">
+              <i class="fas fa-angle-right"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(totalPages); $event.preventDefault()">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,241 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="bi bi-person me-2"></i>
+            {{ isEditing ? 'Modifier Client' : 'Nouveau Client' }}
+          </h4>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading Indicator -->
+          <div class="text-center py-4" *ngIf="loading">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <!-- Error Messages -->
+          <div class="alert alert-danger" *ngIf="errors['general'] && errors['general'].length > 0">
+            <ul class="mb-0">
+              <li *ngFor="let error of errors['general']">{{ error }}</li>
+            </ul>
+          </div>
+
+          <!-- Client Form -->
+          <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+            <div class="row">
+              <!-- Personal Information -->
+              <div class="col-12">
+                <h5 class="mb-3">Informations Personnelles</h5>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="nom" class="form-label">Nom *</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="nom" 
+                       formControlName="nom"
+                       [class.is-invalid]="isFieldInvalid('nom')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('nom')">
+                  {{ getFieldError('nom') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="prenom" class="form-label">Prénom</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="prenom" 
+                       formControlName="prenom"
+                       [class.is-invalid]="isFieldInvalid('prenom')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('prenom')">
+                  {{ getFieldError('prenom') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="raisonSociale" class="form-label">Raison Sociale</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="raisonSociale" 
+                       formControlName="raisonSociale"
+                       [class.is-invalid]="isFieldInvalid('raisonSociale')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('raisonSociale')">
+                  {{ getFieldError('raisonSociale') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="typeClient" class="form-label">Type de Client *</label>
+                <select class="form-select" 
+                        id="typeClient" 
+                        formControlName="typeClient"
+                        [class.is-invalid]="isFieldInvalid('typeClient')">
+                  <option *ngFor="let type of clientTypes" [value]="type">{{ type }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('typeClient')">
+                  {{ getFieldError('typeClient') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="ice" class="form-label">ICE</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="ice" 
+                       formControlName="ice"
+                       [class.is-invalid]="isFieldInvalid('ice')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('ice')">
+                  {{ getFieldError('ice') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="classification" class="form-label">Classification *</label>
+                <select class="form-select" 
+                        id="classification" 
+                        formControlName="classification"
+                        [class.is-invalid]="isFieldInvalid('classification')">
+                  <option *ngFor="let classification of classifications" [value]="classification">{{ classification }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('classification')">
+                  {{ getFieldError('classification') }}
+                </div>
+              </div>
+              
+              <!-- Contact Information -->
+              <div class="col-12 mt-4">
+                <h5 class="mb-3">Coordonnées</h5>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="adresse" class="form-label">Adresse</label>
+                <textarea class="form-control" 
+                          id="adresse" 
+                          rows="2" 
+                          formControlName="adresse"
+                          [class.is-invalid]="isFieldInvalid('adresse')"></textarea>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('adresse')">
+                  {{ getFieldError('adresse') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="ville" class="form-label">Ville</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="ville" 
+                       formControlName="ville"
+                       [class.is-invalid]="isFieldInvalid('ville')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('ville')">
+                  {{ getFieldError('ville') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="codePostal" class="form-label">Code Postal</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="codePostal" 
+                       formControlName="codePostal"
+                       [class.is-invalid]="isFieldInvalid('codePostal')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('codePostal')">
+                  {{ getFieldError('codePostal') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="pays" class="form-label">Pays *</label>
+                <select class="form-select" 
+                        id="pays" 
+                        formControlName="pays"
+                        [class.is-invalid]="isFieldInvalid('pays')">
+                  <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('pays')">
+                  {{ getFieldError('pays') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="telephone" class="form-label">Téléphone</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="telephone" 
+                       formControlName="telephone"
+                       [class.is-invalid]="isFieldInvalid('telephone')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('telephone')">
+                  {{ getFieldError('telephone') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" 
+                       class="form-control" 
+                       id="email" 
+                       formControlName="email"
+                       [class.is-invalid]="isFieldInvalid('email')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+                  {{ getFieldError('email') }}
+                </div>
+              </div>
+              
+              <!-- Financial Information -->
+              <div class="col-12 mt-4">
+                <h5 class="mb-3">Informations Financières</h5>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="limiteCredit" class="form-label">Limite de Crédit</label>
+                <input type="number" 
+                       class="form-control" 
+                       id="limiteCredit" 
+                       formControlName="limiteCredit"
+                       [class.is-invalid]="isFieldInvalid('limiteCredit')"
+                       min="0">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('limiteCredit')">
+                  {{ getFieldError('limiteCredit') }}
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="estActif" class="form-label">Statut</label>
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" 
+                         type="checkbox" 
+                         id="estActif" 
+                         formControlName="estActif">
+                  <label class="form-check-label" for="estActif">
+                    {{ clientForm.get('estActif')?.value ? 'Actif' : 'Inactif' }}
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" 
+                      class="btn btn-secondary" 
+                      (click)="onCancel()">
+                <i class="bi bi-arrow-left me-1"></i>
+                Annuler
+              </button>
+              
+              <button type="submit" 
+                      class="btn btn-primary" 
+                      [disabled]="saving">
+                <span *ngIf="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <i class="bi bi-save me-1" *ngIf="!saving"></i>
+                {{ saving ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

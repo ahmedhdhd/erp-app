@@ -1,0 +1,97 @@
+<div class="container-fluid vh-100">
+  <div class="row h-100">
+    <!-- Left side - Login form -->
+    <div class="col-md-6 d-flex align-items-center justify-content-center">
+      <div class="w-100" style="max-width: 400px;">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-primary">Connexion</h2>
+          <p class="text-muted">Connectez-vous à votre compte ERP</p>
+        </div>
+
+        <!-- Error Alert -->
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+          <!-- Username Field -->
+          <div class="mb-3">
+            <label for="nomUtilisateur" class="form-label">
+              <i class="fas fa-user me-2"></i>Nom d'utilisateur
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              id="nomUtilisateur"
+              formControlName="nomUtilisateur"
+              [class.is-invalid]="isFieldInvalid('nomUtilisateur')"
+              placeholder="Entrez votre nom d'utilisateur"
+              autocomplete="username"
+            >
+            <div *ngIf="isFieldInvalid('nomUtilisateur')" class="invalid-feedback">
+              {{ getFieldError('nomUtilisateur') }}
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="mb-3">
+            <label for="motDePasse" class="form-label">
+              <i class="fas fa-lock me-2"></i>Mot de passe
+            </label>
+            <input
+              type="password"
+              class="form-control"
+              id="motDePasse"
+              formControlName="motDePasse"
+              [class.is-invalid]="isFieldInvalid('motDePasse')"
+              placeholder="Entrez votre mot de passe"
+              autocomplete="current-password"
+            >
+            <div *ngIf="isFieldInvalid('motDePasse')" class="invalid-feedback">
+              {{ getFieldError('motDePasse') }}
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              [disabled]="isLoading"
+            >
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <i *ngIf="!isLoading" class="fas fa-sign-in-alt me-2"></i>
+              {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+            </button>
+          </div>
+        </form>
+
+        <!-- Additional Links -->
+        <div class="text-center mt-4">
+          <small class="text-muted">
+            Problème de connexion ? Contactez votre administrateur
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side - Branding/Image -->
+    <div class="col-md-6 bg-primary d-none d-md-flex align-items-center justify-content-center">
+      <div class="text-center text-white">
+        <i class="fas fa-building fa-5x mb-4"></i>
+        <h3 class="fw-bold mb-3">Système ERP</h3>
+        <p class="lead">
+          Gérez efficacement vos ressources d'entreprise avec notre solution complète
+        </p>
+        <div class="mt-4">
+          <i class="fas fa-users me-3"></i>
+          <i class="fas fa-chart-line me-3"></i>
+          <i class="fas fa-cogs me-3"></i>
+          <i class="fas fa-warehouse"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

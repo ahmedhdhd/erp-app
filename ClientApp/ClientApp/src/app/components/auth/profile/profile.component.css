@@ -1,0 +1,223 @@
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.card {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.avatar-lg {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-initials {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.fw-semibold {
+  font-weight: 600;
+  margin-bottom: 0;
+  color: #495057;
+}
+
+/* Role Badge Styles */
+.badge-admin {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.badge-vendeur {
+  background: linear-gradient(135deg, #28a745, #20a338);
+  color: white;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.badge-acheteur {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.badge-comptable {
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #212529;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.badge-rh {
+  background: linear-gradient(135deg, #6f42c1, #5a32a3);
+  color: white;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+.badge-default {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  font-size: 12px;
+  padding: 8px 16px;
+}
+
+/* Button Styles */
+.btn {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  border: none;
+}
+
+.btn-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+.btn-outline-danger {
+  border: 2px solid #dc3545;
+  color: #dc3545;
+  background: transparent;
+}
+
+.btn-outline-danger:hover {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.btn-outline-danger:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Status Badge Styles */
+.bg-success {
+  background-color: #28a745 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Shadow Styles */
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Animation */
+.card {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .avatar-lg {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .avatar-initials {
+    font-size: 20px;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .btn {
+    margin-bottom: 10px;
+  }
+}
+
+/* Text utilities */
+.text-muted {
+  color: #6c757d !important;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
