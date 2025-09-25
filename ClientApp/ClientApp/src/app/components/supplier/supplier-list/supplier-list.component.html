@@ -1,0 +1,213 @@
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-2">
+            <i class="fas fa-truck"></i>
+            Gestion des Fournisseurs
+          </h2>
+          <p class="text-muted mb-0">
+            <span class="badge bg-info">{{ suppliers?.length || 0 }}</span> fournisseur(s) chargé(s)
+          </p>
+        </div>
+        <div class="btn-group" role="group">
+          <a class="btn btn-success" routerLink="/suppliers/new">
+            <i class="fas fa-plus"></i>
+            Nouveau Fournisseur
+          </a>
+          <a class="btn btn-outline-info" routerLink="/suppliers/statistics">
+            <i class="fas fa-chart-bar"></i>
+            Statistiques
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input type="text" class="form-control" formControlName="searchTerm" placeholder="Rechercher par raison sociale, ICE, ville..." autocomplete="off"/>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="btn-group w-100" role="group">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Rechercher
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="toggleAdvancedSearch(); $event.preventDefault()">
+                    <i class="fas fa-sliders-h"></i>
+                    {{ showAdvancedSearch ? 'Masquer' : 'Filtres avancés' }}
+                  </button>
+                  <button type="button" class="btn btn-outline-warning" (click)="clearSearch()">
+                    <i class="fas fa-times"></i>
+                    Effacer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Search -->
+            <div class="advanced-search" [class.show]="showAdvancedSearch">
+              <hr>
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label">Type</label>
+                  <select class="form-select" formControlName="typeFournisseur">
+                    <option value="">Tous</option>
+                    <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Ville</label>
+                  <select class="form-select" formControlName="ville">
+                    <option value="">Toutes</option>
+                    <option *ngFor="let v of cities" [value]="v">{{ v }}</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Cond. paiement</label>
+                  <select class="form-select" formControlName="conditionsPaiement">
+                    <option value="">Toutes</option>
+                    <option *ngFor="let p of paymentTerms" [value]="p">{{ p }}</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Trier par</label>
+                  <div class="row">
+                    <div class="col-8">
+                      <select class="form-select" formControlName="sortBy">
+                        <option value="raisonSociale">Raison sociale</option>
+                        <option value="ville">Ville</option>
+                        <option value="noteQualite">Note qualité</option>
+                        <option value="delaiLivraisonMoyen">Délai moyen</option>
+                      </select>
+                    </div>
+                    <div class="col-4">
+                      <select class="form-select" formControlName="sortDirection">
+                        <option value="asc">Croissant</option>
+                        <option value="desc">Décroissant</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Délai min (j)</label>
+                  <input type="number" class="form-control" formControlName="delaiLivraisonMin" min="0">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Délai max (j)</label>
+                  <input type="number" class="form-control" formControlName="delaiLivraisonMax" min="0">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Note min</label>
+                  <input type="number" class="form-control" formControlName="noteQualiteMin" min="0" step="0.1">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Note max</label>
+                  <input type="number" class="form-control" formControlName="noteQualiteMax" min="0" step="0.1">
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button type="button" class="btn btn-primary" (click)="onSearch()">
+                    <i class="fas fa-filter"></i>
+                    Appliquer les filtres
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement des fournisseurs...</p>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="row" *ngIf="!loading">
+    <div class="col-12">
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Raison sociale</th>
+                <th>Type</th>
+                <th>ICE</th>
+                <th>Ville</th>
+                <th>Contact</th>
+                <th style="width: 200px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of suppliers">
+                <td><strong>{{ s.raisonSociale }}</strong></td>
+                <td><span class="badge bg-secondary">{{ s.typeFournisseur }}</span></td>
+                <td><code>{{ s.ice }}</code></td>
+                <td>{{ s.ville }}</td>
+                <td>
+                  <div class="small">
+                    <div *ngIf="s.email"><i class="fas fa-envelope text-muted"></i> {{ s.email }}</div>
+                    <div *ngIf="s.telephone"><i class="fas fa-phone text-muted"></i> {{ s.telephone }}</div>
+                  </div>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a [routerLink]="['/suppliers', s.id]" class="btn btn-outline-info" title="Détails">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a [routerLink]="['/suppliers', s.id, 'edit']" class="btn btn-outline-warning" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" title="Supprimer" (click)="deleteSupplier(s)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- No Results -->
+      <div class="card" *ngIf="suppliers && suppliers.length === 0">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+          <h5>Aucun fournisseur trouvé</h5>
+          <p class="text-muted">Essayez d'ajouter un nouveau fournisseur.</p>
+          <a class="btn btn-primary" routerLink="/suppliers/new">
+            <i class="fas fa-plus"></i>
+            Nouveau Fournisseur
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

@@ -69,6 +69,21 @@
           </ul>
         </li>
 
+        <!-- Supplier Management -->
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Acheteur')">
+          <a class="nav-link dropdown-toggle" href="#" role="button" 
+             id="suppliersDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-truck"></i>
+            Suppliers
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="suppliersDropdown">
+            <li><a class="dropdown-item" routerLink="/suppliers"><i class="fas fa-list me-2"></i>Supplier List</a></li>
+            <li><a class="dropdown-item" routerLink="/suppliers/new" *ngIf="hasRole('Admin') || hasRole('Acheteur')"><i class="fas fa-plus me-2"></i>Add Supplier</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/suppliers/statistics" *ngIf="hasRole('Admin') || hasRole('Acheteur')"><i class="fas fa-chart-bar me-2"></i>Statistics</a></li>
+          </ul>
+        </li>
+
         <!-- Admin Section -->
         <li class="nav-item dropdown" *ngIf="isAdmin()">
           <a class="nav-link dropdown-toggle" href="#" role="button" 

@@ -289,3 +289,4 @@ C:\Users\DELL\Documents\appstage\erp-main\obj\Debug\net6.0\scopedcss\bundle\App.
 C:\Users\DELL\Documents\appstage\erp-main\obj\Debug\net6.0\App.csproj.Up2Date
 C:\Users\DELL\Documents\appstage\erp-main\obj\Debug\net6.0\App.genruntimeconfig.cache
 C:\Users\DELL\Documents\appstage\erp-main\obj\Debug\net6.0\ref\App.dll
+C:\Users\DELL\Documents\appstage\erp-main\obj\Debug\net6.0\App.sourcelink.json

@@ -63,6 +63,7 @@ export class RegisterComponent implements OnInit {
   loadAvailableEmployees(): void {
     this.authService.getAvailableEmployees().subscribe({
       next: (employees: Employee[]) => {
+        console.log('Available employees loaded:', employees);
         this.availableEmployees = employees;
       },
       error: (error: any) => {

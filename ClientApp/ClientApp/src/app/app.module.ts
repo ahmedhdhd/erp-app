@@ -36,6 +36,12 @@ import { ClientFormComponent } from './components/client/client-form/client-form
 import { ClientDetailComponent } from './components/client/client-detail/client-detail.component';
 import { ClientStatisticsComponent } from './components/client/client-statistics/client-statistics.component';
 
+// Supplier Components
+import { SupplierListComponent } from './components/supplier/supplier-list/supplier-list.component';
+import { SupplierFormComponent } from './components/supplier/supplier-form/supplier-form.component';
+import { SupplierDetailComponent } from './components/supplier/supplier-detail/supplier-detail.component';
+import { SupplierStatisticsComponent } from './components/supplier/supplier-statistics/supplier-statistics.component';
+
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
 
@@ -73,6 +79,11 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     ClientFormComponent,
     ClientDetailComponent,
     ClientStatisticsComponent,
+    // Supplier Components
+    SupplierListComponent,
+    SupplierFormComponent,
+    SupplierDetailComponent,
+    SupplierStatisticsComponent,
     // Shared Components
     HeaderComponent
   ],

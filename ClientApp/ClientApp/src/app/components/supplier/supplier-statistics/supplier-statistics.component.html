@@ -1,0 +1,56 @@
+<div class="container-fluid" *ngIf="stats">
+  <div class="row mb-3">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <h2 class="mb-0">
+        <i class="fas fa-chart-bar"></i>
+        Statistiques Fournisseurs
+      </h2>
+      <a class="btn btn-outline-secondary" routerLink="/suppliers">
+        <i class="fas fa-arrow-left"></i>
+        Retour
+      </a>
+    </div>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card text-bg-light">
+        <div class="card-body">
+          <div class="h6">Total fournisseurs</div>
+          <div class="display-6">{{ stats.totalFournisseurs }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-light">
+        <div class="card-body">
+          <div class="h6">Note qualité moyenne</div>
+          <div class="display-6">{{ stats.noteQualiteMoyenne | number:'1.1-1' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-bg-light">
+        <div class="card-body">
+          <div class="h6">Délai moyen global</div>
+          <div class="display-6">{{ stats.delaiLivraisonMoyenGlobal }} j</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h4 class="mt-4">Fournisseurs par type</h4>
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let t of (stats.fournisseursParType | keyvalue)">
+      {{ t.key }}: {{ t.value }}
+    </li>
+  </ul>
+
+  <h4 class="mt-4">Fournisseurs par ville</h4>
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let v of (stats.fournisseursParVille | keyvalue)">
+      {{ v.key }}: {{ v.value }}
+    </li>
+  </ul>
+</div>
+
+

@@ -342,10 +342,18 @@ namespace App.Data.Implementations
         {
             try
             {
-                return await _context.Employes
+                var availableEmployees = await _context.Employes
                     .Where(e => !_context.Utilisateurs.Any(u => u.EmployeId == e.Id))
                     .OrderBy(e => e.Nom)
                     .ToListAsync();
+                
+                Console.WriteLine($"Found {availableEmployees.Count} available employees");
+                foreach (var emp in availableEmployees)
+                {
+                    Console.WriteLine($"Employee: {emp.Id} - {emp.Nom} {emp.Prenom}");
+                }
+                
+                return availableEmployees;
             }
             catch (Exception ex)
             {

@@ -31,6 +31,12 @@ import { ClientFormComponent } from './components/client/client-form/client-form
 import { ClientDetailComponent } from './components/client/client-detail/client-detail.component';
 import { ClientStatisticsComponent } from './components/client/client-statistics/client-statistics.component';
 
+// Supplier Components
+import { SupplierListComponent } from './components/supplier/supplier-list/supplier-list.component';
+import { SupplierFormComponent } from './components/supplier/supplier-form/supplier-form.component';
+import { SupplierDetailComponent } from './components/supplier/supplier-detail/supplier-detail.component';
+import { SupplierStatisticsComponent } from './components/supplier/supplier-statistics/supplier-statistics.component';
+
 const routes: Routes = [
   // Default route - redirect based on authentication
   {
@@ -197,6 +203,22 @@ const routes: Routes = [
         component: ClientFormComponent,
         data: { requiredRoles: ['Admin', 'Vendeur'] }
       }
+    ]
+  },
+
+  // Supplier Management routes
+  {
+    path: 'suppliers',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: SupplierListComponent },
+      { path: 'new', component: SupplierFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: 'create', redirectTo: 'new' },
+      { path: 'statistics', component: SupplierStatisticsComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: 'stats', redirectTo: 'statistics' },
+      { path: ':id', component: SupplierDetailComponent },
+      { path: ':id/view', redirectTo: ':id' },
+      { path: ':id/edit', component: SupplierFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } }
     ]
   },
 

@@ -66,6 +66,7 @@ export interface Employee {
   id: number;
   nom: string;
   prenom: string;
+  nomComplet: string;
   cin: string;
   poste: string;
   departement: string;
@@ -73,8 +74,20 @@ export interface Employee {
   telephone: string;
   salaireBase: number;
   prime: number;
+  salaireTotal: number;
   dateEmbauche: Date;
   statut: string;
+  hasUserAccount: boolean;
+  userRole: string;
+  dateCreation: Date;
+  dateModification: Date;
+}
+
+export interface EmployeeApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+  timestamp: Date;
 }
 
 // Authentication state interface for the service

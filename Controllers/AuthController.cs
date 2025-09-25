@@ -260,17 +260,61 @@ namespace App.Controllers
         /// <returns>Liste des employés disponibles</returns>
         [HttpGet("available-employees")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<List<Employe>>> GetAvailableEmployees()
+        public async Task<ActionResult<EmployeeApiResponse<List<EmployeeDTO>>>> GetAvailableEmployees()
         {
             try
             {
+                // Log user info for debugging
+                Console.WriteLine($"User authenticated: {User.Identity?.IsAuthenticated}");
+                Console.WriteLine($"User roles: {string.Join(", ", User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value))}");
+                
                 var employees = await _authService.GetAvailableEmployeesAsync();
-                return Ok(employees);
+                Console.WriteLine($"Returning {employees.Count} employees in API response");
+                
+                // Map Employe entities to EmployeeDTOs for proper JSON serialization
+                var employeeDTOs = employees.Select(e => new EmployeeDTO
+                {
+                    Id = e.Id,
+                    Nom = e.Nom,
+                    Prenom = e.Prenom,
+                    NomComplet = ($"{e.Prenom} {e.Nom}").Trim(),
+                    CIN = e.CIN,
+                    Poste = e.Poste,
+                    Departement = e.Departement,
+                    Email = e.Email,
+                    Telephone = e.Telephone,
+                    SalaireBase = e.SalaireBase,
+                    Prime = e.Prime,
+                    SalaireTotal = e.SalaireBase + e.Prime,
+                    DateEmbauche = e.DateEmbauche,
+                    Statut = e.Statut,
+                    HasUserAccount = e.Utilisateur != null,
+                    UserRole = e.Utilisateur?.Role.ToString() ?? null,
+                    DateCreation = e.DateEmbauche,
+                    DateModification = e.DateEmbauche
+                }).ToList();
+                
+                var response = new EmployeeApiResponse<List<EmployeeDTO>> 
+                { 
+                    Success = true, 
+                    Message = "OK", 
+                    Data = employeeDTOs, 
+                    Timestamp = DateTime.UtcNow 
+                };
+                
+                Console.WriteLine($"Response: Success={response.Success}, Message={response.Message}, DataCount={response.Data?.Count ?? 0}");
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la récupération des employés disponibles");
-                return StatusCode(500, "Une erreur interne est survenue");
+                return StatusCode(500, new EmployeeApiResponse<List<EmployeeDTO>> 
+                { 
+                    Success = false, 
+                    Message = "Une erreur interne est survenue", 
+                    Data = null, 
+                    Timestamp = DateTime.UtcNow 
+                });
             }
         }
 

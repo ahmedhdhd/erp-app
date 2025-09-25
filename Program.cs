@@ -29,12 +29,14 @@ builder.Services.AddScoped<IAuthDAO, AuthDAO>();
 builder.Services.AddScoped<IEmployeeDAO, EmployeeDAO>();
 builder.Services.AddScoped<IClientDAO, ClientDAO>();
 builder.Services.AddScoped<IProductDAO, ProductDAO>();
+builder.Services.AddScoped<IFournisseurDAO, FournisseurDAO>();
 
 // Register Services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<FournisseurService>();
 
 // Logging
 builder.Services.AddLogging();

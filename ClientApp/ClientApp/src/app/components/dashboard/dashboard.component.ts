@@ -41,4 +41,13 @@ export class DashboardComponent implements OnInit {
   navigateToProfile(): void {
     this.router.navigate(['/profile']);
   }
+
+  canManageSuppliers(): boolean {
+    const user = this.authService.getCurrentUser();
+    return user ? ['Admin', 'Acheteur'].includes(user.role) : false;
+  }
+
+  navigateToSuppliers(): void {
+    this.router.navigate(['/suppliers']);
+  }
 }

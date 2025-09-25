@@ -12,7 +12,8 @@ import {
   UserProfile, 
   Employee,
   AuthState,
-  ApiError 
+  ApiError,
+  EmployeeApiResponse
 } from '../models/auth.models';
 import { environment } from '../../environments/environment';
 
@@ -119,9 +120,12 @@ export class AuthService {
    * Get available employees for registration
    */
   getAvailableEmployees(): Observable<Employee[]> {
-    return this.http.get<Employee[]>(`${this.apiUrl}/available-employees`, {
+    return this.http.get<EmployeeApiResponse<Employee[]>>(`${this.apiUrl}/available-employees`, {
       headers: this.getAuthHeaders()
-    }).pipe(catchError(this.handleError));
+    }).pipe(
+      map(response => response.data || []),
+      catchError(this.handleError)
+    );
   }
 
   /**

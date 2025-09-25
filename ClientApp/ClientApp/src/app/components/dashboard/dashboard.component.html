@@ -68,6 +68,22 @@
         </div>
       </div>
     </div>
+    
+    <!-- Supplier Management Card -->
+    <div class="col-lg-4 col-md-6 mb-3" *ngIf="canManageSuppliers()">
+      <div class="card dashboard-card h-100" (click)="navigateToSuppliers()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-warning text-white mb-3">
+            <i class="fas fa-truck fa-2x"></i>
+          </div>
+          <h5 class="card-title">Supplier Management</h5>
+          <p class="card-text text-muted">Manage suppliers, contacts, and performance</p>
+          <div class="mt-auto">
+            <span class="btn btn-warning btn-sm">Access Module</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Recent Activity or System Status -->
