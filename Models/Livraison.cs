@@ -7,6 +7,7 @@ namespace App.Models
     {
         public int Id { get; set; }
         public int CommandeId { get; set; }
+        public CommandeVente Commande { get; set; } // Ajout de la navigation property
         public DateTime DateLivraison { get; set; }
         public string Statut { get; set; } // En préparation, Expédié, Livré, Partiel
         public string Transportateur { get; set; }

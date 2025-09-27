@@ -7,7 +7,9 @@ namespace App.Models
     {
         public int Id { get; set; }
         public int CommandeId { get; set; }
+        public CommandeVente Commande { get; set; } // Ajout de la navigation property
         public int ClientId { get; set; }
+        public Client Client { get; set; } // Ajout de la navigation property
         public DateTime DateFacture { get; set; } = DateTime.Now;
         public DateTime DateEcheance { get; set; }
         public string Statut { get; set; } // Brouillon, Envoyée, Payée, Partielle, En retard

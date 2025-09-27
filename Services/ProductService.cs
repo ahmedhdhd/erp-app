@@ -74,11 +74,16 @@ namespace App.Services
 
 		public async Task<ProductApiResponse<ProductDTO>> CreateAsync(CreateProductRequest request)
 		{
+			// Get the category name based on the category ID
+			var category = await _dao.GetCategoryByIdAsync(request.CategorieId);
+			var categoryName = category?.Nom ?? "Non classé";
+
 			var entity = new Produit
 			{
 				Reference = request.Reference,
 				Designation = request.Designation,
 				Description = request.Description,
+				Categorie = categoryName, // Set the category name
 				SousCategorie = request.SousCategorie,
 				PrixAchat = request.PrixAchat,
 				PrixVente = request.PrixVente,

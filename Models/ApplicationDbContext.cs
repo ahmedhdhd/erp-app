@@ -357,6 +357,49 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(a => a.UtilisateurId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Add navigation properties to the models
+        modelBuilder.Entity<Devis>()
+            .HasOne(d => d.Client)
+            .WithMany(c => c.Devis)
+            .HasForeignKey(d => d.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CommandeVente>()
+            .HasOne(cv => cv.Client)
+            .WithMany(c => c.CommandesVente)
+            .HasForeignKey(cv => cv.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<FactureVente>()
+            .HasOne(f => f.Client)
+            .WithMany(c => c.Factures)
+            .HasForeignKey(f => f.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RetourVente>()
+            .HasOne(r => r.Client)
+            .WithMany(c => c.Retours)
+            .HasForeignKey(r => r.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Livraison>()
+            .HasOne(l => l.Commande)
+            .WithMany(cv => cv.Livraisons)
+            .HasForeignKey(l => l.CommandeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<FactureVente>()
+            .HasOne(f => f.Commande)
+            .WithMany(cv => cv.Factures)
+            .HasForeignKey(f => f.CommandeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<RetourVente>()
+            .HasOne(r => r.Facture)
+            .WithMany(f => f.Retours)
+            .HasForeignKey(r => r.FactureId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure indexes
         modelBuilder.Entity<Client>().HasIndex(c => c.ICE).IsUnique();
         modelBuilder.Entity<Fournisseur>().HasIndex(f => f.ICE).IsUnique();

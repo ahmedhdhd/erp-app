@@ -4,6 +4,7 @@ using App.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250927143144_FixClientDevisRelationship")]
+    partial class FixClientDevisRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,6 +301,9 @@ namespace App.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ClientId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConditionsPaiement")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -327,7 +332,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("DevisId");
+                    b.HasIndex("ClientId1");
 
                     b.ToTable("CommandeVentes");
                 });
@@ -552,6 +557,9 @@ namespace App.Migrations
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ClientId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreation")
                         .HasColumnType("datetime2");
 
@@ -574,6 +582,8 @@ namespace App.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
+
+                    b.HasIndex("ClientId1");
 
                     b.ToTable("Devis");
                 });
@@ -1654,19 +1664,19 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.CommandeVente", b =>
                 {
-                    b.HasOne("App.Models.Client", "Client")
+                    b.HasOne("App.Models.Client", null)
                         .WithMany("CommandesVente")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Models.Devis", "Devis")
+                    b.HasOne("App.Models.Client", "Client")
                         .WithMany()
-                        .HasForeignKey("DevisId");
+                        .HasForeignKey("ClientId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Client");
-
-                    b.Navigation("Devis");
                 });
 
             modelBuilder.Entity("App.Models.ContactClient", b =>
@@ -1708,10 +1718,16 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.Devis", b =>
                 {
-                    b.HasOne("App.Models.Client", "Client")
+                    b.HasOne("App.Models.Client", null)
                         .WithMany("Devis")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId1")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Client");
@@ -1746,21 +1762,17 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.FactureVente", b =>
                 {
-                    b.HasOne("App.Models.Client", "Client")
+                    b.HasOne("App.Models.Client", null)
                         .WithMany("Factures")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Models.CommandeVente", "Commande")
+                    b.HasOne("App.Models.CommandeVente", null)
                         .WithMany("Factures")
                         .HasForeignKey("CommandeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Commande");
                 });
 
             modelBuilder.Entity("App.Models.Inventaire", b =>
@@ -1911,13 +1923,11 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.Livraison", b =>
                 {
-                    b.HasOne("App.Models.CommandeVente", "Commande")
+                    b.HasOne("App.Models.CommandeVente", null)
                         .WithMany("Livraisons")
                         .HasForeignKey("CommandeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Commande");
                 });
 
             modelBuilder.Entity("App.Models.MouvementStock", b =>
@@ -1997,21 +2007,17 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.RetourVente", b =>
                 {
-                    b.HasOne("App.Models.Client", "Client")
+                    b.HasOne("App.Models.Client", null)
                         .WithMany("Retours")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Models.FactureVente", "Facture")
+                    b.HasOne("App.Models.FactureVente", null)
                         .WithMany("Retours")
                         .HasForeignKey("FactureId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Facture");
                 });
 
             modelBuilder.Entity("App.Models.TransactionClient", b =>
