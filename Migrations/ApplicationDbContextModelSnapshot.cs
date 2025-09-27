@@ -598,6 +598,10 @@ namespace App.Migrations
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -617,6 +621,10 @@ namespace App.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Telephone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -834,6 +842,8 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
+                    b.HasIndex("ProduitId");
+
                     b.ToTable("LigneCommandeAchats");
                 });
 
@@ -892,6 +902,8 @@ namespace App.Migrations
 
                     b.HasIndex("DemandeId");
 
+                    b.HasIndex("ProduitId");
+
                     b.ToTable("LigneDemandeAchats");
                 });
 
@@ -936,13 +948,13 @@ namespace App.Migrations
                     b.Property<int>("FactureId")
                         .HasColumnType("int");
 
+                    b.Property<int>("LigneCommandeId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("PrixUnitaire")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ProduitId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantite")
+                    b.Property<int>("QuantiteFacturee")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalLigne")
@@ -951,6 +963,8 @@ namespace App.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FactureId");
+
+                    b.HasIndex("LigneCommandeId");
 
                     b.ToTable("LigneFactureAchats");
                 });
@@ -1017,6 +1031,13 @@ namespace App.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("LigneCommandeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MotifRejet")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ProduitId")
                         .HasColumnType("int");
 
@@ -1024,13 +1045,18 @@ namespace App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Quantite")
+                    b.Property<int>("QuantiteRecue")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantiteRejetee")
                         .HasColumnType("int");
 
                     b.Property<int>("ReceptionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LigneCommandeId");
 
                     b.HasIndex("ReceptionId");
 
@@ -1147,7 +1173,7 @@ namespace App.Migrations
                     b.Property<int>("FactureId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ModePaiement")
+                    b.Property<string>("MethodePaiement")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1155,6 +1181,10 @@ namespace App.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Statut")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1184,7 +1214,7 @@ namespace App.Migrations
                     b.Property<int>("FournisseurId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ModePaiement")
+                    b.Property<string>("MethodePaiement")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1192,6 +1222,10 @@ namespace App.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Statut")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -1602,11 +1636,13 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.CommandeAchat", b =>
                 {
-                    b.HasOne("App.Models.Fournisseur", null)
+                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
                         .WithMany("CommandesAchat")
                         .HasForeignKey("FournisseurId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Fournisseur");
                 });
 
             modelBuilder.Entity("App.Models.CommandeVente", b =>
@@ -1636,11 +1672,13 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.DemandeAchat", b =>
                 {
-                    b.HasOne("App.Models.Employe", null)
+                    b.HasOne("App.Models.Employe", "Employe")
                         .WithMany("DemandesAchat")
                         .HasForeignKey("EmployeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Employe");
                 });
 
             modelBuilder.Entity("App.Models.Department", b =>
@@ -1672,17 +1710,21 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.FactureAchat", b =>
                 {
-                    b.HasOne("App.Models.CommandeAchat", null)
+                    b.HasOne("App.Models.CommandeAchat", "Commande")
                         .WithMany("Factures")
                         .HasForeignKey("CommandeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Models.Fournisseur", null)
+                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
                         .WithMany("Factures")
                         .HasForeignKey("FournisseurId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Commande");
+
+                    b.Navigation("Fournisseur");
                 });
 
             modelBuilder.Entity("App.Models.FactureVente", b =>
@@ -1711,11 +1753,21 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.LigneCommandeAchat", b =>
                 {
-                    b.HasOne("App.Models.CommandeAchat", null)
+                    b.HasOne("App.Models.CommandeAchat", "Commande")
                         .WithMany("Lignes")
                         .HasForeignKey("CommandeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("App.Models.Produit", "Produit")
+                        .WithMany()
+                        .HasForeignKey("ProduitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Commande");
+
+                    b.Navigation("Produit");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeVente", b =>
@@ -1729,11 +1781,21 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.LigneDemandeAchat", b =>
                 {
-                    b.HasOne("App.Models.DemandeAchat", null)
+                    b.HasOne("App.Models.DemandeAchat", "Demande")
                         .WithMany("Lignes")
                         .HasForeignKey("DemandeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("App.Models.Produit", "Produit")
+                        .WithMany()
+                        .HasForeignKey("ProduitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Demande");
+
+                    b.Navigation("Produit");
                 });
 
             modelBuilder.Entity("App.Models.LigneDevis", b =>
@@ -1747,11 +1809,21 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.LigneFactureAchat", b =>
                 {
-                    b.HasOne("App.Models.FactureAchat", null)
+                    b.HasOne("App.Models.FactureAchat", "Facture")
                         .WithMany("Lignes")
                         .HasForeignKey("FactureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("App.Models.LigneCommandeAchat", "LigneCommande")
+                        .WithMany()
+                        .HasForeignKey("LigneCommandeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Facture");
+
+                    b.Navigation("LigneCommande");
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureVente", b =>
@@ -1774,11 +1846,21 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.LigneReception", b =>
                 {
-                    b.HasOne("App.Models.Reception", null)
+                    b.HasOne("App.Models.LigneCommandeAchat", "LigneCommande")
+                        .WithMany()
+                        .HasForeignKey("LigneCommandeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Reception", "Reception")
                         .WithMany("Lignes")
                         .HasForeignKey("ReceptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("LigneCommande");
+
+                    b.Navigation("Reception");
                 });
 
             modelBuilder.Entity("App.Models.LigneRetourVente", b =>
@@ -1810,32 +1892,40 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.PaiementClient", b =>
                 {
-                    b.HasOne("App.Models.Client", null)
+                    b.HasOne("App.Models.Client", "Client")
                         .WithMany("Paiements")
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("App.Models.FactureVente", null)
+                    b.HasOne("App.Models.FactureVente", "Facture")
                         .WithMany("Paiements")
                         .HasForeignKey("FactureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Facture");
                 });
 
             modelBuilder.Entity("App.Models.PaiementFournisseur", b =>
                 {
-                    b.HasOne("App.Models.FactureAchat", null)
+                    b.HasOne("App.Models.FactureAchat", "Facture")
                         .WithMany("Paiements")
                         .HasForeignKey("FactureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("App.Models.Fournisseur", null)
+                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
                         .WithMany("Paiements")
                         .HasForeignKey("FournisseurId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Facture");
+
+                    b.Navigation("Fournisseur");
                 });
 
             modelBuilder.Entity("App.Models.PerformanceFournisseur", b =>
@@ -1857,11 +1947,13 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.Reception", b =>
                 {
-                    b.HasOne("App.Models.CommandeAchat", null)
+                    b.HasOne("App.Models.CommandeAchat", "Commande")
                         .WithMany("Receptions")
                         .HasForeignKey("CommandeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Commande");
                 });
 
             modelBuilder.Entity("App.Models.RetourVente", b =>
@@ -1899,11 +1991,13 @@ namespace App.Migrations
 
             modelBuilder.Entity("App.Models.Utilisateur", b =>
                 {
-                    b.HasOne("App.Models.Employe", null)
+                    b.HasOne("App.Models.Employe", "Employe")
                         .WithOne("Utilisateur")
                         .HasForeignKey("App.Models.Utilisateur", "EmployeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Employe");
                 });
 
             modelBuilder.Entity("App.Models.VariantProduit", b =>

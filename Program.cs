@@ -30,6 +30,8 @@ builder.Services.AddScoped<IEmployeeDAO, EmployeeDAO>();
 builder.Services.AddScoped<IClientDAO, ClientDAO>();
 builder.Services.AddScoped<IProductDAO, ProductDAO>();
 builder.Services.AddScoped<IFournisseurDAO, FournisseurDAO>();
+builder.Services.AddScoped<ICommandeAchatDAO, CommandeAchatDAO>();
+builder.Services.AddScoped<ICommandeVenteDAO, CommandeVenteDAO>();
 
 // Register Services
 builder.Services.AddScoped<AuthService>();
@@ -37,6 +39,8 @@ builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ClientService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<FournisseurService>();
+builder.Services.AddScoped<CommandeAchatService>();
+builder.Services.AddScoped<CommandeVenteService>();
 
 // Logging
 builder.Services.AddLogging();

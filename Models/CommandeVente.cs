@@ -7,7 +7,8 @@ namespace App.Models
     {
         public int Id { get; set; }
         public int ClientId { get; set; }
-        public int DevisId { get; set; }
+        public Client Client { get; set; } // Ajout de la navigation property
+        public int? DevisId { get; set; }
         public DateTime DateCommande { get; set; } = DateTime.Now;
         public string Statut { get; set; } // Brouillon, Confirmé, Expédié, Livré, Annulé
         public decimal MontantHT { get; set; }

@@ -122,6 +122,20 @@ namespace App.Models.DTOs
 	{
 		public int Id { get; set; }
 	}
+
+	public class PaiementClientDTO
+	{
+		public int Id { get; set; }
+		public int FactureId { get; set; }
+		public FactureVenteDTO Facture { get; set; }
+		public int ClientId { get; set; }
+		public ClientDTO Client { get; set; }
+		public DateTime DatePaiement { get; set; }
+		public decimal Montant { get; set; }
+		public string MethodePaiement { get; set; }
+		public string Reference { get; set; }
+		public string Statut { get; set; }
+	}
 }
 
 

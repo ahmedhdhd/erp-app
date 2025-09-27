@@ -212,51 +212,142 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CommandeAchat>()
             .HasMany(ca => ca.Factures)
-            .WithOne()
+            .WithOne(f => f.Commande)
             .HasForeignKey(f => f.CommandeId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Fournisseur>()
             .HasMany(f => f.Factures)
-            .WithOne()
+            .WithOne(f => f.Fournisseur)
             .HasForeignKey(f => f.FournisseurId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<FactureAchat>()
             .HasMany(f => f.Lignes)
-            .WithOne()
+            .WithOne(l => l.Facture)
             .HasForeignKey(l => l.FactureId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // ========== 7. Gestion Financière ==========
         modelBuilder.Entity<FactureVente>()
             .HasMany(f => f.Paiements)
-            .WithOne()
+            .WithOne(p => p.Facture)
             .HasForeignKey(p => p.FactureId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Client>()
             .HasMany(c => c.Paiements)
-            .WithOne()
+            .WithOne(p => p.Client)
             .HasForeignKey(p => p.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<FactureAchat>()
             .HasMany(f => f.Paiements)
-            .WithOne()
+            .WithOne(p => p.Facture)
             .HasForeignKey(p => p.FactureId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Fournisseur>()
             .HasMany(f => f.Paiements)
-            .WithOne()
+            .WithOne(p => p.Fournisseur)
+            .HasForeignKey(p => p.FournisseurId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Additional configurations for Purchase Management
+        modelBuilder.Entity<DemandeAchat>()
+            .HasOne(da => da.Employe)
+            .WithMany(e => e.DemandesAchat)
+            .HasForeignKey(da => da.EmployeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<LigneDemandeAchat>()
+            .HasOne(l => l.Demande)
+            .WithMany(d => d.Lignes)
+            .HasForeignKey(l => l.DemandeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LigneDemandeAchat>()
+            .HasOne(l => l.Produit)
+            .WithMany()
+            .HasForeignKey(l => l.ProduitId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CommandeAchat>()
+            .HasOne(ca => ca.Fournisseur)
+            .WithMany(f => f.CommandesAchat)
+            .HasForeignKey(ca => ca.FournisseurId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<LigneCommandeAchat>()
+            .HasOne(l => l.Commande)
+            .WithMany(c => c.Lignes)
+            .HasForeignKey(l => l.CommandeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LigneCommandeAchat>()
+            .HasOne(l => l.Produit)
+            .WithMany()
+            .HasForeignKey(l => l.ProduitId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Reception>()
+            .HasOne(r => r.Commande)
+            .WithMany(c => c.Receptions)
+            .HasForeignKey(r => r.CommandeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LigneReception>()
+            .HasOne(l => l.Reception)
+            .WithMany(r => r.Lignes)
+            .HasForeignKey(l => l.ReceptionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LigneReception>()
+            .HasOne(l => l.LigneCommande)
+            .WithMany()
+            .HasForeignKey(l => l.LigneCommandeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<FactureAchat>()
+            .HasOne(f => f.Commande)
+            .WithMany(c => c.Factures)
+            .HasForeignKey(f => f.CommandeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<FactureAchat>()
+            .HasOne(f => f.Fournisseur)
+            .WithMany(f => f.Factures)
+            .HasForeignKey(f => f.FournisseurId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<LigneFactureAchat>()
+            .HasOne(l => l.Facture)
+            .WithMany(f => f.Lignes)
+            .HasForeignKey(l => l.FactureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<LigneFactureAchat>()
+            .HasOne(l => l.LigneCommande)
+            .WithMany()
+            .HasForeignKey(l => l.LigneCommandeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PaiementFournisseur>()
+            .HasOne(p => p.Facture)
+            .WithMany(f => f.Paiements)
+            .HasForeignKey(p => p.FactureId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PaiementFournisseur>()
+            .HasOne(p => p.Fournisseur)
+            .WithMany(f => f.Paiements)
             .HasForeignKey(p => p.FournisseurId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // ========== 8. Administration Système ==========
         modelBuilder.Entity<Employe>()
             .HasOne(e => e.Utilisateur)
-            .WithOne()
+            .WithOne(u => u.Employe)
             .HasForeignKey<Utilisateur>(u => u.EmployeId)
             .OnDelete(DeleteBehavior.Cascade);
 

@@ -1,0 +1,174 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <!-- Error message -->
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <!-- Loading indicator -->
+      <div class="text-center py-4" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Purchase Order Detail -->
+      <div class="card" *ngIf="purchaseOrder && !loading">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="fas fa-file-invoice me-2"></i>
+            Purchase Order #{{ purchaseOrder.id }}
+          </h4>
+          <div>
+            <span [ngClass]="getStatusClass(purchaseOrder.statut)" class="me-2">
+              {{ purchaseOrder.statut }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Supplier Information</h5>
+              <p><strong>Company:</strong> {{ purchaseOrder.fournisseur.raisonSociale }}</p>
+              <p><strong>ICE:</strong> {{ purchaseOrder.fournisseur.ice }}</p>
+            </div>
+            <div class="col-md-6">
+              <h5>Order Information</h5>
+              <p><strong>Order Date:</strong> {{ purchaseOrder.dateCommande | date:'short' }}</p>
+              <p><strong>Expected Delivery:</strong> {{ purchaseOrder.dateLivraisonPrevue | date:'short' }}</p>
+            </div>
+          </div>
+
+          <hr>
+
+          <h5>Order Lines</h5>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th>Reference</th>
+                  <th class="text-end">Quantity</th>
+                  <th class="text-end">Unit Price</th>
+                  <th class="text-end">VAT Rate</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of purchaseOrder.lignes">
+                  <td>{{ line.produit.designation }}</td>
+                  <td>{{ line.produit.reference }}</td>
+                  <td class="text-end">{{ line.quantite }}</td>
+                  <td class="text-end">{{ line.prixUnitaire | currency:'EUR' }}</td>
+                  <td class="text-end">{{ line.produit.tauxTVA }}%</td>
+                  <td class="text-end">{{ line.totalLigne | currency:'EUR' }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="5" class="text-end">Total HT:</th>
+                  <th class="text-end">{{ purchaseOrder.montantHT | currency:'EUR' }}</th>
+                </tr>
+                <tr>
+                  <th colspan="5" class="text-end">VAT:</th>
+                  <th class="text-end">{{ (purchaseOrder.montantTTC - purchaseOrder.montantHT) | currency:'EUR' }}</th>
+                </tr>
+                <tr>
+                  <th colspan="5" class="text-end">Total TTC:</th>
+                  <th class="text-end">{{ purchaseOrder.montantTTC | currency:'EUR' }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <hr>
+
+          <h5>Receptions</h5>
+          <div class="table-responsive" *ngIf="purchaseOrder.receptions.length > 0">
+            <table class="table table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Lines</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let reception of purchaseOrder.receptions">
+                  <td>{{ reception.dateReception | date:'short' }}</td>
+                  <td>{{ reception.lignes.length }} lines</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p *ngIf="purchaseOrder.receptions.length === 0" class="text-muted">
+            No receptions recorded yet.
+          </p>
+
+          <hr>
+
+          <h5>Invoices</h5>
+          <div class="table-responsive" *ngIf="purchaseOrder.factures.length > 0">
+            <table class="table table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th>Date</th>
+                  <th>Due Date</th>
+                  <th class="text-end">Amount HT</th>
+                  <th class="text-end">Amount TTC</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let invoice of purchaseOrder.factures">
+                  <td>{{ invoice.dateFacture | date:'short' }}</td>
+                  <td>{{ invoice.dateEcheance | date:'short' }}</td>
+                  <td class="text-end">{{ invoice.montantHT | currency:'EUR' }}</td>
+                  <td class="text-end">{{ invoice.montantTTC | currency:'EUR' }}</td>
+                  <td>
+                    <span [ngClass]="getStatusClass(invoice.statut)">
+                      {{ invoice.statut }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p *ngIf="purchaseOrder.factures.length === 0" class="text-muted">
+            No invoices recorded yet.
+          </p>
+        </div>
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" (click)="goToList()">
+              <i class="fas fa-arrow-left me-1"></i>
+              Back to List
+            </button>
+            <div>
+              <button class="btn btn-warning me-2" (click)="editPurchaseOrder()" 
+                      *ngIf="purchaseOrder.statut === 'Brouillon'">
+                <i class="fas fa-edit me-1"></i>
+                Edit
+              </button>
+              <button class="btn btn-success me-2" (click)="submitPurchaseOrder()" 
+                      *ngIf="purchaseOrder.statut === 'Brouillon'">
+                <i class="fas fa-paper-plane me-1"></i>
+                Submit
+              </button>
+              <button class="btn btn-info me-2" (click)="receiveGoods()" 
+                      *ngIf="canReceiveGoods()">
+                <i class="fas fa-truck me-1"></i>
+                Receive Goods
+              </button>
+              <button class="btn btn-danger" (click)="deletePurchaseOrder()" 
+                      *ngIf="purchaseOrder.statut === 'Brouillon'">
+                <i class="fas fa-trash me-1"></i>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

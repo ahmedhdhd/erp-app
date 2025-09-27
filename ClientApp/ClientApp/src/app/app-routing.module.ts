@@ -37,6 +37,20 @@ import { SupplierFormComponent } from './components/supplier/supplier-form/suppl
 import { SupplierDetailComponent } from './components/supplier/supplier-detail/supplier-detail.component';
 import { SupplierStatisticsComponent } from './components/supplier/supplier-statistics/supplier-statistics.component';
 
+// Purchase Management Components
+import { PurchaseOrderListComponent } from './components/purchase-management/purchase-order-list/purchase-order-list.component';
+import { PurchaseOrderFormComponent } from './components/purchase-management/purchase-order-form/purchase-order-form.component';
+import { PurchaseOrderDetailComponent } from './components/purchase-management/purchase-order-detail/purchase-order-detail.component';
+import { GoodsReceiptComponent } from './components/purchase-management/goods-receipt/goods-receipt.component';
+import { GoodsReceiptListComponent } from './components/purchase-management/goods-receipt-list/goods-receipt-list.component';
+
+// Sales Management Components
+import { SalesComponent } from './components/sales/sales.component';
+import { QuoteListComponent } from './components/sales/quote-list/quote-list.component';
+import { QuoteFormComponent } from './components/sales/quote-form/quote-form.component';
+import { OrderListComponent } from './components/sales/order-list/order-list.component';
+import { OrderFormComponent } from './components/sales/order-form/order-form.component';
+
 const routes: Routes = [
   // Default route - redirect based on authentication
   {
@@ -219,6 +233,39 @@ const routes: Routes = [
       { path: ':id', component: SupplierDetailComponent },
       { path: ':id/view', redirectTo: ':id' },
       { path: ':id/edit', component: SupplierFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } }
+    ]
+  },
+
+  // Purchase Management routes
+  {
+    path: 'purchase-orders',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: PurchaseOrderListComponent },
+      { path: 'new', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: ':id', component: PurchaseOrderDetailComponent },
+      { path: ':id/edit', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: ':id/receive', component: GoodsReceiptComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
+      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } }
+    ]
+  },
+
+  // Sales Management routes
+  {
+    path: 'sales',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: SalesComponent },
+      // Quotes
+      { path: 'quotes', component: QuoteListComponent },
+      { path: 'quotes/new', component: QuoteFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
+      { path: 'quotes/edit/:id', component: QuoteFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
+      { path: 'quotes/:id', component: QuoteListComponent },
+      // Orders
+      { path: 'orders', component: OrderListComponent },
+      { path: 'orders/new', component: OrderFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
+      { path: 'orders/edit/:id', component: OrderFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
+      { path: 'orders/:id', component: OrderListComponent }
     ]
   },
 

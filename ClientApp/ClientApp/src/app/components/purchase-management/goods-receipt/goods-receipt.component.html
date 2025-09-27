@@ -1,0 +1,108 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2>Réception des marchandises</h2>
+      
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success" role="alert">
+        {{ successMessage }}
+      </div>
+
+      <div *ngIf="purchaseOrder && !loading">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>Informations de la commande #{{ purchaseOrder.id }}</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Fournisseur:</strong> {{ purchaseOrder.fournisseur.raisonSociale }}</p>
+                <p><strong>Date de commande:</strong> {{ purchaseOrder.dateCommande | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Statut:</strong> 
+                  <span class="badge" [ngClass]="{
+                    'bg-secondary': purchaseOrder.statut === 'Brouillon',
+                    'bg-primary': purchaseOrder.statut === 'Envoyée',
+                    'bg-warning': purchaseOrder.statut === 'Partielle',
+                    'bg-success': purchaseOrder.statut === 'Livrée',
+                    'bg-danger': purchaseOrder.statut === 'Annulée'
+                  }">
+                    {{ purchaseOrder.statut }}
+                  </span>
+                </p>
+                <p><strong>Date de livraison prévue:</strong> {{ purchaseOrder.dateLivraisonPrevue | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="receiptForm" (ngSubmit)="onSubmit()">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5>Détails de la réception</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="dateReception" class="form-label">Date de réception</label>
+                <input type="date" class="form-control" id="dateReception" formControlName="dateReception" required>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Produit</th>
+                      <th>Référence</th>
+                      <th>Quantité commandée</th>
+                      <th>Quantité reçue</th>
+                      <th>Quantité rejetée</th>
+                      <th>Motif du rejet</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="lignes">
+                    <tr *ngFor="let ligne of lignes.controls; let i = index" [formGroupName]="i">
+                      <td>{{ purchaseOrder.lignes[i].produit.designation }}</td>
+                      <td>{{ purchaseOrder.lignes[i].produit.reference }}</td>
+                      <td class="text-end">{{ purchaseOrder.lignes[i].quantite }}</td>
+                      <td>
+                        <input type="number" class="form-control" formControlName="quantiteRecue" 
+                               (input)="onQuantityChange(i)" min="0" [max]="purchaseOrder.lignes[i].quantite">
+                      </td>
+                      <td>
+                        <input type="number" class="form-control" formControlName="quantiteRejetee" 
+                               (input)="onRejectQuantityChange(i)" min="0" [max]="purchaseOrder.lignes[i].quantite">
+                      </td>
+                      <td>
+                        <input type="text" class="form-control" formControlName="motifRejet" placeholder="Motif du rejet">
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" (click)="onCancel()">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="receiptForm.invalid || loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Enregistrer la réception
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

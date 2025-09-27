@@ -1,0 +1,50 @@
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.875em;
+}
+
+.form-control {
+  border-radius: 0.375rem;
+}
+
+.btn {
+  border-radius: 0.375rem;
+}
+
+.alert {
+  border-radius: 0.375rem;
+}
+
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+}
+
+.pagination {
+  margin-top: 1rem;
+}
+
+.page-link {
+  border-radius: 0.375rem;
+}
+
+.page-item.disabled .page-link {
+  color: #6c757d;
+  pointer-events: none;
+  background-color: #fff;
+  border-color: #dee2e6;
+}

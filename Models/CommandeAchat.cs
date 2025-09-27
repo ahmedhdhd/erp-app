@@ -7,7 +7,8 @@ namespace App.Models
     {
         public int Id { get; set; }
         public int FournisseurId { get; set; }
-        public int DemandeId { get; set; }
+        public Fournisseur Fournisseur { get; set; } // Ajout de la navigation property
+        public int? DemandeId { get; set; }
         public DateTime DateCommande { get; set; } = DateTime.Now;
         public DateTime DateLivraisonPrevue { get; set; }
         public string Statut { get; set; } // Brouillon, Envoyée, Partielle, Livrée, Annulée

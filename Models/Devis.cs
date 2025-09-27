@@ -7,6 +7,7 @@ namespace App.Models
     {
         public int Id { get; set; }
         public int ClientId { get; set; }
+        public Client Client { get; set; } // Ajout de la navigation property
         public DateTime DateCreation { get; set; } = DateTime.Now;
         public DateTime DateExpiration { get; set; }
         public string Statut { get; set; } // Brouillon, Envoyé, Accepté, Rejeté
