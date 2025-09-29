@@ -82,6 +82,7 @@ html, body {
   max-height: 400px;
   overflow-y: auto;
   display: none; /* Hidden by default */
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
 /* Show dropdown when active */

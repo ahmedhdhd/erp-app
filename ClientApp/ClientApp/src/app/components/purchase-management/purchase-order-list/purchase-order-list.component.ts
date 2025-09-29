@@ -54,6 +54,13 @@ export class PurchaseOrderListComponent implements OnInit {
     this.loadPurchaseOrders();
   }
 
+  onPageSizeChange(event: any): void {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = parseInt(target.value);
+    this.page = 1;
+    this.loadPurchaseOrders();
+  }
+
   viewPurchaseOrder(id: number): void {
     this.router.navigate(['/purchase-orders', id]);
   }

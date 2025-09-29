@@ -26,6 +26,13 @@ export class SupplierListComponent implements OnInit {
   totalPages = 1;
   pages: number[] = [];
 
+  // Selection
+  selectedSuppliers: number[] = [];
+  selectAll = false;
+
+  // Expose Math to template
+  Math = Math;
+
   constructor(private supplierService: SupplierService, private fb: FormBuilder) {}
 
   ngOnInit(): void {
@@ -134,6 +141,28 @@ export class SupplierListComponent implements OnInit {
       }
     });
   }
+
+  // Selection methods
+  toggleSelectAll(): void {
+    this.selectAll = !this.selectAll;
+    if (this.selectAll) {
+      this.selectedSuppliers = this.suppliers.map(supplier => supplier.id);
+    } else {
+      this.selectedSuppliers = [];
+    }
+  }
+
+  toggleSupplierSelection(supplierId: number): void {
+    const index = this.selectedSuppliers.indexOf(supplierId);
+    if (index > -1) {
+      this.selectedSuppliers.splice(index, 1);
+    } else {
+      this.selectedSuppliers.push(supplierId);
+    }
+    this.selectAll = this.selectedSuppliers.length === this.suppliers.length;
+  }
+
+  isSupplierSelected(supplierId: number): boolean {
+    return this.selectedSuppliers.includes(supplierId);
+  }
 }
-
-

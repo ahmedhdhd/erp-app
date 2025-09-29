@@ -267,6 +267,27 @@ calculateTTCPrice(lineGroup: FormGroup): void {
   lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
 }
 
+  // Calculation methods for order summary
+  calculateSubtotal(): number {
+    let subtotal = 0;
+    for (let i = 0; i < this.lignes.length; i++) {
+      const line = this.lignes.at(i);
+      const quantity = line.get('quantite')?.value || 0;
+      const prixHT = line.get('prixUnitaireHT')?.value || 0;
+      subtotal += quantity * prixHT;
+    }
+    return subtotal;
+  }
+
+  calculateTotal(): number {
+    return this.calculateSubtotal();
+  }
+
+  calculateTotalWithVAT(): number {
+    const totalHT = this.calculateTotal();
+    return totalHT * 1.2; // 20% VAT
+  }
+
   onSubmit(): void {
     if (this.purchaseOrderForm.valid) {
       this.loading = true;

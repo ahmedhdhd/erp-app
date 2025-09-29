@@ -1,165 +1,286 @@
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">{{ isEditMode ? 'Modifier la Commande d\'Achat' : 'Créer une Nouvelle Commande d\'Achat' }}</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard" class="text-decoration-none">Tableau de bord</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a routerLink="/purchase-orders" class="text-decoration-none">Commandes d'Achat</a>
+          </li>
+          <li class="breadcrumb-item active">{{ isEditMode ? 'Modifier' : 'Créer' }}</li>
+        </ol>
+      </nav>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" (click)="onCancel()">
+      <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2 text-muted">Chargement des données de la commande...</p>
+  </div>
+
+  <!-- Purchase Order Form -->
+  <div *ngIf="!loading" class="row">
+    <div class="col-lg-12">
+      <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">
+          <h5 class="mb-0">
             <i class="fas fa-file-invoice me-2"></i>
-            {{ isEditMode ? 'Edit Purchase Order' : 'Create Purchase Order' }}
-          </h4>
+            Informations de la Commande d'Achat
+          </h5>
         </div>
         <div class="card-body">
-          <!-- Success message -->
-          <div class="alert alert-success" *ngIf="successMessage">
-            {{ successMessage }}
+          <!-- Alert Messages -->
+          <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+            <button type="button" class="btn-close" (click)="error = null"></button>
           </div>
 
-          <!-- Error message -->
-          <div class="alert alert-danger" *ngIf="error">
-            {{ error }}
-          </div>
-
-          <!-- Loading indicator -->
-          <div class="text-center py-4" *ngIf="loading">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = null"></button>
           </div>
 
           <!-- Form -->
-          <form [formGroup]="purchaseOrderForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="fournisseurId" class="form-label">Supplier *</label>
-                  <select class="form-select" id="fournisseurId" formControlName="fournisseurId" 
-                          [class.is-invalid]="purchaseOrderForm.get('fournisseurId')?.invalid && purchaseOrderForm.get('fournisseurId')?.touched">
-                    <option value="">Select a supplier</option>
+          <form [formGroup]="purchaseOrderForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Order Information Section -->
+            <div class="form-section">
+              <h6 class="section-title">
+                <i class="fas fa-info-circle me-2"></i>Informations Générales
+              </h6>
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="fournisseurId" class="form-label required">Fournisseur *</label>
+                  <select
+                    id="fournisseurId"
+                    class="form-select"
+                    [class.is-invalid]="purchaseOrderForm.get('fournisseurId')?.invalid && purchaseOrderForm.get('fournisseurId')?.touched"
+                    formControlName="fournisseurId">
+                    <option value="">Sélectionner un fournisseur</option>
                     <option *ngFor="let supplier of suppliers" [value]="supplier.id">
                       {{ supplier.raisonSociale }}
                     </option>
                   </select>
-                  <div class="invalid-feedback" *ngIf="purchaseOrderForm.get('fournisseurId')?.invalid && purchaseOrderForm.get('fournisseurId')?.touched">
-                    Supplier is required
+                  <div *ngIf="purchaseOrderForm.get('fournisseurId')?.invalid && purchaseOrderForm.get('fournisseurId')?.touched" class="invalid-feedback">
+                    Le fournisseur est requis
                   </div>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label for="dateLivraisonPrevue" class="form-label">Expected Delivery Date *</label>
-                  <input type="date" class="form-control" id="dateLivraisonPrevue" formControlName="dateLivraisonPrevue"
-                         [class.is-invalid]="purchaseOrderForm.get('dateLivraisonPrevue')?.invalid && purchaseOrderForm.get('dateLivraisonPrevue')?.touched">
-                  <div class="invalid-feedback" *ngIf="purchaseOrderForm.get('dateLivraisonPrevue')?.invalid && purchaseOrderForm.get('dateLivraisonPrevue')?.touched">
-                    Expected delivery date is required
+
+                <div class="col-md-6 mb-3">
+                  <label for="dateLivraisonPrevue" class="form-label required">Date de livraison prévue *</label>
+                  <input
+                    type="date"
+                    id="dateLivraisonPrevue"
+                    class="form-control"
+                    [class.is-invalid]="purchaseOrderForm.get('dateLivraisonPrevue')?.invalid && purchaseOrderForm.get('dateLivraisonPrevue')?.touched"
+                    formControlName="dateLivraisonPrevue">
+                  <div *ngIf="purchaseOrderForm.get('dateLivraisonPrevue')?.invalid && purchaseOrderForm.get('dateLivraisonPrevue')?.touched" class="invalid-feedback">
+                    La date de livraison prévue est requise
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Purchase Order Lines -->
-            <div class="card mb-4">
-              <div class="card-header bg-light">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">Order Lines</h5>
-                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addLine()">
-                    <i class="fas fa-plus me-1"></i>
-                    Add Line
-                  </button>
+            <!-- Order Lines Section -->
+            <div class="form-section">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="section-title mb-0">
+                  <i class="fas fa-list me-2"></i>Lignes de la Commande
+                </h6>
+                <button type="button" class="btn btn-success btn-sm" (click)="addLine()">
+                  <i class="fas fa-plus me-1"></i>Ajouter une ligne
+                </button>
+              </div>
+
+              <div formArrayName="lignes">
+                <div *ngFor="let line of lignes.controls; let i = index" [formGroupName]="i" class="card mb-3">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-md-4 mb-3">
+                        <label [for]="'produitId' + i" class="form-label required">Produit *</label>
+                        <!-- Searchable product input -->
+                        <div class="position-relative">
+                          <input 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="Rechercher un produit..."
+                            [value]="getProductDisplayName(line.get('produitId')?.value)"
+                            (input)="onProductSearch($event, i)"
+                            (focus)="showProductDropdown(i)"
+                            (blur)="hideProductDropdown(i, $event)"
+                            [class.is-invalid]="line.get('produitId')?.invalid && line.get('produitId')?.touched">
+                          <!-- Product dropdown -->
+                          <div class="dropdown-menu product-dropdown" 
+                               [class.show]="showProductDropdownForIndex === i"
+                               [style.width]="'100%'"
+                               [style.max-height]="'250px'"
+                               [style.overflow-y]="'auto'"
+                               [style.z-index]="'1050'">
+                            <a class="dropdown-item" 
+                               *ngFor="let product of filteredProducts[i] || []" 
+                               (mousedown)="selectProduct(i, product)"
+                               href="javascript:void(0)">
+                              <div>
+                                <strong>{{ product.reference }}</strong> - {{ product.designation }}
+                              </div>
+                              <small class="text-muted">
+                                Prix Achat HT: {{ product.prixAchatHT | currency:'EUR':'symbol':'1.2-3' }} | 
+                                TVA: {{ product.tauxTVA }}%
+                              </small>
+                            </a>
+                            <div class="dropdown-item disabled" *ngIf="!(filteredProducts[i] || []).length">
+                              Aucun produit trouvé
+                            </div>
+                          </div>
+                        </div>
+                        <input type="hidden" formControlName="produitId">
+                        <div *ngIf="line.get('produitId')?.invalid && line.get('produitId')?.touched" class="invalid-feedback">
+                          Le produit est requis
+                        </div>
+                      </div>
+
+                      <div class="col-md-1 mb-3">
+                        <label [for]="'quantite' + i" class="form-label required">Quantité *</label>
+                        <input
+                          type="number"
+                          [id]="'quantite' + i"
+                          class="form-control"
+                          [class.is-invalid]="line.get('quantite')?.invalid && line.get('quantite')?.touched"
+                          formControlName="quantite"
+                          min="1">
+                        <div *ngIf="line.get('quantite')?.invalid && line.get('quantite')?.touched" class="invalid-feedback">
+                          La quantité doit être au moins 1
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 mb-3">
+                        <label [for]="'prixUnitaireHT' + i" class="form-label required">Prix Achat HT *</label>
+                        <div class="input-group">
+                          <span class="input-group-text">€</span>
+                          <input
+                            type="number"
+                            [id]="'prixUnitaireHT' + i"
+                            class="form-control"
+                            [class.is-invalid]="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched"
+                            formControlName="prixUnitaireHT"
+                            min="0"
+                            step="0.001">
+                        </div>
+                        <div *ngIf="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched" class="invalid-feedback">
+                          Le prix d'achat HT doit être 0 ou supérieur
+                        </div>
+                      </div>
+
+                      <div class="col-md-1 mb-3">
+                        <label [for]="'tauxTVA' + i" class="form-label">TVA %</label>
+                        <input
+                          type="number"
+                          [id]="'tauxTVA' + i"
+                          class="form-control"
+                          formControlName="tauxTVA"
+                          min="0"
+                          max="100"
+                          step="0.1">
+                      </div>
+
+                      <div class="col-md-2 mb-3">
+                        <label [for]="'prixUnitaireTTC' + i" class="form-label">Prix Achat TTC</label>
+                        <div class="input-group">
+                          <span class="input-group-text">€</span>
+                          <input
+                            type="number"
+                            [id]="'prixUnitaireTTC' + i"
+                            class="form-control"
+                            formControlName="prixUnitaireTTC"
+                            readonly>
+                        </div>
+                      </div>
+
+                      <div class="col-md-2 mb-3">
+                        <label class="form-label">Total TTC</label>
+                        <div class="input-group">
+                          <span class="input-group-text">€</span>
+                          <input
+                            type="number"
+                            class="form-control"
+                            [value]="getLineTotalTTC(line)"
+                            readonly>
+                        </div>
+                      </div>
+
+                      <div class="col-md-1 mb-3 d-flex align-items-end">
+                        <button 
+                          type="button" 
+                          class="btn btn-outline-danger" 
+                          (click)="removeLine(i)"
+                          [disabled]="lignes.length <= 1">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="card-body">
-                <div formArrayName="lignes">
-                  <div class="row mb-3 align-items-end" *ngFor="let line of lignes.controls; let i = index" [formGroupName]="i">
-                   <div class="col-md-4">
-  <label class="form-label">Product *</label>
-  <!-- Searchable product input -->
-  <div class="position-relative">
-    <input 
-      type="text" 
-      class="form-control" 
-      placeholder="Search product..."
-      [value]="getProductDisplayName(line.get('produitId')?.value)"
-      (input)="onProductSearch($event, i)"
-      (focus)="showProductDropdown(i)"
-      (blur)="hideProductDropdown(i, $event)"
-      [class.is-invalid]="line.get('produitId')?.invalid && line.get('produitId')?.touched">
-    <!-- Product dropdown -->
-    <div class="dropdown-menu product-dropdown" 
-         [class.show]="showProductDropdownForIndex === i"
-         [style.width]="'100%'"
-         [style.max-height]="'200px'"
-         [style.overflow-y]="'auto'">
-      <a class="dropdown-item" 
-         *ngFor="let product of filteredProducts[i] || []" 
-         (mousedown)="selectProduct(i, product)"
-         href="javascript:void(0)">
-        <div>
-          <strong>{{ product.reference }}</strong> - {{ product.designation }}
-        </div>
-        <small class="text-muted">
-          Prix HT: {{ product.prixAchatHT | currency:'EUR':'symbol':'1.2-3' }} | 
-          TVA: {{ product.tauxTVA }}%
-        </small>
-      </a>
-      <div class="dropdown-item disabled" *ngIf="!(filteredProducts[i] || []).length">
-        No products found
-      </div>
-    </div>
-  </div>
-  <input type="hidden" formControlName="produitId">
-  <div class="invalid-feedback" *ngIf="line.get('produitId')?.invalid && line.get('produitId')?.touched">
-    Product is required
-  </div>
-</div>
-                    <div class="col-md-1">
-                      <label class="form-label">Quantity *</label>
-                      <input type="number" class="form-control" formControlName="quantite" min="1"
-                             [class.is-invalid]="line.get('quantite')?.invalid && line.get('quantite')?.touched">
-                      <div class="invalid-feedback" *ngIf="line.get('quantite')?.invalid && line.get('quantite')?.touched">
-                        Quantity must be at least 1
-                      </div>
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label">Prix Achat HT *</label>
-                      <input type="number" class="form-control" formControlName="prixUnitaireHT" step="0.001" min="0"
-                             [class.is-invalid]="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched">
-                      <div class="invalid-feedback" *ngIf="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched">
-                        Prix Achat HT must be 0 or greater
-                      </div>
-                    </div>
-                    <div class="col-md-1">
-                      <label class="form-label">TVA %</label>
-                      <input type="number" class="form-control" formControlName="tauxTVA" step="0.1" min="0" max="100">
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label">Prix Achat TTC</label>
-                      <input type="number" class="form-control" formControlName="prixUnitaireTTC" step="0.001" min="0" readonly>
-                    </div>
-                    <div class="col-md-2">
-                      <label class="form-label">Total TTC</label>
-                      <input type="number" class="form-control" [value]="getLineTotalTTC(line)" readonly>
-                    </div>
-                    <div class="col-md-1">
-                      <button type="button" class="btn btn-outline-danger" (click)="removeLine(i)" 
-                              [disabled]="lignes.length <= 1">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="form-section">
+              <h6 class="section-title">
+                <i class="fas fa-calculator me-2"></i>Récapitulatif
+              </h6>
+
+              <div class="row">
+                <div class="col-md-6 offset-md-6">
+                  <div class="table-responsive">
+                    <table class="table table-bordered">
+                      <tbody>
+                        <tr>
+                          <td class="fw-bold">Sous-total HT:</td>
+                          <td class="text-end">{{ calculateSubtotal() | number:'1.3-3' }} €</td>
+                        </tr>
+                        <tr class="table-primary">
+                          <td class="fw-bold">Total HT:</td>
+                          <td class="text-end fw-bold">{{ calculateTotal() | number:'1.3-3' }} €</td>
+                        </tr>
+                        <tr class="table-success">
+                          <td class="fw-bold">Total TTC (20% TVA):</td>
+                          <td class="text-end fw-bold">{{ calculateTotalWithVAT() | number:'1.3-3' }} €</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="d-flex justify-content-between">
-              <button type="button" class="btn btn-secondary" (click)="onCancel()">
-                <i class="fas fa-arrow-left me-1"></i>
-                Cancel
-              </button>
-              <button type="submit" class="btn btn-primary" [disabled]="purchaseOrderForm.invalid">
-                <i class="fas fa-save me-1"></i>
-                {{ isEditMode ? 'Update Purchase Order' : 'Create Purchase Order' }}
-              </button>
+            <div class="form-actions">
+              <hr>
+              <div class="d-flex justify-content-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="onCancel()">
+                  <i class="fas fa-times me-2"></i>Annuler
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="purchaseOrderForm.invalid">
+                  <i class="fas fa-save me-2"></i>
+                  {{ isEditMode ? 'Mettre à jour' : 'Créer la commande' }}
+                </button>
+              </div>
             </div>
           </form>
         </div>
