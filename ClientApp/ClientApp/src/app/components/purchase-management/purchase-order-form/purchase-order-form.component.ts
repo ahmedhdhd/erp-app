@@ -110,6 +110,16 @@ export class PurchaseOrderFormComponent implements OnInit {
         newFilteredProducts[newIndex] = this.filteredProducts[oldIndex];
       });
       this.filteredProducts = newFilteredProducts;
+      
+      // Refresh filtered products for remaining lines
+      this.refreshFilteredProducts();
+    } else {
+      // If it's the last line, just reset it
+      const lineGroup = this.createLineFormGroup();
+      this.lignes.setControl(0, lineGroup);
+      
+      // Refresh filtered products
+      this.refreshFilteredProducts();
     }
   }
 
@@ -164,13 +174,25 @@ export class PurchaseOrderFormComponent implements OnInit {
           // Add lines from the order
           order.lignes.forEach(line => {
             const lineGroup = this.createLineFormGroup();
+            // Since the backend DTO has separate HT/TTC fields but frontend now has separate fields too,
+            // we'll use the correct fields
+            const prixHT = line.prixUnitaireHT;
+            const tauxTVA = line.tauxTVA || line.produit?.tauxTVA || 20; // Default to 20% if not available
+            const prixTTC = line.prixUnitaireTTC || prixHT * (1 + tauxTVA / 100);
+            
             lineGroup.patchValue({
               produitId: line.produitId,
               quantite: line.quantite,
-              prixUnitaireHT: line.prixUnitaire,
-              tauxTVA: 20, // Default VAT rate
-              prixUnitaireTTC: line.prixUnitaire * 1.2
+              prixUnitaireHT: prixHT,
+              tauxTVA: tauxTVA,
+              prixUnitaireTTC: prixTTC
             });
+            
+            // Trigger TTC calculation to ensure it's properly updated
+            setTimeout(() => {
+              this.calculateTTCPrice(lineGroup);
+            }, 0);
+            
             this.lignes.push(lineGroup);
           });
         }
@@ -191,24 +213,48 @@ export class PurchaseOrderFormComponent implements OnInit {
     return product ? `${product.reference} - ${product.designation}` : '';
   }
 
+  // Get selected product IDs from all lines except the current one
+  getSelectedProductIds(excludeIndex: number): number[] {
+    const selectedIds: number[] = [];
+    this.lignes.controls.forEach((line, index) => {
+      if (index !== excludeIndex) {
+        const produitId = line.get('produitId')?.value;
+        if (produitId) {
+          selectedIds.push(produitId);
+        }
+      }
+    });
+    return selectedIds;
+  }
+
   onProductSearch(event: any, index: number): void {
     const searchTerm = event.target.value.toLowerCase();
+    const selectedProductIds = this.getSelectedProductIds(index);
+    
     if (searchTerm.length > 0) {
       this.filteredProducts[index] = this.products.filter(product => 
-        product.reference.toLowerCase().includes(searchTerm) || 
-        product.designation.toLowerCase().includes(searchTerm)
+        !selectedProductIds.includes(product.id) && // Exclude already selected products
+        (product.reference.toLowerCase().includes(searchTerm) || 
+        product.designation.toLowerCase().includes(searchTerm))
       );
     } else {
-      this.filteredProducts[index] = [];
+      // When no search term, show all products except already selected ones
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id)
+      );
     }
     this.showProductDropdownForIndex = index;
   }
 
   showProductDropdown(index: number): void {
     this.showProductDropdownForIndex = index;
-    // Show all products if input is empty
+    const selectedProductIds = this.getSelectedProductIds(index);
+    
+    // Show all products except already selected ones
     if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
-      this.filteredProducts[index] = this.products;
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id)
+      );
     }
   }
 
@@ -219,13 +265,7 @@ export class PurchaseOrderFormComponent implements OnInit {
     }, 200);
   }
 
-  getLineTotalTTC(line: any): number {
-    const quantity = line.get('quantite')?.value || 0;
-    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
-    return quantity * prixTTC;
-  }
-
-selectProduct(index: number, product: ProductResponse): void {
+  selectProduct(index: number, product: ProductResponse): void {
   console.log('Selecting product:', product);
   const lineGroup = this.lignes.at(index) as FormGroup;
   
@@ -251,6 +291,17 @@ selectProduct(index: number, product: ProductResponse): void {
   if (this.filteredProducts[index]) {
     delete this.filteredProducts[index];
   }
+  
+  // Refresh filtered products for other lines to exclude this newly selected product
+  this.refreshFilteredProducts();
+}
+
+// Refresh filtered products for all lines
+refreshFilteredProducts(): void {
+  if (this.showProductDropdownForIndex !== null) {
+    // If a dropdown is currently shown, refresh its content
+    this.showProductDropdown(this.showProductDropdownForIndex);
+  }
 }
 
 // Improved calculateTTCPrice method
@@ -266,6 +317,12 @@ calculateTTCPrice(lineGroup: FormGroup): void {
   
   lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
 }
+
+  getLineTotalTTC(line: any): number {
+    const quantity = line.get('quantite')?.value || 0;
+    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
+    return quantity * prixTTC;
+  }
 
   // Calculation methods for order summary
   calculateSubtotal(): number {
@@ -301,7 +358,9 @@ calculateTTCPrice(lineGroup: FormGroup): void {
         lignes: formValue.lignes.map((line: any) => ({
           produitId: line.produitId,
           quantite: line.quantite,
-          prixUnitaire: line.prixUnitaireHT // Use HT price as the main price
+          prixUnitaireHT: line.prixUnitaireHT,
+          tauxTVA: line.tauxTVA,
+          prixUnitaireTTC: line.prixUnitaireTTC
         }))
       };
 

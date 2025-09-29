@@ -204,10 +204,16 @@ export class QuoteFormComponent implements OnInit {
         newFilteredProducts[newIndex] = this.filteredProducts[oldIndex];
       });
       this.filteredProducts = newFilteredProducts;
+      
+      // Refresh filtered products for remaining lines
+      this.refreshFilteredProducts();
     } else {
       // If it's the last line, just reset it
       const lineGroup = this.createLineFormGroup();
       this.lignes.setControl(0, lineGroup);
+      
+      // Refresh filtered products
+      this.refreshFilteredProducts();
     }
   }
 
@@ -218,24 +224,48 @@ export class QuoteFormComponent implements OnInit {
     return product ? `${product.reference} - ${product.designation}` : '';
   }
 
+  // Get selected product IDs from all lines except the current one
+  getSelectedProductIds(excludeIndex: number): number[] {
+    const selectedIds: number[] = [];
+    this.lignes.controls.forEach((line, index) => {
+      if (index !== excludeIndex) {
+        const produitId = line.get('produitId')?.value;
+        if (produitId) {
+          selectedIds.push(produitId);
+        }
+      }
+    });
+    return selectedIds;
+  }
+
   onProductSearch(event: any, index: number): void {
     const searchTerm = event.target.value.toLowerCase();
+    const selectedProductIds = this.getSelectedProductIds(index);
+    
     if (searchTerm.length > 0) {
       this.filteredProducts[index] = this.products.filter(product => 
-        product.reference.toLowerCase().includes(searchTerm) || 
-        product.designation.toLowerCase().includes(searchTerm)
+        !selectedProductIds.includes(product.id) && // Exclude already selected products
+        (product.reference.toLowerCase().includes(searchTerm) || 
+        product.designation.toLowerCase().includes(searchTerm))
       );
     } else {
-      this.filteredProducts[index] = [];
+      // When no search term, show all products except already selected ones
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id)
+      );
     }
     this.showProductDropdownForIndex = index;
   }
 
   showProductDropdown(index: number): void {
     this.showProductDropdownForIndex = index;
-    // Show all products if input is empty
+    const selectedProductIds = this.getSelectedProductIds(index);
+    
+    // Show all products except already selected ones
     if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
-      this.filteredProducts[index] = this.products;
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id)
+      );
     }
   }
 
@@ -269,6 +299,17 @@ export class QuoteFormComponent implements OnInit {
     // Clear the filtered products for this index
     if (this.filteredProducts[index]) {
       delete this.filteredProducts[index];
+    }
+    
+    // Refresh filtered products for other lines to exclude this newly selected product
+    this.refreshFilteredProducts();
+  }
+
+  // Refresh filtered products for all lines
+  refreshFilteredProducts(): void {
+    if (this.showProductDropdownForIndex !== null) {
+      // If a dropdown is currently shown, refresh its content
+      this.showProductDropdown(this.showProductDropdownForIndex);
     }
   }
 

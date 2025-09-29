@@ -126,7 +126,9 @@ export interface PurchaseOrderLineResponse {
     tauxTVA: number;
   };
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
   totalLigne: number;
 }
 

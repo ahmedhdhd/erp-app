@@ -60,8 +60,8 @@
                   <td>{{ line.produit.designation }}</td>
                   <td>{{ line.produit.reference }}</td>
                   <td class="text-end">{{ line.quantite }}</td>
-                  <td class="text-end">{{ line.prixUnitaire | currency:'EUR' }}</td>
-                  <td class="text-end">{{ line.produit.tauxTVA }}%</td>
+                  <td class="text-end">{{ line.prixUnitaireHT | currency:'EUR' }}</td>
+                  <td class="text-end">{{ line.tauxTVA }}%</td>
                   <td class="text-end">{{ line.totalLigne | currency:'EUR' }}</td>
                 </tr>
               </tbody>
