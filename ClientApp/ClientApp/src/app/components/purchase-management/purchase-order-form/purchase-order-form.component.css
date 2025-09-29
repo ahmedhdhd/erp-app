@@ -66,3 +66,100 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* Compact Form Styles */
+.row.gx-2 {
+  --bs-gutter-x: 0.5rem;
+}
+
+.row.gx-2 .col-md-4.col-lg-3,
+.row.gx-2 .col-md-2.col-lg-1,
+.row.gx-2 .col-md-1.col-lg-1,
+.row.gx-2 .col-md-2.col-lg-2 {
+  padding-right: calc(var(--bs-gutter-x) * 0.5);
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
+}
+
+.form-control.form-control-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.input-group.input-group-sm .form-control,
+.input-group.input-group-sm .input-group-text {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.input-group.input-group-sm > .form-control:not(:first-child),
+.input-group.input-group-sm > .input-group-text:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.input-group.input-group-sm > .form-control:not(:last-child),
+.input-group.input-group-sm > .input-group-text:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.btn.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+.form-select.form-select-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.2rem;
+}
+
+/* Adjust label styling for compact forms */
+.form-label {
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+/* Ensure consistent height for form elements */
+.form-control.form-control-sm,
+.form-select.form-select-sm {
+  min-height: calc(1.5em + 0.5rem + 2px);
+}
+
+.input-group.input-group-sm .form-control,
+.input-group.input-group-sm .input-group-text {
+  min-height: calc(1.5em + 0.5rem + 2px);
+}
+
+/* Adjust column spacing for better label/input alignment */
+.row.gx-2 .col-md-4.col-lg-3.mb-2.mb-md-0,
+.row.gx-2 .col-md-2.col-lg-1.mb-2.mb-md-0,
+.row.gx-2 .col-md-1.col-lg-1.mb-2.mb-md-0,
+.row.gx-2 .col-md-2.col-lg-2.mb-2.mb-md-0 {
+  margin-bottom: 0.5rem !important;
+}
+
+/* Ensure all form elements align to the top */
+.row.gx-2 [class*="col-"] {
+  align-self: start;
+}
+
+@media (max-width: 768px) {
+  .row.gx-2 .col-md-4.col-lg-3,
+  .row.gx-2 .col-md-2.col-lg-1,
+  .row.gx-2 .col-md-1.col-lg-1,
+  .row.gx-2 .col-md-2.col-lg-2 {
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+    margin-bottom: 0.75rem;
+  }
+  
+  .form-label {
+    font-size: 0.8125rem;
+    margin-bottom: 0.25rem;
+  }
+}

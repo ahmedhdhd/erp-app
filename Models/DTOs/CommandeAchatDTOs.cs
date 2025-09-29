@@ -27,7 +27,9 @@ namespace App.Models.DTOs
 		public int ProduitId { get; set; }
 		public ProductDTO Produit { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 		public decimal TotalLigne { get; set; }
 	}
 
@@ -43,7 +45,9 @@ namespace App.Models.DTOs
 	{
 		public int ProduitId { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 	}
 
 	public class UpdateCommandeAchatRequest : CreateCommandeAchatRequest
@@ -161,7 +165,9 @@ namespace App.Models.DTOs
 		public int? LigneCommandeId { get; set; }
 		public LigneCommandeAchatDTO LigneCommande { get; set; }
 		public int QuantiteFacturee { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 		public decimal TotalLigne { get; set; }
 	}
 
@@ -175,7 +181,9 @@ namespace App.Models.DTOs
 	{
 		public int LigneCommandeId { get; set; }
 		public int QuantiteFacturee { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 	}
 
 	public class PaiementFournisseurDTO

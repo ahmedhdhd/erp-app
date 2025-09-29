@@ -25,6 +25,10 @@ export class QuoteFormComponent implements OnInit {
   clients: ClientResponse[] = [];
   products: ProductResponse[] = [];
   
+  // Properties for searchable product dropdown
+  showProductDropdownForIndex: number | null = null;
+  filteredProducts: { [key: number]: ProductResponse[] } = {};
+  
   // Loading and error states
   isLoading = false;
   isSubmitting = false;
@@ -65,7 +69,15 @@ export class QuoteFormComponent implements OnInit {
       if (params['id']) {
         this.isEditMode = true;
         this.quoteId = +params['id'];
-        this.loadQuote(this.quoteId);
+        // Wait for products to be loaded before loading the quote
+        const checkProductsLoaded = setInterval(() => {
+          if (this.products.length > 0) {
+            clearInterval(checkProductsLoaded);
+            if (this.quoteId !== null) {
+              this.loadQuote(this.quoteId);
+            }
+          }
+        }, 100);
       } else {
         // Add an empty line for new quotes
         this.addLine();
@@ -89,11 +101,21 @@ export class QuoteFormComponent implements OnInit {
           // Clear existing lines and add lines from the quote
           this.lignes.clear();
           quote.lignes.forEach(line => {
-            this.lignes.push(this.fb.group({
-              produitId: [line.produitId, Validators.required],
-              quantite: [line.quantite, [Validators.required, Validators.min(1)]],
-              prixUnitaire: [line.prixUnitaire, [Validators.required, Validators.min(0)]]
-            }));
+            const lineGroup = this.createLineFormGroup();
+            lineGroup.patchValue({
+              produitId: line.produitId,
+              quantite: line.quantite,
+              prixUnitaireHT: line.prixUnitaireHT,
+              tauxTVA: line.tauxTVA,
+              prixUnitaireTTC: line.prixUnitaireTTC
+            });
+            
+            // Trigger the TTC calculation to ensure it's properly updated
+            setTimeout(() => {
+              this.calculateTTCPrice(lineGroup);
+            }, 0);
+            
+            this.lignes.push(lineGroup);
           });
         } else {
           this.errorMessage = response.message || 'Erreur lors du chargement du devis';
@@ -141,27 +163,125 @@ export class QuoteFormComponent implements OnInit {
     return this.quoteForm.get('lignes') as FormArray;
   }
 
-  // Add a new line
-  addLine(): void {
-    this.lignes.push(this.fb.group({
+  // Create a new line form group with HT and TTC price fields
+  createLineFormGroup(): FormGroup {
+    const group = this.fb.group({
       produitId: [null, Validators.required],
       quantite: [1, [Validators.required, Validators.min(1)]],
-      prixUnitaire: [0, [Validators.required, Validators.min(0)]]
-    }));
+      prixUnitaireHT: [0, [Validators.required, Validators.min(0)]],
+      tauxTVA: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      prixUnitaireTTC: [0] // Remove disabled state for better reactivity
+    });
+    
+    // Add value change listeners with debounce to prevent excessive calculations
+    group.get('prixUnitaireHT')?.valueChanges.subscribe(value => {
+      setTimeout(() => this.calculateTTCPrice(group), 0);
+    });
+    
+    group.get('tauxTVA')?.valueChanges.subscribe(value => {
+      setTimeout(() => this.calculateTTCPrice(group), 0);
+    });
+    
+    return group;
+  }
+
+  // Add a new line
+  addLine(): void {
+    this.lignes.push(this.createLineFormGroup());
   }
 
   // Remove a line
   removeLine(index: number): void {
     if (this.lignes.length > 1) {
       this.lignes.removeAt(index);
+      // Clean up filtered products
+      delete this.filteredProducts[index];
+      // Adjust indices of remaining filtered products
+      const newFilteredProducts: { [key: number]: ProductResponse[] } = {};
+      Object.keys(this.filteredProducts).forEach(key => {
+        const oldIndex = parseInt(key);
+        const newIndex = oldIndex > index ? oldIndex - 1 : oldIndex;
+        newFilteredProducts[newIndex] = this.filteredProducts[oldIndex];
+      });
+      this.filteredProducts = newFilteredProducts;
     } else {
       // If it's the last line, just reset it
-      this.lignes.at(index).reset({
-        produitId: null,
-        quantite: 1,
-        prixUnitaire: 0
-      });
+      const lineGroup = this.createLineFormGroup();
+      this.lignes.setControl(0, lineGroup);
     }
+  }
+
+  // Product search methods
+  getProductDisplayName(productId: number | null): string {
+    if (!productId) return '';
+    const product = this.products.find(p => p.id === productId);
+    return product ? `${product.reference} - ${product.designation}` : '';
+  }
+
+  onProductSearch(event: any, index: number): void {
+    const searchTerm = event.target.value.toLowerCase();
+    if (searchTerm.length > 0) {
+      this.filteredProducts[index] = this.products.filter(product => 
+        product.reference.toLowerCase().includes(searchTerm) || 
+        product.designation.toLowerCase().includes(searchTerm)
+      );
+    } else {
+      this.filteredProducts[index] = [];
+    }
+    this.showProductDropdownForIndex = index;
+  }
+
+  showProductDropdown(index: number): void {
+    this.showProductDropdownForIndex = index;
+    // Show all products if input is empty
+    if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
+      this.filteredProducts[index] = this.products;
+    }
+  }
+
+  hideProductDropdown(index: number, event: any): void {
+    // Delay hiding to allow click events to register
+    setTimeout(() => {
+      this.showProductDropdownForIndex = null;
+    }, 200);
+  }
+
+  selectProduct(index: number, product: ProductResponse): void {
+    const lineGroup = this.lignes.at(index) as FormGroup;
+    
+    if (lineGroup) {
+      // Set all the product-related values using patchValue for better form control
+      lineGroup.patchValue({
+        produitId: product.id,
+        prixUnitaireHT: product.prixVenteHT || 0,
+        tauxTVA: product.tauxTVA || 20  // Default to 20% if not specified
+      });
+      
+      // Calculate TTC price after setting the values
+      setTimeout(() => {
+        this.calculateTTCPrice(lineGroup);
+      }, 0);
+    }
+    
+    // Hide the dropdown
+    this.showProductDropdownForIndex = null;
+    
+    // Clear the filtered products for this index
+    if (this.filteredProducts[index]) {
+      delete this.filteredProducts[index];
+    }
+  }
+
+  // Enhanced calculateTTCPrice method with better error handling
+  calculateTTCPrice(lineGroup: FormGroup): void {
+    const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
+    const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
+    const prixTTC = prixHT * (1 + tauxTVA / 100);
+    
+    // Round to 3 decimal places to avoid floating point precision issues
+    const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
+    
+    lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
   }
 
   // Get product details for a line
@@ -169,11 +289,11 @@ export class QuoteFormComponent implements OnInit {
     return this.products.find(p => p.id === produitId);
   }
 
-  // Calculate line total
+  // Calculate line total (HT)
   calculateLineTotal(line: AbstractControl): number {
     const quantite = line.get('quantite')?.value || 0;
-    const prixUnitaire = line.get('prixUnitaire')?.value || 0;
-    return quantite * prixUnitaire;
+    const prixUnitaireHT = line.get('prixUnitaireHT')?.value || 0;
+    return quantite * prixUnitaireHT;
   }
 
   // Calculate subtotal (before discount)
@@ -183,11 +303,11 @@ export class QuoteFormComponent implements OnInit {
     }, 0);
   }
 
-  // Calculate total discount
+  // Calculate discount amount
   calculateDiscount(): number {
     const subtotal = this.calculateSubtotal();
-    const discountRate = this.quoteForm.get('remise')?.value || 0;
-    return subtotal * (discountRate / 100);
+    const discountPercent = this.quoteForm.get('remise')?.value || 0;
+    return subtotal * (discountPercent / 100);
   }
 
   // Calculate total (after discount)
@@ -203,25 +323,34 @@ export class QuoteFormComponent implements OnInit {
     return total * 1.2; // 20% VAT
   }
 
+  // Get line total TTC
+  getLineTotalTTC(line: any): number {
+    const quantity = line.get('quantite')?.value || 0;
+    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
+    return quantity * prixTTC;
+  }
+
   // Form validation
   isFieldInvalid(fieldName: string): boolean {
     const field = this.quoteForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  isLineFieldInvalid(lineIndex: number, fieldName: string): boolean {
-    const line = this.lignes.at(lineIndex);
-    const field = line.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    return !!(field && field.invalid && field.touched);
   }
 
   getFieldErrorMessage(fieldName: string): string {
     const field = this.quoteForm.get(fieldName);
     if (field?.errors) {
       if (field.errors['required']) return 'Ce champ est requis';
-      if (field.errors['min']) return 'La valeur doit être positive';
+      if (field.errors['minlength']) return `Minimum ${field.errors['minlength'].requiredLength} caractères`;
+      if (field.errors['maxlength']) return `Maximum ${field.errors['maxlength'].requiredLength} caractères`;
+      if (field.errors['min']) return 'La valeur doit être supérieure ou égale à ' + field.errors['min'].min;
     }
     return '';
+  }
+
+  isLineFieldInvalid(lineIndex: number, fieldName: string): boolean {
+    const line = this.lignes.at(lineIndex);
+    const field = line.get(fieldName);
+    return !!(field && field.invalid && field.touched);
   }
 
   getLineFieldErrorMessage(lineIndex: number, fieldName: string): string {
@@ -229,84 +358,83 @@ export class QuoteFormComponent implements OnInit {
     const field = line.get(fieldName);
     if (field?.errors) {
       if (field.errors['required']) return 'Ce champ est requis';
-      if (field.errors['min']) return 'La valeur doit être positive';
+      if (field.errors['min']) return 'La valeur doit être supérieure ou égale à ' + field.errors['min'].min;
     }
     return '';
   }
 
-  // Clear messages
+  // Form actions
   clearMessages(): void {
     this.errorMessage = null;
     this.successMessage = null;
   }
 
-  // Cancel and go back
   onCancel(): void {
     this.router.navigate(['/sales/quotes']);
   }
 
-  // Submit form
   onSubmit(): void {
-    if (this.quoteForm.invalid) {
+    if (this.quoteForm.valid) {
+      this.isSubmitting = true;
+      this.clearMessages();
+
+      // Prepare request data
+      const formValue = this.quoteForm.value;
+      const request: CreateQuoteRequest | UpdateQuoteRequest = {
+        clientId: formValue.clientId,
+        dateExpiration: new Date(formValue.dateExpiration),
+        remise: formValue.remise,
+        lignes: formValue.lignes.map((line: any) => ({
+          produitId: line.produitId,
+          quantite: line.quantite,
+          prixUnitaireHT: line.prixUnitaireHT,
+          tauxTVA: line.tauxTVA,
+          prixUnitaireTTC: line.prixUnitaireTTC
+        }))
+      };
+
+      if (this.isEditMode && this.quoteId) {
+        this.salesService.updateQuote(this.quoteId, { ...request, id: this.quoteId } as UpdateQuoteRequest).subscribe({
+          next: (response: SalesApiResponse<QuoteResponse>) => {
+            if (response.success) {
+              this.successMessage = 'Devis mis à jour avec succès';
+              setTimeout(() => {
+                this.router.navigate(['/sales/quotes']);
+              }, 2000);
+            } else {
+              this.errorMessage = response.message || 'Erreur lors de la mise à jour du devis';
+            }
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.errorMessage = 'Erreur de connexion au serveur';
+            this.isSubmitting = false;
+            console.error('Error updating quote:', error);
+          }
+        });
+      } else {
+        this.salesService.createQuote(request as CreateQuoteRequest).subscribe({
+          next: (response: SalesApiResponse<QuoteResponse>) => {
+            if (response.success) {
+              this.successMessage = 'Devis créé avec succès';
+              setTimeout(() => {
+                this.router.navigate(['/sales/quotes']);
+              }, 2000);
+            } else {
+              this.errorMessage = response.message || 'Erreur lors de la création du devis';
+            }
+            this.isSubmitting = false;
+          },
+          error: (error) => {
+            this.errorMessage = 'Erreur de connexion au serveur';
+            this.isSubmitting = false;
+            console.error('Error creating quote:', error);
+          }
+        });
+      }
+    } else {
       // Mark all fields as touched to show validation errors
       this.quoteForm.markAllAsTouched();
-      this.lignes.controls.forEach(line => line.markAllAsTouched());
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.clearMessages();
-
-    // Prepare request data
-    const formData = this.quoteForm.value;
-    const request: CreateQuoteRequest | UpdateQuoteRequest = {
-      clientId: formData.clientId,
-      dateExpiration: new Date(formData.dateExpiration),
-      remise: formData.remise,
-      lignes: formData.lignes.map((line: any) => ({
-        produitId: line.produitId,
-        quantite: line.quantite,
-        prixUnitaire: line.prixUnitaire
-      }))
-    };
-
-    if (this.isEditMode && this.quoteId) {
-      // Update existing quote
-      const updateRequest = { ...request, id: this.quoteId } as UpdateQuoteRequest;
-      this.salesService.updateQuote(this.quoteId, updateRequest).subscribe({
-        next: (response: SalesApiResponse<QuoteResponse>) => {
-          if (response.success) {
-            this.successMessage = 'Devis mis à jour avec succès';
-            setTimeout(() => this.router.navigate(['/sales/quotes']), 2000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la mise à jour du devis';
-            this.isSubmitting = false;
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
-          this.isSubmitting = false;
-          console.error('Error updating quote:', error);
-        }
-      });
-    } else {
-      // Create new quote
-      this.salesService.createQuote(request as CreateQuoteRequest).subscribe({
-        next: (response: SalesApiResponse<QuoteResponse>) => {
-          if (response.success) {
-            this.successMessage = 'Devis créé avec succès';
-            setTimeout(() => this.router.navigate(['/sales/quotes']), 2000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la création du devis';
-            this.isSubmitting = false;
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
-          this.isSubmitting = false;
-          console.error('Error creating quote:', error);
-        }
-      });
     }
   }
 }

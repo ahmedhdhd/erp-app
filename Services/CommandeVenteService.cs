@@ -98,8 +98,10 @@ namespace App.Services
 					{
 						ProduitId = ligneRequest.ProduitId,
 						Quantite = ligneRequest.Quantite,
-						PrixUnitaire = ligneRequest.PrixUnitaire,
-						TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+						PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+						TauxTVA = ligneRequest.TauxTVA,
+						PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+						TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 					};
 
 					entity.Lignes.Add(ligne);
@@ -142,8 +144,10 @@ namespace App.Services
 				{
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
-					PrixUnitaire = ligneRequest.PrixUnitaire,
-					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+					TauxTVA = ligneRequest.TauxTVA,
+					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 				};
 
 				montantHT += ligne.TotalLigne;
@@ -259,16 +263,19 @@ namespace App.Services
 					{
 						ProduitId = ligneRequest.ProduitId,
 						Quantite = ligneRequest.Quantite,
-						PrixUnitaire = ligneRequest.PrixUnitaire,
-						TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+						PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+						TauxTVA = ligneRequest.TauxTVA,
+						PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+						TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 					};
 
 					entity.Lignes.Add(ligne);
 					montantHT += ligne.TotalLigne;
 				}
 
-				// Apply discount
-				montantHT -= entity.Remise;
+				// Apply discount correctly - calculate discount amount from percentage
+				decimal discountAmount = montantHT * (request.Remise / 100);
+				montantHT -= discountAmount;
 				entity.MontantHT = montantHT;
 				entity.MontantTTC = montantHT * 1.2m; // Assuming 20% VAT
 
@@ -291,6 +298,9 @@ namespace App.Services
 			existing.DateExpiration = request.DateExpiration;
 			existing.Remise = request.Remise;
 
+			// Clear existing lines and add updated lines
+			existing.Lignes.Clear();
+			
 			// Recalculate amounts
 			decimal montantHT = 0;
 			foreach (var ligneRequest in request.Lignes)
@@ -300,17 +310,22 @@ namespace App.Services
 
 				var ligne = new LigneDevis
 				{
+					DevisId = existing.Id, // Set the foreign key
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
-					PrixUnitaire = ligneRequest.PrixUnitaire,
-					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+					TauxTVA = ligneRequest.TauxTVA,
+					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 				};
 
+				existing.Lignes.Add(ligne);
 				montantHT += ligne.TotalLigne;
 			}
 
-			// Apply discount
-			montantHT -= existing.Remise;
+			// Apply discount correctly - calculate discount amount from percentage
+			decimal discountAmount = montantHT * (request.Remise / 100);
+			montantHT -= discountAmount;
 			existing.MontantHT = montantHT;
 			existing.MontantTTC = montantHT * 1.2m; // Assuming 20% VAT
 
@@ -422,7 +437,9 @@ namespace App.Services
 					StockMaximum = l.Produit.StockMaximum
 				} : null,
 				Quantite = l.Quantite,
-				PrixUnitaire = l.PrixUnitaire,
+				PrixUnitaireHT = l.PrixUnitaireHT,
+				TauxTVA = l.TauxTVA,
+				PrixUnitaireTTC = l.PrixUnitaireTTC,
 				TotalLigne = l.TotalLigne
 			};
 		}
@@ -481,7 +498,9 @@ namespace App.Services
 				ProduitId = lf.ProduitId,
 				Produit = null, // Will be populated if needed
 				Quantite = lf.Quantite,
-				PrixUnitaire = lf.PrixUnitaire,
+				PrixUnitaireHT = lf.PrixUnitaireHT,
+				TauxTVA = lf.TauxTVA,
+				PrixUnitaireTTC = lf.PrixUnitaireTTC,
 				TotalLigne = lf.TotalLigne
 			};
 		}
@@ -514,6 +533,9 @@ namespace App.Services
 
 		private static DevisDTO MapToDTO(Devis d)
 		{
+			// Recalculate amounts to ensure they are correct
+			RecalculateDevisAmounts(d);
+			
 			return new DevisDTO
 			{
 				Id = d.Id,
@@ -548,6 +570,28 @@ namespace App.Services
 			};
 		}
 
+		// Add this new method to recalculate quote amounts
+		private static void RecalculateDevisAmounts(Devis devis)
+		{
+			if (devis.Lignes == null) return;
+			
+			// Calculate HT amount from line items
+			decimal montantHT = 0;
+			foreach (var ligne in devis.Lignes)
+			{
+				ligne.TotalLigne = ligne.Quantite * ligne.PrixUnitaireHT;
+				montantHT += ligne.TotalLigne;
+			}
+			
+			// Apply discount correctly - calculate discount amount from percentage
+			decimal discountAmount = montantHT * (devis.Remise / 100);
+			montantHT -= discountAmount;
+			
+			// Update the devis amounts
+			devis.MontantHT = montantHT;
+			devis.MontantTTC = montantHT * 1.2m; // Assuming 20% VAT
+		}
+
 		private static LigneDevisDTO MapToDTO(LigneDevis ld)
 		{
 			return new LigneDevisDTO
@@ -573,7 +617,9 @@ namespace App.Services
 					StockMaximum = ld.Produit.StockMaximum
 				} : null,
 				Quantite = ld.Quantite,
-				PrixUnitaire = ld.PrixUnitaire,
+				PrixUnitaireHT = ld.PrixUnitaireHT,
+				TauxTVA = ld.TauxTVA,
+				PrixUnitaireTTC = ld.PrixUnitaireTTC,
 				TotalLigne = ld.TotalLigne
 			};
 		}

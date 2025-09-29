@@ -36,11 +36,28 @@ Each component should:
 3. Follow the established design system
 4. Be responsive
 
+## Form Styles (`src/assets/css/form-styles.css`)
+
+Specialized styles for forms, particularly:
+- Command forms (sales orders)
+- Purchase order forms
+- Compact form layouts with all elements on one line
+- Responsive adjustments for different screen sizes
+
+## Shared Component Utilities (`src/assets/css/component-styles.css`)
+
+Reusable styles for common component patterns:
+- Advanced search panels
+- Section titles
+- Form actions
+- Utility classes
+
 ## Adding New Styles
 
 1. **For global changes**: Modify `src/styles.css`
-2. **For component-specific styles**: Add to the component's CSS file
-3. **For shared utilities**: Add to `src/assets/css/component-styles.css`
+2. **For form-specific styles**: Add to `src/assets/css/form-styles.css`
+3. **For component-specific styles**: Add to the component's CSS file
+4. **For shared utilities**: Add to `src/assets/css/component-styles.css`
 
 ## Best Practices
 
@@ -57,7 +74,9 @@ src/
 ├── styles.css                 # Global styles
 ├── assets/
 │   ├── css/
-│   │   └── component-styles.css  # Shared component utilities
+│   │   ├── component-styles.css  # Shared component utilities
+│   │   ├── form-styles.css       # Specialized form styles
+│   │   └── [other css files]
 │   └── docs/
 │       └── styling-guide.md      # Detailed styling documentation
 ├── app/
@@ -67,15 +86,15 @@ src/
 │   │   │       └── header.component.css  # Component-specific styles
 │   │   └── [other components]/
 └── README.md                  # This file
-```
 
 ## Maintenance
 
 When updating styles:
 1. **Global changes**: Update `src/styles.css` and test across components
-2. **Component changes**: Only modify the specific component's CSS
-3. **New utilities**: Add to `component-styles.css` for reuse
-4. **Documentation**: Update `styling-guide.md` with significant changes
+2. **Form changes**: Update `src/assets/css/form-styles.css`
+3. **Component changes**: Only modify the specific component's CSS
+4. **New utilities**: Add to appropriate shared CSS files
+5. **Documentation**: Update `styling-guide.md` with significant changes
 
 ## Troubleshooting
 

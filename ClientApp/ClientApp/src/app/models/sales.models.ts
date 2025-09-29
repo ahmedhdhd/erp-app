@@ -13,7 +13,9 @@ export interface CreateQuoteRequest {
 export interface CreateQuoteLine {
   produitId: number;
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
 }
 
 export interface UpdateQuoteRequest extends CreateQuoteRequest {
@@ -44,7 +46,9 @@ export interface CreateSalesOrderRequest {
 export interface CreateSalesOrderLine {
   produitId: number;
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
 }
 
 export interface UpdateSalesOrderRequest extends CreateSalesOrderRequest {
@@ -88,7 +92,9 @@ export interface CreateInvoiceRequest {
 export interface CreateInvoiceLine {
   commandeLigneId: number;
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
 }
 
 // ========== RETURN REQUEST MODELS ==========
@@ -127,7 +133,9 @@ export interface QuoteLineResponse {
     stockMaximum: number;
   };
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
   totalLigne: number;
 }
 
@@ -183,7 +191,9 @@ export interface SalesOrderLineResponse {
     stockMaximum: number;
   };
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
   totalLigne: number;
 }
 
@@ -276,7 +286,9 @@ export interface InvoiceLineResponse {
     stockMaximum: number;
   };
   quantite: number;
-  prixUnitaire: number;
+  prixUnitaireHT: number;
+  tauxTVA: number;
+  prixUnitaireTTC: number;
   totalLigne: number;
 }
 

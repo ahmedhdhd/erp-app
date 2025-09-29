@@ -97,8 +97,10 @@ namespace App.Services
 				{
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
-					PrixUnitaire = ligneRequest.PrixUnitaire,
-					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+					TauxTVA = ligneRequest.TauxTVA,
+					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 				};
 
 				entity.Lignes.Add(ligne);
@@ -138,8 +140,10 @@ namespace App.Services
 				{
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
-					PrixUnitaire = ligneRequest.PrixUnitaire,
-					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaire
+					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
+					TauxTVA = ligneRequest.TauxTVA,
+					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
+					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 				};
 
 				montantHT += ligne.TotalLigne;
@@ -424,7 +428,9 @@ namespace App.Services
 					StockMaximum = l.Produit.StockMaximum
 				} : null,
 				Quantite = l.Quantite,
-				PrixUnitaire = l.PrixUnitaire,
+				PrixUnitaireHT = l.PrixUnitaireHT,
+				TauxTVA = l.TauxTVA,
+				PrixUnitaireTTC = l.PrixUnitaireTTC,
 				TotalLigne = l.TotalLigne
 			};
 		}
@@ -481,7 +487,9 @@ namespace App.Services
 				FactureId = lf.FactureId,
 				LigneCommandeId = lf.LigneCommandeId,
 				QuantiteFacturee = lf.QuantiteFacturee,
-				PrixUnitaire = lf.PrixUnitaire,
+				PrixUnitaireHT = lf.PrixUnitaireHT,
+				TauxTVA = lf.TauxTVA,
+				PrixUnitaireTTC = lf.PrixUnitaireTTC,
 				TotalLigne = lf.TotalLigne
 			};
 		}

@@ -76,6 +76,44 @@ We've defined a comprehensive design system using CSS variables:
    - Heading hierarchy
    - Text utilities
 
+## Form Styles (form-styles.css)
+
+Specialized styles for forms to ensure consistent layout and appearance:
+
+### Compact Form Lines
+
+Form lines are designed to keep all elements on a single line:
+
+```html
+<div class="row gx-2 align-items-center">
+  <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+    <!-- Product input -->
+  </div>
+  <div class="col-md-2 col-lg-1 mb-2 mb-md-0">
+    <!-- Quantity input -->
+  </div>
+  <div class="col-md-2 col-lg-2 mb-2 mb-md-0">
+    <!-- Price input -->
+  </div>
+  <!-- Additional columns -->
+</div>
+```
+
+### Compact Controls
+
+Form controls use smaller padding and font sizes for better density:
+
+- `.form-control-sm`
+- `.form-select-sm`
+- `.input-group-sm`
+- `.btn-sm`
+
+### Responsive Behavior
+
+- On large screens: All elements on one line
+- On mobile: Elements stack vertically
+- Labels hidden on large screens when in form lines
+
 ## Component-Specific Styles
 
 Component-specific styles should only include:
@@ -157,8 +195,9 @@ Component-specific styles should only include:
 ## Maintenance
 
 1. **Updating Global Styles**: Changes to `styles.css` affect the entire application
-2. **Adding New Variables**: Add new CSS variables to the `:root` section in `styles.css`
-3. **Component Refactoring**: When refactoring components, ensure they use global styles where possible
+2. **Updating Form Styles**: Changes to `form-styles.css` affect all forms
+3. **Adding New Variables**: Add new CSS variables to the `:root` section in `styles.css`
+4. **Component Refactoring**: When refactoring components, ensure they use global styles where possible
 
 ## Troubleshooting
 

@@ -100,9 +100,9 @@ export class OrderFormComponent implements OnInit {
             lineGroup.patchValue({
               produitId: line.produitId,
               quantite: line.quantite,
-              prixUnitaireHT: line.prixUnitaire,
-              tauxTVA: 20, // Default VAT rate
-              prixUnitaireTTC: line.prixUnitaire * 1.2
+              prixUnitaireHT: line.prixUnitaireHT,
+              tauxTVA: line.tauxTVA,
+              prixUnitaireTTC: line.prixUnitaireTTC
             });
             this.lignes.push(lineGroup);
           });
@@ -163,7 +163,7 @@ createLineFormGroup(): FormGroup {
     produitId: [null, Validators.required],
     quantite: [1, [Validators.required, Validators.min(1)]],
     prixUnitaireHT: [0, [Validators.required, Validators.min(0)]],
-    tauxTVA: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+    tauxTVA: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
     prixUnitaireTTC: [0] // Remove disabled state for better reactivity
   });
   
@@ -376,7 +376,9 @@ calculateTTCPrice(lineGroup: FormGroup): void {
         lignes: formValue.lignes.map((line: any) => ({
           produitId: line.produitId,
           quantite: line.quantite,
-          prixUnitaire: line.prixUnitaireHT // Use HT price as the main price
+          prixUnitaireHT: line.prixUnitaireHT,
+          tauxTVA: line.tauxTVA,
+          prixUnitaireTTC: line.prixUnitaireTTC
         }))
       };
 

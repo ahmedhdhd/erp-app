@@ -25,7 +25,9 @@ namespace App.Models.DTOs
 		public int ProduitId { get; set; }
 		public ProductDTO Produit { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 		public decimal TotalLigne { get; set; }
 	}
 
@@ -41,7 +43,9 @@ namespace App.Models.DTOs
 	{
 		public int ProduitId { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 	}
 
 	public class UpdateDevisRequest : CreateDevisRequest
@@ -74,7 +78,9 @@ namespace App.Models.DTOs
 		public int ProduitId { get; set; }
 		public ProductDTO Produit { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 		public decimal TotalLigne { get; set; }
 	}
 
@@ -91,7 +97,9 @@ namespace App.Models.DTOs
 	{
 		public int ProduitId { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 	}
 
 	public class UpdateCommandeVenteRequest : CreateCommandeVenteRequest
@@ -162,7 +170,9 @@ namespace App.Models.DTOs
 		public int ProduitId { get; set; }
 		public ProductDTO Produit { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 		public decimal TotalLigne { get; set; }
 	}
 
@@ -177,7 +187,9 @@ namespace App.Models.DTOs
 	{
 		public int CommandeLigneId { get; set; }
 		public int Quantite { get; set; }
-		public decimal PrixUnitaire { get; set; }
+		public decimal PrixUnitaireHT { get; set; }
+		public decimal TauxTVA { get; set; }
+		public decimal PrixUnitaireTTC { get; set; }
 	}
 
 	// Sales Return DTOs
