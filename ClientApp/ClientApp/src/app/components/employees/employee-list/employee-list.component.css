@@ -1,4 +1,7 @@
-/* Employee List Component Styles */
+/* Employee List Component Styles - Using Global Styles */
+
+/* Only component-specific styles should be here */
+/* Most styles are now in global styles.css */
 
 .container-fluid {
   padding: 1.5rem;
@@ -17,20 +20,8 @@
 }
 
 /* Table Enhancements */
-.table th {
-  border-top: none;
-  font-weight: 600;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
 .table th[style*="cursor: pointer"]:hover {
   background-color: rgba(255, 255, 255, 0.1);
-}
-
-.table td {
-  vertical-align: middle;
-  font-size: 0.875rem;
 }
 
 .table tbody tr:hover {
@@ -38,11 +29,6 @@
 }
 
 /* Status Badges */
-.badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
 .badge.dropdown-toggle::after {
   margin-left: 0.5rem;
 }
@@ -129,14 +115,6 @@
     font-size: 0.65rem;
   }
   
-  .btn-group-sm .btn {
-    padding: 0.125rem 0.25rem;
-  }
-  
-  .btn-group-sm .btn i {
-    font-size: 0.75rem;
-  }
-  
   /* Hide less important columns on mobile */
   .table th:nth-child(4), /* CIN */
   .table td:nth-child(4),
@@ -166,14 +144,6 @@
   .table td:nth-child(8) {
     display: none;
   }
-  
-  .btn-group {
-    flex-direction: column;
-  }
-  
-  .btn-group .btn {
-    margin-bottom: 0.25rem;
-  }
 }
 
 /* Custom Utilities */
@@ -194,15 +164,6 @@
 }
 
 /* Dropdown Menu Enhancements */
-.dropdown-menu {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.dropdown-item:hover {
-  background-color: #f8f9fa;
-}
-
 .dropdown-item .badge {
   width: 60px;
   text-align: center;
@@ -211,44 +172,4 @@
 /* Search Input Enhancements */
 .input-group-text {
   background-color: #f8f9fa;
-  border-color: #ced4da;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Pagination Enhancements */
-.pagination {
-  margin-bottom: 0;
-}
-
-.page-link {
-  padding: 0.5rem 0.75rem;
-  margin: 0 0.125rem;
-  border-radius: 0.375rem;
-  border: 1px solid #dee2e6;
-}
-
-.page-item.active .page-link {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  background-color: #fff;
-  border-color: #dee2e6;
-}
-
-/* Card Enhancements */
-.card {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-body {
-  padding: 1.5rem;
 }
