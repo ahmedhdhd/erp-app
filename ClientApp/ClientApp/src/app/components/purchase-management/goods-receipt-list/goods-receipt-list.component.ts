@@ -27,10 +27,7 @@ export class GoodsReceiptListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Ensure proper initialization
-    setTimeout(() => {
-      this.loadUnreceivedOrders();
-    }, 0);
+    this.loadUnreceivedOrders();
   }
 
   loadUnreceivedOrders(): void {
@@ -38,8 +35,8 @@ export class GoodsReceiptListComponent implements OnInit {
     this.error = null;
 
     // Ensure page and pageSize are valid numbers
-    const page = Math.max(1, Number(this.page) || 1);
-    const pageSize = Math.max(1, Number(this.pageSize) || 10);
+    const page = Math.max(1, this.page || 1);
+    const pageSize = Math.max(1, this.pageSize || 10);
 
     this.purchaseService.getAllPurchaseOrders(page, pageSize).subscribe({
       next: (response: PurchaseApiResponse<PurchaseOrderListResponse>) => {
@@ -58,13 +55,13 @@ export class GoodsReceiptListComponent implements OnInit {
           } else {
             this.error = response.message || 'Failed to load purchase orders';
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error('Error processing response:', e);
-          this.error = 'Error processing purchase orders data';
+          this.error = 'Error processing purchase orders data: ' + (e.message || e);
         }
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('API Error:', err);
         if (err.status === 401) {
           this.error = 'Authentication required. Please log in.';
@@ -83,7 +80,7 @@ export class GoodsReceiptListComponent implements OnInit {
   }
 
   onPageChange(newPage: number): void {
-    this.page = Math.max(1, Number(newPage) || 1);
+    this.page = Math.max(1, newPage || 1);
     this.loadUnreceivedOrders();
   }
 

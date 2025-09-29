@@ -53,8 +53,10 @@ import { GoodsReceiptListComponent } from './components/purchase-management/good
 import { SalesComponent } from './components/sales/sales.component';
 import { QuoteListComponent } from './components/sales/quote-list/quote-list.component';
 import { QuoteFormComponent } from './components/sales/quote-form/quote-form.component';
+import { QuoteDetailComponent } from './components/sales/quote-detail/quote-detail.component';
 import { OrderListComponent } from './components/sales/order-list/order-list.component';
 import { OrderFormComponent } from './components/sales/order-form/order-form.component';
+import { OrderDetailComponent } from './components/sales/order-detail/order-detail.component';
 
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
@@ -110,8 +112,10 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     SalesComponent,
     QuoteListComponent,
     QuoteFormComponent,
+    QuoteDetailComponent,
     OrderListComponent,
     OrderFormComponent,
+    OrderDetailComponent,
     // Shared Components
     HeaderComponent
   ],

@@ -269,6 +269,13 @@
                       title="Modifier">
                       <i class="fas fa-edit"></i>
                     </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-primary" 
+                      (click)="printQuote(quote.id)"
+                      title="Imprimer le devis">
+                      <i class="fas fa-print"></i>
+                    </button>
                     <div class="btn-group btn-group-sm" role="group" *ngIf="quote.statut === 'Brouillon'">
                       <button 
                         type="button" 

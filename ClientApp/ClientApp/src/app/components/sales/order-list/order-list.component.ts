@@ -113,32 +113,79 @@ export class OrderListComponent implements OnInit {
   }
 
   editOrder(id: number): void {
-    this.router.navigate(['/sales/orders', id, 'edit']);
+    this.router.navigate(['/sales/orders/edit', id]);
   }
 
   // Print invoice
   printInvoice(id: number): void {
-    // For now, we'll just show an alert. In a real implementation, this would generate a PDF.
-    alert(`Printing invoice for order #${id}. In a real application, this would generate a PDF.`);
-    
-    // TODO: Implement actual PDF generation
-    // Example of what could be done:
-    // this.salesService.generateInvoicePDF(id).subscribe({
-    //   next: (response) => {
-    //     // Handle PDF download
-    //     const blob = new Blob([response], { type: 'application/pdf' });
-    //     const url = window.URL.createObjectURL(blob);
-    //     const a = document.createElement('a');
-    //     a.href = url;
-    //     a.download = `invoice-${id}.pdf`;
-    //     a.click();
-    //     window.URL.revokeObjectURL(url);
-    //   },
-    //   error: (error) => {
-    //     this.errorMessage = 'Erreur lors de la génération de la facture';
-    //     console.error('Error generating invoice:', error);
-    //   }
-    // });
+    // For now, we'll open a new tab with a simple message
+    // In a real implementation, this would generate a PDF
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Invoice #${id}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .header { text-align: center; margin-bottom: 30px; }
+              .invoice-info { margin-bottom: 20px; }
+              .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+              .items th, .items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              .items th { background-color: #f2f2f2; }
+              .total { text-align: right; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Invoice #${id}</h1>
+              <p>Thank you for your business!</p>
+            </div>
+            <div class="invoice-info">
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+              <p><strong>Order ID:</strong> #${id}</p>
+            </div>
+            <table class="items">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sample Product</td>
+                  <td>1</td>
+                  <td>$100.00</td>
+                  <td>$100.00</td>
+                </tr>
+                <tr>
+                  <td>Sample Service</td>
+                  <td>2</td>
+                  <td>$75.00</td>
+                  <td>$150.00</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="total">
+              <p><strong>Subtotal:</strong> $250.00</p>
+              <p><strong>Tax (20%):</strong> $50.00</p>
+              <p><strong>Total:</strong> $300.00</p>
+            </div>
+            <script>
+              window.onload = function() {
+                window.print();
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    } else {
+      alert('Please allow popups for this website to print the invoice.');
+    }
   }
 
   // Order actions

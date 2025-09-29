@@ -1,0 +1,121 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Loading indicator -->
+      <div class="text-center py-4" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div class="alert alert-danger" *ngIf="error && !loading">
+        {{ error }}
+        <button class="btn btn-outline-danger btn-sm ms-2" (click)="loadOrder(orderId!)">
+          <i class="fas fa-redo"></i> Retry
+        </button>
+      </div>
+
+      <!-- Order details -->
+      <div class="card" *ngIf="order && !loading && !error">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Order #{{ order.id }}
+            </h4>
+            <span [ngClass]="getStatusBadgeClass(order.statut)" class="badge">
+              {{ order.statut }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Order information -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Client Information</h5>
+              <p class="mb-1"><strong>Name:</strong> {{ order.client.prenom }} {{ order.client.nom }}</p>
+              <p class="mb-1"><strong>Company:</strong> {{ order.client.raisonSociale }}</p>
+              <p class="mb-1"><strong>Email:</strong> {{ order.client.email }}</p>
+              <p class="mb-0"><strong>Phone:</strong> {{ order.client.telephone }}</p>
+            </div>
+            <div class="col-md-6">
+              <h5>Order Information</h5>
+              <p class="mb-1"><strong>Order Date:</strong> {{ formatDate(order.dateCommande) }}</p>
+              <p class="mb-1"><strong>Delivery Method:</strong> {{ order.modeLivraison }}</p>
+              <p class="mb-1"><strong>Payment Terms:</strong> {{ order.conditionsPaiement }}</p>
+              <p class="mb-0"><strong>Status:</strong> 
+                <span [ngClass]="getStatusBadgeClass(order.statut)" class="badge">
+                  {{ order.statut }}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Order lines -->
+          <h5>Order Items</h5>
+          <div class="table-responsive mb-4">
+            <table class="table table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th>Reference</th>
+                  <th class="text-end">Quantity</th>
+                  <th class="text-end">Unit Price HT</th>
+                  <th class="text-end">VAT Rate</th>
+                  <th class="text-end">Unit Price TTC</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of order.lignes">
+                  <td>{{ line.produit.designation }}</td>
+                  <td>{{ line.produit.reference }}</td>
+                  <td class="text-end">{{ line.quantite }}</td>
+                  <td class="text-end">{{ formatCurrency(line.prixUnitaireHT) }}</td>
+                  <td class="text-end">{{ line.tauxTVA }}%</td>
+                  <td class="text-end">{{ formatCurrency(line.prixUnitaireTTC) }}</td>
+                  <td class="text-end">{{ formatCurrency(line.totalLigne) }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <th colspan="6" class="text-end">Total HT:</th>
+                  <th class="text-end">{{ formatCurrency(order.montantHT) }}</th>
+                </tr>
+                <tr>
+                  <th colspan="6" class="text-end">Total TTC:</th>
+                  <th class="text-end">{{ formatCurrency(order.montantTTC) }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" (click)="goToList()">
+              <i class="fas fa-arrow-left me-1"></i>
+              Back to List
+            </button>
+            <div>
+              <button class="btn btn-primary me-2" (click)="printOrder()">
+                <i class="fas fa-print me-1"></i>
+                Print
+              </button>
+              <button class="btn btn-warning" (click)="editOrder()" *ngIf="order.statut === 'Brouillon'">
+                <i class="fas fa-edit me-1"></i>
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No order message -->
+      <div class="alert alert-info" *ngIf="!order && !loading && !error">
+        <i class="fas fa-info-circle me-2"></i>
+        No order found.
+      </div>
+    </div>
+  </div>
+</div>

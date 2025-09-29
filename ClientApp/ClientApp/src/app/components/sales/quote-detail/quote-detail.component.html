@@ -1,0 +1,120 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Loading indicator -->
+      <div class="text-center py-4" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div class="alert alert-danger" *ngIf="error && !loading">
+        {{ error }}
+        <button class="btn btn-outline-danger btn-sm ms-2" (click)="loadQuote(quoteId!)">
+          <i class="fas fa-redo"></i> Retry
+        </button>
+      </div>
+
+      <!-- Quote details -->
+      <div class="card" *ngIf="quote && !loading && !error">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+              <i class="fas fa-file-invoice me-2"></i>
+              Quote #{{ quote.id }}
+            </h4>
+            <span [ngClass]="getStatusBadgeClass(quote.statut)" class="badge">
+              {{ quote.statut }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Quote information -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Client Information</h5>
+              <p class="mb-1"><strong>Name:</strong> {{ quote.client.prenom }} {{ quote.client.nom }}</p>
+              <p class="mb-1"><strong>Company:</strong> {{ quote.client.raisonSociale }}</p>
+              <p class="mb-1"><strong>Email:</strong> {{ quote.client.email }}</p>
+              <p class="mb-0"><strong>Phone:</strong> {{ quote.client.telephone }}</p>
+            </div>
+            <div class="col-md-6">
+              <h5>Quote Information</h5>
+              <p class="mb-1"><strong>Creation Date:</strong> {{ formatDate(quote.dateCreation) }}</p>
+              <p class="mb-1"><strong>Expiration Date:</strong> {{ formatDate(quote.dateExpiration) }}</p>
+              <p class="mb-0"><strong>Status:</strong> 
+                <span [ngClass]="getStatusBadgeClass(quote.statut)" class="badge">
+                  {{ quote.statut }}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Quote lines -->
+          <h5>Quote Items</h5>
+          <div class="table-responsive mb-4">
+            <table class="table table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th>Product</th>
+                  <th>Reference</th>
+                  <th class="text-end">Quantity</th>
+                  <th class="text-end">Unit Price HT</th>
+                  <th class="text-end">VAT Rate</th>
+                  <th class="text-end">Unit Price TTC</th>
+                  <th class="text-end">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let line of quote.lignes">
+                  <td>{{ line.produit.designation }}</td>
+                  <td>{{ line.produit.reference }}</td>
+                  <td class="text-end">{{ line.quantite }}</td>
+                  <td class="text-end">{{ formatCurrency(line.prixUnitaireHT) }}</td>
+                  <td class="text-end">{{ line.tauxTVA }}%</td>
+                  <td class="text-end">{{ formatCurrency(line.prixUnitaireTTC) }}</td>
+                  <td class="text-end">{{ formatCurrency(line.totalLigne) }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <th colspan="6" class="text-end">Total HT:</th>
+                  <th class="text-end">{{ formatCurrency(quote.montantHT) }}</th>
+                </tr>
+                <tr>
+                  <th colspan="6" class="text-end">Total TTC:</th>
+                  <th class="text-end">{{ formatCurrency(quote.montantTTC) }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-secondary" (click)="goToList()">
+              <i class="fas fa-arrow-left me-1"></i>
+              Back to List
+            </button>
+            <div>
+              <button class="btn btn-primary me-2" (click)="printQuote()">
+                <i class="fas fa-print me-1"></i>
+                Print
+              </button>
+              <button class="btn btn-warning" (click)="editQuote()" *ngIf="quote.statut === 'Brouillon'">
+                <i class="fas fa-edit me-1"></i>
+                Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No quote message -->
+      <div class="alert alert-info" *ngIf="!quote && !loading && !error">
+        <i class="fas fa-info-circle me-2"></i>
+        No quote found.
+      </div>
+    </div>
+  </div>
+</div>

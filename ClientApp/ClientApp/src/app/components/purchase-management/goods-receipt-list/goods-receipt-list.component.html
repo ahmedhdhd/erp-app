@@ -40,7 +40,7 @@
       </div>
 
       <!-- Purchase Orders Table -->
-      <div class="card" *ngIf="!loading && purchaseOrders.length > 0">
+      <div class="card" *ngIf="!loading && purchaseOrders && purchaseOrders.length > 0">
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped">
@@ -67,7 +67,7 @@
                     </span>
                     <span *ngIf="!order.statut">N/A</span>
                   </td>
-                  <td>{{ order.montantTTC | currency:'EUR' }}</td>
+                  <td>{{ order.montantTTC | currency:'TND' }}</td>
                   <td>
                     <button class="btn btn-sm btn-primary" (click)="receiveGoods(order.id)">
                       <i class="fas fa-truck me-1"></i>
@@ -99,7 +99,7 @@
       </div>
 
       <!-- No orders message -->
-      <div class="alert alert-info" *ngIf="!loading && purchaseOrders.length === 0 && !error">
+      <div class="alert alert-info" *ngIf="!loading && (!purchaseOrders || purchaseOrders.length === 0) && !error">
         <i class="fas fa-info-circle me-2"></i>
         No unreceived purchase orders found.
       </div>

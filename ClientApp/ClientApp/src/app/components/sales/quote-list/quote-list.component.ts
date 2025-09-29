@@ -219,6 +219,77 @@ export class QuoteListComponent implements OnInit {
     this.router.navigate(['/sales/quotes/edit', id]);
   }
 
+  // Print quote
+  printQuote(id: number): void {
+    // Open a new tab with a simple invoice page
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Quote #${id}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .header { text-align: center; margin-bottom: 30px; }
+              .quote-info { margin-bottom: 20px; }
+              .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+              .items th, .items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              .items th { background-color: #f2f2f2; }
+              .total { text-align: right; font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Quote #${id}</h1>
+              <p>Thank you for your business!</p>
+            </div>
+            <div class="quote-info">
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+              <p><strong>Quote ID:</strong> #${id}</p>
+            </div>
+            <table class="items">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sample Product</td>
+                  <td>1</td>
+                  <td>$100.00</td>
+                  <td>$100.00</td>
+                </tr>
+                <tr>
+                  <td>Sample Service</td>
+                  <td>2</td>
+                  <td>$75.00</td>
+                  <td>$150.00</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="total">
+              <p><strong>Subtotal:</strong> $250.00</p>
+              <p><strong>Tax (20%):</strong> $50.00</p>
+              <p><strong>Total:</strong> $300.00</p>
+            </div>
+            <script>
+              window.onload = function() {
+                window.print();
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    } else {
+      alert('Please allow popups for this website to print the quote.');
+    }
+  }
+
   createQuote(): void {
     this.router.navigate(['/sales/quotes/new']);
   }

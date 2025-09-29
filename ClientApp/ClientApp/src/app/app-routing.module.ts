@@ -48,8 +48,10 @@ import { GoodsReceiptListComponent } from './components/purchase-management/good
 import { SalesComponent } from './components/sales/sales.component';
 import { QuoteListComponent } from './components/sales/quote-list/quote-list.component';
 import { QuoteFormComponent } from './components/sales/quote-form/quote-form.component';
+import { QuoteDetailComponent } from './components/sales/quote-detail/quote-detail.component';
 import { OrderListComponent } from './components/sales/order-list/order-list.component';
 import { OrderFormComponent } from './components/sales/order-form/order-form.component';
+import { OrderDetailComponent } from './components/sales/order-detail/order-detail.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -260,12 +262,12 @@ const routes: Routes = [
       { path: 'quotes', component: QuoteListComponent },
       { path: 'quotes/new', component: QuoteFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
       { path: 'quotes/edit/:id', component: QuoteFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
-      { path: 'quotes/:id', component: QuoteListComponent },
+      { path: 'quotes/:id', component: QuoteDetailComponent },
       // Orders
       { path: 'orders', component: OrderListComponent },
       { path: 'orders/new', component: OrderFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
       { path: 'orders/edit/:id', component: OrderFormComponent, data: { requiredRoles: ['Admin', 'Vendeur'] } },
-      { path: 'orders/:id', component: OrderListComponent }
+      { path: 'orders/:id', component: OrderDetailComponent }
     ]
   },
 
