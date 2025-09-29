@@ -1,4 +1,43 @@
 /* Order Form Component Styles */
+.product-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  min-width: 100%;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  font-size: 0.875rem;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.15);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+}
+
+.product-dropdown.show {
+  display: block;
+}
+
+.product-dropdown .dropdown-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.product-dropdown .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+/*  sss */
+
+
+
+
+
+
 
 .container-fluid {
   padding: 1.5rem;
@@ -299,5 +338,117 @@
   .btn,
   .alert {
     display: none !important;
+  }
+}
+
+/* Order Form Styles */
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+  color: #495057;
+}
+
+.form-label.required::after {
+  content: " *";
+  color: #dc3545;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+.btn-group-sm > .btn, .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.table th {
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.75em;
+}
+
+.form-actions {
+  margin-top: 2rem;
+}
+
+.advanced-search {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.advanced-search.show {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in;
+}
+
+/* Product dropdown styles */
+.position-relative {
+  position: relative;
+}
+
+.dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1050;
+}
+
+.dropdown-menu.product-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;
+}
+
+.dropdown-menu.product-dropdown.show {
+  display: block;
+}
+
+.dropdown-item {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-section .row > div {
+    margin-bottom: 1rem;
+  }
+  
+  .card-body .row.align-items-center > div {
+    margin-bottom: 0.5rem;
   }
 }

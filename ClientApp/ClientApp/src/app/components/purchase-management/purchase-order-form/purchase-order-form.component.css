@@ -1,18 +1,18 @@
 .card {
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .card-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.form-label {
-  font-weight: 500;
+.form-label.required::after {
+  content: " *";
+  color: #dc3545;
 }
 
 .is-invalid {
-  border-color: #dc3545 !important;
+  border-color: #dc3545;
 }
 
 .invalid-feedback {
@@ -23,15 +23,46 @@
   color: #dc3545;
 }
 
-.btn:disabled {
-  opacity: 0.65;
+.btn-group-sm > .btn, .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.table th {
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.75em;
+}
+
+.dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1050;
+}
+
+.dropdown-menu.product-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;
+}
+
+.dropdown-menu.product-dropdown.show {
+  display: block;
+}
+
+.dropdown-item {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.disabled {
   cursor: not-allowed;
-}
-
-.alert {
-  border-radius: 0.375rem;
-}
-
-.card-header.bg-light {
-  background-color: #f8f9fa !important;
+  opacity: 0.5;
 }

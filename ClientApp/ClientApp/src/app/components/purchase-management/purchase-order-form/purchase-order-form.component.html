@@ -70,20 +70,48 @@
               <div class="card-body">
                 <div formArrayName="lignes">
                   <div class="row mb-3 align-items-end" *ngFor="let line of lignes.controls; let i = index" [formGroupName]="i">
-                    <div class="col-md-5">
-                      <label class="form-label">Product *</label>
-                      <select class="form-select" formControlName="produitId"
-                              [class.is-invalid]="line.get('produitId')?.invalid && line.get('produitId')?.touched">
-                        <option value="">Select a product</option>
-                        <option *ngFor="let product of products" [value]="product.id">
-                          {{ product.designation }} ({{ product.reference }})
-                        </option>
-                      </select>
-                      <div class="invalid-feedback" *ngIf="line.get('produitId')?.invalid && line.get('produitId')?.touched">
-                        Product is required
-                      </div>
-                    </div>
-                    <div class="col-md-3">
+                   <div class="col-md-4">
+  <label class="form-label">Product *</label>
+  <!-- Searchable product input -->
+  <div class="position-relative">
+    <input 
+      type="text" 
+      class="form-control" 
+      placeholder="Search product..."
+      [value]="getProductDisplayName(line.get('produitId')?.value)"
+      (input)="onProductSearch($event, i)"
+      (focus)="showProductDropdown(i)"
+      (blur)="hideProductDropdown(i, $event)"
+      [class.is-invalid]="line.get('produitId')?.invalid && line.get('produitId')?.touched">
+    <!-- Product dropdown -->
+    <div class="dropdown-menu product-dropdown" 
+         [class.show]="showProductDropdownForIndex === i"
+         [style.width]="'100%'"
+         [style.max-height]="'200px'"
+         [style.overflow-y]="'auto'">
+      <a class="dropdown-item" 
+         *ngFor="let product of filteredProducts[i] || []" 
+         (mousedown)="selectProduct(i, product)"
+         href="javascript:void(0)">
+        <div>
+          <strong>{{ product.reference }}</strong> - {{ product.designation }}
+        </div>
+        <small class="text-muted">
+          Prix HT: {{ product.prixAchatHT | currency:'EUR':'symbol':'1.2-3' }} | 
+          TVA: {{ product.tauxTVA }}%
+        </small>
+      </a>
+      <div class="dropdown-item disabled" *ngIf="!(filteredProducts[i] || []).length">
+        No products found
+      </div>
+    </div>
+  </div>
+  <input type="hidden" formControlName="produitId">
+  <div class="invalid-feedback" *ngIf="line.get('produitId')?.invalid && line.get('produitId')?.touched">
+    Product is required
+  </div>
+</div>
+                    <div class="col-md-1">
                       <label class="form-label">Quantity *</label>
                       <input type="number" class="form-control" formControlName="quantite" min="1"
                              [class.is-invalid]="line.get('quantite')?.invalid && line.get('quantite')?.touched">
@@ -91,13 +119,25 @@
                         Quantity must be at least 1
                       </div>
                     </div>
-                    <div class="col-md-3">
-                      <label class="form-label">Unit Price *</label>
-                      <input type="number" class="form-control" formControlName="prixUnitaire" step="0.01" min="0"
-                             [class.is-invalid]="line.get('prixUnitaire')?.invalid && line.get('prixUnitaire')?.touched">
-                      <div class="invalid-feedback" *ngIf="line.get('prixUnitaire')?.invalid && line.get('prixUnitaire')?.touched">
-                        Unit price must be 0 or greater
+                    <div class="col-md-2">
+                      <label class="form-label">Prix Achat HT *</label>
+                      <input type="number" class="form-control" formControlName="prixUnitaireHT" step="0.001" min="0"
+                             [class.is-invalid]="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched">
+                      <div class="invalid-feedback" *ngIf="line.get('prixUnitaireHT')?.invalid && line.get('prixUnitaireHT')?.touched">
+                        Prix Achat HT must be 0 or greater
                       </div>
+                    </div>
+                    <div class="col-md-1">
+                      <label class="form-label">TVA %</label>
+                      <input type="number" class="form-control" formControlName="tauxTVA" step="0.1" min="0" max="100">
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Prix Achat TTC</label>
+                      <input type="number" class="form-control" formControlName="prixUnitaireTTC" step="0.001" min="0" readonly>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Total TTC</label>
+                      <input type="number" class="form-control" [value]="getLineTotalTTC(line)" readonly>
                     </div>
                     <div class="col-md-1">
                       <button type="button" class="btn btn-outline-danger" (click)="removeLine(i)" 

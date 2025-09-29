@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SalesService } from '../../../services/sales.service';
 import { ClientService } from '../../../services/client.service';
-import { SalesOrderResponse, SalesOrderListResponse, SalesOrderSearchRequest, SalesApiResponse } from '../../../models/sales.models';
+import { SalesOrderResponse, SalesApiResponse, SalesOrderListResponse } from '../../../models/sales.models';
 import { ClientResponse, ClientApiResponse, ClientListResponse } from '../../../models/client.models';
 
 @Component({
@@ -14,33 +14,33 @@ export class OrderListComponent implements OnInit {
   // Data
   orders: SalesOrderResponse[] = [];
   clients: ClientResponse[] = [];
-  totalCount = 0;
+  
+  // Pagination
   currentPage = 1;
   pageSize = 10;
+  totalCount = 0;
   totalPages = 0;
-  hasNextPage = false;
-  hasPreviousPage = false;
-
+  
   // Loading and error states
   isLoading = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-
+  
   // Selection
   selectedOrderIds: number[] = [];
   selectAll = false;
-
-  // Search and filter
+  
+  // Search
   showAdvancedSearch = false;
   searchForm = {
     clientId: null as number | null,
     statut: '',
-    dateDebut: null as Date | null,
-    dateFin: null as Date | null,
+    dateDebut: null as string | null,
+    dateFin: null as string | null,
     sortBy: 'dateCommande',
-    sortDirection: 'desc' as 'asc' | 'desc'
+    sortDirection: 'desc'
   };
-
+  
   // Status options
   statusOptions = [
     { value: '', label: 'Tous les statuts' },
@@ -62,27 +62,26 @@ export class OrderListComponent implements OnInit {
     this.loadClients();
   }
 
-  // Load orders
+  // Load orders with pagination and filtering
   loadOrders(): void {
     this.isLoading = true;
     this.errorMessage = null;
-
-    this.salesService.getAllSalesOrders(this.currentPage, this.pageSize).subscribe({
+    
+    this.salesService.getAllSalesOrders(
+      this.currentPage,
+      this.pageSize
+    ).subscribe({
       next: (response: SalesApiResponse<SalesOrderListResponse>) => {
         if (response.success && response.data) {
           this.orders = response.data.commandes;
           this.totalCount = response.data.totalCount;
-          this.currentPage = response.data.page;
-          this.pageSize = response.data.pageSize;
           this.totalPages = response.data.totalPages;
-          this.hasNextPage = response.data.hasNextPage;
-          this.hasPreviousPage = response.data.hasPreviousPage;
         } else {
           this.errorMessage = response.message || 'Erreur lors du chargement des commandes';
         }
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.errorMessage = 'Erreur de connexion au serveur';
         this.isLoading = false;
         console.error('Error loading orders:', error);
@@ -90,7 +89,7 @@ export class OrderListComponent implements OnInit {
     });
   }
 
-  // Load clients for search dropdown
+  // Load clients for dropdown
   loadClients(): void {
     this.clientService.getClients(1, 1000).subscribe({
       next: (response: ClientApiResponse<ClientListResponse>) => {
@@ -104,161 +103,58 @@ export class OrderListComponent implements OnInit {
     });
   }
 
-  // Search
-  onSearch(): void {
-    this.currentPage = 1;
-    this.performSearch();
+  // Navigation
+  createOrder(): void {
+    this.router.navigate(['/sales/orders/new']);
   }
 
-  // Advanced search
-  onAdvancedSearch(): void {
-    this.currentPage = 1;
-    this.performSearch();
-  }
-
-  // Perform search with current filters
-  performSearch(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-
-    const searchRequest: SalesOrderSearchRequest = {
-      clientId: this.searchForm.clientId,
-      statut: this.searchForm.statut || undefined,
-      dateDebut: this.searchForm.dateDebut || undefined,
-      dateFin: this.searchForm.dateFin || undefined,
-      page: this.currentPage,
-      pageSize: this.pageSize,
-      sortBy: this.searchForm.sortBy,
-      sortDirection: this.searchForm.sortDirection
-    };
-
-    this.salesService.searchSalesOrders(searchRequest).subscribe({
-      next: (response: SalesApiResponse<SalesOrderListResponse>) => {
-        if (response.success && response.data) {
-          this.orders = response.data.commandes;
-          this.totalCount = response.data.totalCount;
-          this.currentPage = response.data.page;
-          this.pageSize = response.data.pageSize;
-          this.totalPages = response.data.totalPages;
-          this.hasNextPage = response.data.hasNextPage;
-          this.hasPreviousPage = response.data.hasPreviousPage;
-        } else {
-          this.errorMessage = response.message || 'Erreur lors de la recherche des commandes';
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Erreur de connexion au serveur';
-        this.isLoading = false;
-        console.error('Error searching orders:', error);
-      }
-    });
-  }
-
-  // Pagination
-  onPageChange(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-    this.loadOrders();
-  }
-
-  onPageSizeChange(newPageSize: number): void {
-    this.pageSize = newPageSize;
-    this.currentPage = 1;
-    this.loadOrders();
-  }
-
-  // Sorting
-  sortBy(field: string): void {
-    if (this.searchForm.sortBy === field) {
-      this.searchForm.sortDirection = this.searchForm.sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.searchForm.sortBy = field;
-      this.searchForm.sortDirection = 'asc';
-    }
-    this.loadOrders();
-  }
-
-  getSortIcon(field: string): string {
-    if (this.searchForm.sortBy !== field) {
-      return 'fas fa-sort';
-    }
-    return this.searchForm.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
-  }
-
-  // Selection
-  toggleSelectAll(): void {
-    this.selectAll = !this.selectAll;
-    this.selectedOrderIds = this.selectAll 
-      ? this.orders.map(order => order.id) 
-      : [];
-  }
-
-  toggleSelectOrder(orderId: number): void {
-    const index = this.selectedOrderIds.indexOf(orderId);
-    if (index > -1) {
-      this.selectedOrderIds.splice(index, 1);
-    } else {
-      this.selectedOrderIds.push(orderId);
-    }
-    this.selectAll = this.selectedOrderIds.length === this.orders.length;
-  }
-
-  isOrderSelected(orderId: number): boolean {
-    return this.selectedOrderIds.includes(orderId);
-  }
-
-  // Actions
   viewOrder(id: number): void {
     this.router.navigate(['/sales/orders', id]);
   }
 
   editOrder(id: number): void {
-    this.router.navigate(['/sales/orders/edit', id]);
+    this.router.navigate(['/sales/orders', id, 'edit']);
   }
 
-  createOrder(): void {
-    this.router.navigate(['/sales/orders/new']);
+  // Print invoice
+  printInvoice(id: number): void {
+    // For now, we'll just show an alert. In a real implementation, this would generate a PDF.
+    alert(`Printing invoice for order #${id}. In a real application, this would generate a PDF.`);
+    
+    // TODO: Implement actual PDF generation
+    // Example of what could be done:
+    // this.salesService.generateInvoicePDF(id).subscribe({
+    //   next: (response) => {
+    //     // Handle PDF download
+    //     const blob = new Blob([response], { type: 'application/pdf' });
+    //     const url = window.URL.createObjectURL(blob);
+    //     const a = document.createElement('a');
+    //     a.href = url;
+    //     a.download = `invoice-${id}.pdf`;
+    //     a.click();
+    //     window.URL.revokeObjectURL(url);
+    //   },
+    //   error: (error) => {
+    //     this.errorMessage = 'Erreur lors de la génération de la facture';
+    //     console.error('Error generating invoice:', error);
+    //   }
+    // });
   }
 
-  deleteOrder(order: SalesOrderResponse): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la commande #${order.id} ?`)) {
-      this.salesService.deleteSalesOrder(order.id).subscribe({
-        next: (response: SalesApiResponse<void>) => {
-          if (response.success) {
-            this.successMessage = 'Commande supprimée avec succès';
-            this.loadOrders(); // Reload the list
-            setTimeout(() => this.successMessage = null, 3000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la suppression de la commande';
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
-          console.error('Error deleting order:', error);
-        }
-      });
-    }
-  }
-
-  // Submit order
+  // Order actions
   submitOrder(order: SalesOrderResponse): void {
-    if (confirm(`Êtes-vous sûr de vouloir soumettre la commande #${order.id} ?`)) {
+    if (confirm(`Soumettre la commande #${order.id} ?`)) {
       this.salesService.submitSalesOrder(order.id).subscribe({
         next: (response: SalesApiResponse<SalesOrderResponse>) => {
-          if (response.success && response.data) {
+          if (response.success) {
             this.successMessage = 'Commande soumise avec succès';
-            // Update the order in the list
-            const index = this.orders.findIndex(o => o.id === order.id);
-            if (index > -1) {
-              this.orders[index] = response.data!;
-            }
-            setTimeout(() => this.successMessage = null, 3000);
+            // Reload the orders to reflect the status change
+            this.loadOrders();
           } else {
             this.errorMessage = response.message || 'Erreur lors de la soumission de la commande';
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.errorMessage = 'Erreur de connexion au serveur';
           console.error('Error submitting order:', error);
         }
@@ -266,47 +162,78 @@ export class OrderListComponent implements OnInit {
     }
   }
 
-  // UI helpers
-  getStatusBadgeClass(statut: string): string {
-    switch (statut) {
-      case 'Brouillon':
-        return 'bg-secondary';
-      case 'Confirmé':
-        return 'bg-primary';
-      case 'Expédié':
-        return 'bg-info';
-      case 'Livré':
-        return 'bg-success';
-      case 'Annulé':
-        return 'bg-danger';
-      default:
-        return 'bg-secondary';
+  deleteOrder(order: SalesOrderResponse): void {
+    if (confirm(`Supprimer la commande #${order.id} ? Cette action est irréversible.`)) {
+      this.salesService.deleteSalesOrder(order.id).subscribe({
+        next: (response: SalesApiResponse<void>) => {
+          if (response.success) {
+            this.successMessage = 'Commande supprimée avec succès';
+            // Reload the orders to reflect the deletion
+            this.loadOrders();
+            // Remove from selection if it was selected
+            this.selectedOrderIds = this.selectedOrderIds.filter(oid => oid !== order.id);
+          } else {
+            this.errorMessage = response.message || 'Erreur lors de la suppression de la commande';
+          }
+        },
+        error: (error: any) => {
+          this.errorMessage = 'Erreur de connexion au serveur';
+          console.error('Error deleting order:', error);
+        }
+      });
     }
   }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-TN', {
-      style: 'currency',
-      currency: 'TND',
-      minimumFractionDigits: 3
-    }).format(amount);
+  // Selection
+  toggleSelectOrder(id: number): void {
+    const index = this.selectedOrderIds.indexOf(id);
+    if (index > -1) {
+      this.selectedOrderIds.splice(index, 1);
+    } else {
+      this.selectedOrderIds.push(id);
+    }
+    this.selectAll = this.selectedOrderIds.length === this.orders.length;
   }
 
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('fr-TN');
+  toggleSelectAll(): void {
+    this.selectAll = !this.selectAll;
+    if (this.selectAll) {
+      this.selectedOrderIds = this.orders.map(order => order.id);
+    } else {
+      this.selectedOrderIds = [];
+    }
   }
 
-  // Helper function for template to get min value
-  getMinValue(a: number, b: number): number {
-    return Math.min(a, b);
+  isOrderSelected(id: number): boolean {
+    return this.selectedOrderIds.includes(id);
   }
 
-  // Helper function for template to create array
-  createArray(length: number): number[] {
-    return Array.from({ length }, (_, i) => i + 1);
+  // Permissions
+  canCreateOrder(): boolean {
+    // TODO: Implement actual permission check
+    return true;
   }
 
-  // Clear search
+  canEditOrder(): boolean {
+    // TODO: Implement actual permission check
+    return true;
+  }
+
+  // Search
+  toggleAdvancedSearch(): void {
+    this.showAdvancedSearch = !this.showAdvancedSearch;
+  }
+
+  onSearch(): void {
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  onAdvancedSearch(): void {
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
   clearSearch(): void {
     this.searchForm = {
       clientId: null,
@@ -320,24 +247,66 @@ export class OrderListComponent implements OnInit {
     this.loadOrders();
   }
 
-  // Toggle advanced search
-  toggleAdvancedSearch(): void {
-    this.showAdvancedSearch = !this.showAdvancedSearch;
+  // Pagination
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadOrders();
+    }
   }
 
-  // Check permissions
-  canCreateOrder(): boolean {
-    // In a real application, you would check user roles/permissions
-    return true;
+  onPageSizeChange(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.loadOrders();
   }
 
-  canEditOrder(): boolean {
-    // In a real application, you would check user roles/permissions
-    return true;
+  // Sorting
+  sortBy(field: string): void {
+    if (this.searchForm.sortBy === field) {
+      // Toggle sort direction
+      this.searchForm.sortDirection = this.searchForm.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // Set new sort field
+      this.searchForm.sortBy = field;
+      this.searchForm.sortDirection = 'asc';
+    }
+    this.loadOrders();
   }
 
-  canDeleteOrder(): boolean {
-    // In a real application, you would check user roles/permissions
-    return true;
+  getSortIcon(field: string): string {
+    if (this.searchForm.sortBy === field) {
+      return this.searchForm.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    }
+    return 'fas fa-sort';
+  }
+
+  // Formatting
+  formatDate(date: string | Date): string {
+    return new Date(date).toLocaleDateString('fr-FR');
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(amount);
+  }
+
+  getStatusBadgeClass(status: string): string {
+    switch (status) {
+      case 'Brouillon': return 'bg-secondary';
+      case 'Confirmé': return 'bg-primary';
+      case 'Expédié': return 'bg-info';
+      case 'Livré': return 'bg-success';
+      case 'Annulé': return 'bg-danger';
+      default: return 'bg-secondary';
+    }
+  }
+
+  // Utility
+  getMinValue(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  createArray(length: number): number[] {
+    return Array.from({ length }, (_, i) => i + 1);
   }
 }

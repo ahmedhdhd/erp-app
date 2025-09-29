@@ -1,1 +1,106 @@
 /* You can add global styles to this file, and also import other style files */
+/* Add this to your src/styles.css (global styles) */
+
+/* Method 1: Prevent horizontal overflow on the entire app */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Method 2: Ensure all containers respect viewport width */
+* {
+  box-sizing: border-box;
+}
+
+.container-fluid, .container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Method 3: Make Bootstrap rows responsive without horizontal scroll */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+  max-width: 100%;
+}
+
+.row > * {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Method 4: Handle wide tables responsively */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* For your specific form tables, make them stack on mobile */
+@media (max-width: 991.98px) {
+  .row.align-items-center > [class*="col-"] {
+    margin-bottom: 0.75rem;
+  }
+  
+  .row.align-items-center > [class*="col-"]:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Make input groups full width on mobile */
+  .input-group {
+    width: 100%;
+  }
+}
+
+/* Method 5: Specific fixes for your forms */
+.card-body .row {
+  --bs-gutter-x: 1rem;
+}
+
+@media (max-width: 767.98px) {
+  .card-body .row {
+    --bs-gutter-x: 0.5rem;
+  }
+}
+
+/* Method 6: Ensure dropdowns don't cause horizontal scroll */
+.dropdown-menu {
+  max-width: 100vw;
+  left: 0 !important;
+  right: auto !important;
+}
+
+/* Method 7: Handle long text content */
+.form-control, .form-select {
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Method 8: Fix button groups that might overflow */
+.btn-group {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 575.98px) {
+  .btn-group .btn {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* Method 9: Ensure cards don't overflow */
+.card {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.card-body {
+  min-width: 0; /* Allows flex items to shrink below content size */
+}
+
+/* Method 10: Alternative - Force everything to fit viewport */
+/* Only use this if above methods don't work */
+/*
+body * {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+*/

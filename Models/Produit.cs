@@ -14,6 +14,7 @@ namespace App.Models
         public decimal PrixAchat { get; set; }
         public decimal PrixVente { get; set; }
         public decimal PrixVenteMin { get; set; }
+        public decimal TauxTVA { get; set; } = 19; // Default VAT rate of 20%
         public string Unite { get; set; } // Pièce, Kg, Litre, etc.
         public string Statut { get; set; } // Actif, Inactif, Discontinué, Rupture
         public int StockActuel { get; set; }

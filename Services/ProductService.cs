@@ -88,6 +88,7 @@ namespace App.Services
 				PrixAchat = request.PrixAchat,
 				PrixVente = request.PrixVente,
 				PrixVenteMin = request.PrixVenteMin,
+				TauxTVA = request.TauxTVA, // Set the VAT rate
 				Unite = request.Unite,
 				Statut = request.Statut,
 				StockActuel = request.StockActuel,
@@ -116,6 +117,7 @@ namespace App.Services
 			existing.PrixAchat = request.PrixAchat;
 			existing.PrixVente = request.PrixVente;
 			existing.PrixVenteMin = request.PrixVenteMin;
+			existing.TauxTVA = request.TauxTVA; // Update the VAT rate
 			existing.Unite = request.Unite;
 			existing.Statut = request.Statut;
 			existing.StockActuel = request.StockActuel;
@@ -237,13 +239,13 @@ namespace App.Services
 				PrixAchat = p.PrixAchat,
 				PrixVente = p.PrixVente,
 				PrixVenteMin = p.PrixVenteMin,
-				TauxTVA = 0,
+				TauxTVA = p.TauxTVA,
 				PrixAchatHT = p.PrixAchat,
 				PrixVenteHT = p.PrixVente,
 				PrixVenteMinHT = p.PrixVenteMin,
-				PrixAchatTTC = p.PrixAchat,
-				PrixVenteTTC = p.PrixVente,
-				PrixVenteMinTTC = p.PrixVenteMin,
+				PrixAchatTTC = p.PrixAchat * (1 + p.TauxTVA / 100),
+				PrixVenteTTC = p.PrixVente * (1 + p.TauxTVA / 100),
+				PrixVenteMinTTC = p.PrixVenteMin * (1 + p.TauxTVA / 100),
 				Unite = p.Unite,
 				Statut = p.Statut,
 				StockActuel = p.StockActuel,

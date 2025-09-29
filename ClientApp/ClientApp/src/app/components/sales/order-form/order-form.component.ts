@@ -31,6 +31,10 @@ export class OrderFormComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
+  // Properties for searchable product dropdown
+  showProductDropdownForIndex: number | null = null;
+  filteredProducts: { [key: number]: ProductResponse[] } = {};
+  
   // Status options
   statusOptions = [
     { value: 'Brouillon', label: 'Brouillon' },
@@ -92,11 +96,15 @@ export class OrderFormComponent implements OnInit {
           // Clear existing lines and add lines from the order
           this.lignes.clear();
           order.lignes.forEach(line => {
-            this.lignes.push(this.fb.group({
-              produitId: [line.produitId, Validators.required],
-              quantite: [line.quantite, [Validators.required, Validators.min(1)]],
-              prixUnitaire: [line.prixUnitaire, [Validators.required, Validators.min(0)]]
-            }));
+            const lineGroup = this.createLineFormGroup();
+            lineGroup.patchValue({
+              produitId: line.produitId,
+              quantite: line.quantite,
+              prixUnitaireHT: line.prixUnitaire,
+              tauxTVA: 20, // Default VAT rate
+              prixUnitaireTTC: line.prixUnitaire * 1.2
+            });
+            this.lignes.push(lineGroup);
           });
         } else {
           this.errorMessage = response.message || 'Erreur lors du chargement de la commande';
@@ -131,6 +139,11 @@ export class OrderFormComponent implements OnInit {
       next: (response: ProductApiResponse<ProductListResponse>) => {
         if (response.success && response.data) {
           this.products = response.data.products;
+          console.log('Loaded products:', this.products);
+          // Log the first few products to see their structure
+          if (this.products.length > 0) {
+            console.log('First product sample:', this.products[0]);
+          }
         }
       },
       error: (error: any) => {
@@ -144,39 +157,149 @@ export class OrderFormComponent implements OnInit {
     return this.orderForm.get('lignes') as FormArray;
   }
 
+  // Create a new line form group with HT and TTC price fields
+createLineFormGroup(): FormGroup {
+  const group = this.fb.group({
+    produitId: [null, Validators.required],
+    quantite: [1, [Validators.required, Validators.min(1)]],
+    prixUnitaireHT: [0, [Validators.required, Validators.min(0)]],
+    tauxTVA: [20, [Validators.required, Validators.min(0), Validators.max(100)]],
+    prixUnitaireTTC: [0] // Remove disabled state for better reactivity
+  });
+  
+  // Add value change listeners with debounce to prevent excessive calculations
+  group.get('prixUnitaireHT')?.valueChanges.subscribe(value => {
+    console.log('prixUnitaireHT changed in sales form:', value);
+    setTimeout(() => this.calculateTTCPrice(group), 0);
+  });
+  
+  group.get('tauxTVA')?.valueChanges.subscribe(value => {
+    console.log('tauxTVA changed in sales form:', value);
+    setTimeout(() => this.calculateTTCPrice(group), 0);
+  });
+  
+  return group;
+}
+
   // Add a new line
   addLine(): void {
-    this.lignes.push(this.fb.group({
-      produitId: [null, Validators.required],
-      quantite: [1, [Validators.required, Validators.min(1)]],
-      prixUnitaire: [0, [Validators.required, Validators.min(0)]]
-    }));
+    this.lignes.push(this.createLineFormGroup());
   }
 
   // Remove a line
   removeLine(index: number): void {
     if (this.lignes.length > 1) {
       this.lignes.removeAt(index);
+      // Clean up filtered products
+      delete this.filteredProducts[index];
+      // Adjust indices of remaining filtered products
+      const newFilteredProducts: { [key: number]: ProductResponse[] } = {};
+      Object.keys(this.filteredProducts).forEach(key => {
+        const oldIndex = parseInt(key);
+        const newIndex = oldIndex > index ? oldIndex - 1 : oldIndex;
+        newFilteredProducts[newIndex] = this.filteredProducts[oldIndex];
+      });
+      this.filteredProducts = newFilteredProducts;
     } else {
       // If it's the last line, just reset it
-      this.lignes.at(index).reset({
-        produitId: null,
-        quantite: 1,
-        prixUnitaire: 0
-      });
+      const lineGroup = this.createLineFormGroup();
+      this.lignes.setControl(0, lineGroup);
     }
   }
+
+  // Product search methods
+  getProductDisplayName(productId: number | null): string {
+    if (!productId) return '';
+    const product = this.products.find(p => p.id === productId);
+    return product ? `${product.reference} - ${product.designation}` : '';
+  }
+
+  onProductSearch(event: any, index: number): void {
+    const searchTerm = event.target.value.toLowerCase();
+    if (searchTerm.length > 0) {
+      this.filteredProducts[index] = this.products.filter(product => 
+        product.reference.toLowerCase().includes(searchTerm) || 
+        product.designation.toLowerCase().includes(searchTerm)
+      );
+    } else {
+      this.filteredProducts[index] = [];
+    }
+    this.showProductDropdownForIndex = index;
+  }
+
+  showProductDropdown(index: number): void {
+    this.showProductDropdownForIndex = index;
+    // Show all products if input is empty
+    if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
+      this.filteredProducts[index] = this.products;
+    }
+  }
+
+  hideProductDropdown(index: number, event: any): void {
+    // Delay hiding to allow click events to register
+    setTimeout(() => {
+      this.showProductDropdownForIndex = null;
+    }, 200);
+  }
+
+  getLineTotalTTC(line: any): number {
+    const quantity = line.get('quantite')?.value || 0;
+    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
+    return quantity * prixTTC;
+  }
+
+selectProduct(index: number, product: ProductResponse): void {
+  console.log('Selecting product:', product);
+  const lineGroup = this.lignes.at(index) as FormGroup;
+  
+  if (lineGroup) {
+    // Set all the product-related values using patchValue for better form control
+    lineGroup.patchValue({
+      produitId: product.id,
+      prixUnitaireHT: product.prixVenteHT || 0,
+      tauxTVA: product.tauxTVA || 20  // Default to 20% if not specified
+    });
+    
+    // Calculate TTC price after setting the values
+    setTimeout(() => {
+      this.calculateTTCPrice(lineGroup);
+      console.log('Line group after selection:', lineGroup.value);
+    }, 0);
+  }
+  
+  // Hide the dropdown
+  this.showProductDropdownForIndex = null;
+  
+  // Clear the filtered products for this index
+  if (this.filteredProducts[index]) {
+    delete this.filteredProducts[index];
+  }
+}
+
+// Enhanced calculateTTCPrice method with better error handling
+calculateTTCPrice(lineGroup: FormGroup): void {
+  const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
+  const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
+  const prixTTC = prixHT * (1 + tauxTVA / 100);
+  
+  console.log('Calculating TTC in sales form:', { prixHT, tauxTVA, prixTTC });
+  
+  // Round to 3 decimal places to avoid floating point precision issues
+  const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
+  
+  lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
+}
 
   // Get product details for a line
   getProductDetails(produitId: number): ProductResponse | undefined {
     return this.products.find(p => p.id === produitId);
   }
 
-  // Calculate line total
+  // Calculate line total (HT)
   calculateLineTotal(line: AbstractControl): number {
     const quantite = line.get('quantite')?.value || 0;
-    const prixUnitaire = line.get('prixUnitaire')?.value || 0;
-    return quantite * prixUnitaire;
+    const prixUnitaireHT = line.get('prixUnitaireHT')?.value || 0;
+    return quantite * prixUnitaireHT;
   }
 
   // Calculate subtotal (before discount)
@@ -200,22 +323,23 @@ export class OrderFormComponent implements OnInit {
   // Form validation
   isFieldInvalid(fieldName: string): boolean {
     const field = this.orderForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  isLineFieldInvalid(lineIndex: number, fieldName: string): boolean {
-    const line = this.lignes.at(lineIndex);
-    const field = line.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    return !!(field && field.invalid && field.touched);
   }
 
   getFieldErrorMessage(fieldName: string): string {
     const field = this.orderForm.get(fieldName);
     if (field?.errors) {
       if (field.errors['required']) return 'Ce champ est requis';
-      if (field.errors['min']) return 'La valeur doit être positive';
+      if (field.errors['minlength']) return `Minimum ${field.errors['minlength'].requiredLength} caractères`;
+      if (field.errors['maxlength']) return `Maximum ${field.errors['maxlength'].requiredLength} caractères`;
     }
     return '';
+  }
+
+  isLineFieldInvalid(lineIndex: number, fieldName: string): boolean {
+    const line = this.lignes.at(lineIndex);
+    const field = line.get(fieldName);
+    return !!(field && field.invalid && field.touched);
   }
 
   getLineFieldErrorMessage(lineIndex: number, fieldName: string): string {
@@ -223,84 +347,88 @@ export class OrderFormComponent implements OnInit {
     const field = line.get(fieldName);
     if (field?.errors) {
       if (field.errors['required']) return 'Ce champ est requis';
-      if (field.errors['min']) return 'La valeur doit être positive';
+      if (field.errors['min']) return 'La valeur doit être supérieure ou égale à ' + field.errors['min'].min;
     }
     return '';
   }
 
-  // Clear messages
+  // Form actions
   clearMessages(): void {
     this.errorMessage = null;
     this.successMessage = null;
   }
 
-  // Cancel and go back
   onCancel(): void {
     this.router.navigate(['/sales/orders']);
   }
 
-  // Submit form
   onSubmit(): void {
-    if (this.orderForm.invalid) {
+    if (this.orderForm.valid) {
+      this.isSubmitting = true;
+      this.clearMessages();
+
+      // Prepare request data
+      const formValue = this.orderForm.value;
+      const request: CreateSalesOrderRequest | UpdateSalesOrderRequest = {
+        clientId: formValue.clientId,
+        modeLivraison: formValue.modeLivraison,
+        conditionsPaiement: formValue.conditionsPaiement,
+        lignes: formValue.lignes.map((line: any) => ({
+          produitId: line.produitId,
+          quantite: line.quantite,
+          prixUnitaire: line.prixUnitaireHT // Use HT price as the main price
+        }))
+      };
+
+      // Add devisId if provided
+      if (formValue.devisId) {
+        (request as any).devisId = formValue.devisId;
+      }
+
+      if (this.isEditMode && this.orderId) {
+        this.salesService.updateSalesOrder(this.orderId, request as UpdateSalesOrderRequest).subscribe({
+          next: (response: SalesApiResponse<SalesOrderResponse>) => {
+            this.isSubmitting = false;
+            if (response.success) {
+              this.successMessage = 'Commande mise à jour avec succès';
+              setTimeout(() => {
+                this.router.navigate(['/sales/orders']);
+              }, 2000);
+            } else {
+              this.errorMessage = response.message || 'Erreur lors de la mise à jour de la commande';
+            }
+          },
+          error: (error) => {
+            this.isSubmitting = false;
+            this.errorMessage = 'Erreur de connexion au serveur';
+            console.error('Error updating order:', error);
+          }
+        });
+      } else {
+        this.salesService.createSalesOrder(request as CreateSalesOrderRequest).subscribe({
+          next: (response: SalesApiResponse<SalesOrderResponse>) => {
+            this.isSubmitting = false;
+            if (response.success) {
+              this.successMessage = 'Commande créée avec succès';
+              setTimeout(() => {
+                this.router.navigate(['/sales/orders']);
+              }, 2000);
+            } else {
+              this.errorMessage = response.message || 'Erreur lors de la création de la commande';
+            }
+          },
+          error: (error) => {
+            this.isSubmitting = false;
+            this.errorMessage = 'Erreur de connexion au serveur';
+            console.error('Error creating order:', error);
+          }
+        });
+      }
+    } else {
       // Mark all fields as touched to show validation errors
       this.orderForm.markAllAsTouched();
-      this.lignes.controls.forEach(line => line.markAllAsTouched());
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.clearMessages();
-
-    // Prepare request data
-    const formData = this.orderForm.value;
-    const request: CreateSalesOrderRequest | UpdateSalesOrderRequest = {
-      clientId: formData.clientId,
-      devisId: formData.devisId || undefined,
-      modeLivraison: formData.modeLivraison,
-      conditionsPaiement: formData.conditionsPaiement,
-      lignes: formData.lignes.map((line: any) => ({
-        produitId: line.produitId,
-        quantite: line.quantite,
-        prixUnitaire: line.prixUnitaire
-      }))
-    };
-
-    if (this.isEditMode && this.orderId) {
-      // Update existing order
-      const updateRequest = { ...request, id: this.orderId } as UpdateSalesOrderRequest;
-      this.salesService.updateSalesOrder(this.orderId, updateRequest).subscribe({
-        next: (response: SalesApiResponse<SalesOrderResponse>) => {
-          if (response.success) {
-            this.successMessage = 'Commande mise à jour avec succès';
-            setTimeout(() => this.router.navigate(['/sales/orders']), 2000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la mise à jour de la commande';
-            this.isSubmitting = false;
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
-          this.isSubmitting = false;
-          console.error('Error updating order:', error);
-        }
-      });
-    } else {
-      // Create new order
-      this.salesService.createSalesOrder(request as CreateSalesOrderRequest).subscribe({
-        next: (response: SalesApiResponse<SalesOrderResponse>) => {
-          if (response.success) {
-            this.successMessage = 'Commande créée avec succès';
-            setTimeout(() => this.router.navigate(['/sales/orders']), 2000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la création de la commande';
-            this.isSubmitting = false;
-          }
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
-          this.isSubmitting = false;
-          console.error('Error creating order:', error);
-        }
+      this.lignes.controls.forEach(line => {
+        line.markAllAsTouched();
       });
     }
   }

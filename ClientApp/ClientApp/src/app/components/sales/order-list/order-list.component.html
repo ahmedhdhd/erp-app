@@ -220,7 +220,7 @@
                   Statut
                   <i [class]="getSortIcon('statut')"></i>
                 </th>
-                <th scope="col" style="width: 150px;">Actions</th>
+                <th scope="col" style="width: 180px;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -265,6 +265,13 @@
                       *ngIf="canEditOrder() && order.statut === 'Brouillon'"
                       title="Modifier">
                       <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-primary" 
+                      (click)="printInvoice(order.id)"
+                      title="Imprimer la facture">
+                      <i class="fas fa-print"></i>
                     </button>
                     <div class="btn-group btn-group-sm" role="group" *ngIf="order.statut === 'Brouillon'">
                       <button 
