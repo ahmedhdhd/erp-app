@@ -56,8 +56,10 @@ namespace App.Data.Implementations
 
 		public async Task<CommandeAchat> UpdateAsync(CommandeAchat entity)
 		{
+			// Debug.WriteLine($"CommandeAchatDAO.UpdateAsync called for commande {entity.Id} with status {entity.Statut}");
 			_db.CommandeAchats.Update(entity);
-			await _db.SaveChangesAsync();
+			var result = await _db.SaveChangesAsync();
+			// Debug.WriteLine($"CommandeAchatDAO.UpdateAsync saved {result} changes for commande {entity.Id}");
 			return entity;
 		}
 

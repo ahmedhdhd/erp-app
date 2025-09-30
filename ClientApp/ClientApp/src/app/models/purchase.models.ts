@@ -164,6 +164,7 @@ export interface GoodsReceiptResponse {
   id: number;
   commandeId: number;
   dateReception: Date;
+  statut: string; // Partielle, Complète
   lignes: GoodsReceiptLineResponse[];
 }
 

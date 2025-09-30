@@ -75,12 +75,13 @@ export class PurchaseOrderDetailComponent implements OnInit {
   }
 
   submitPurchaseOrder(): void {
-    if (this.purchaseOrderId && confirm('Are you sure you want to submit this purchase order?')) {
+    if (this.purchaseOrderId && confirm('Are you sure you want to submit this purchase order? This will reserve the quantities of all products included in this order by decreasing current stock.')) {
       this.purchaseService.submitPurchaseOrder({ commandeId: this.purchaseOrderId }).subscribe({
         next: (response: PurchaseApiResponse<PurchaseOrderResponse>) => {
           if (response.success && response.data) {
             this.purchaseOrder = response.data;
-            // Show success message or update UI
+            // Show success message
+            alert('Purchase order submitted successfully. Product quantities have been reserved (stock decreased).');
           } else {
             this.error = response.message || 'Failed to submit purchase order';
           }
@@ -129,5 +130,33 @@ export class PurchaseOrderDetailComponent implements OnInit {
       }
       this.router.navigate(['/purchase-orders', this.purchaseOrderId, 'receive']);
     }
+  }
+
+  getProductName(line: any): string {
+    if (line.ligneCommande && line.ligneCommande.produit) {
+      return line.ligneCommande.produit.designation || 'N/A';
+    }
+    // Fallback to find product from purchase order lines
+    if (this.purchaseOrder && line.ligneCommandeId) {
+      const orderLine = this.purchaseOrder.lignes.find(l => l.id === line.ligneCommandeId);
+      if (orderLine && orderLine.produit) {
+        return orderLine.produit.designation || 'N/A';
+      }
+    }
+    return 'N/A';
+  }
+
+  getProductReference(line: any): string {
+    if (line.ligneCommande && line.ligneCommande.produit) {
+      return line.ligneCommande.produit.reference || 'N/A';
+    }
+    // Fallback to find product from purchase order lines
+    if (this.purchaseOrder && line.ligneCommandeId) {
+      const orderLine = this.purchaseOrder.lignes.find(l => l.id === line.ligneCommandeId);
+      if (orderLine && orderLine.produit) {
+        return orderLine.produit.reference || 'N/A';
+      }
+    }
+    return 'N/A';
   }
 }

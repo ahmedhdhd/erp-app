@@ -18,7 +18,10 @@ builder.Services.AddControllers();
 
 // Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .LogTo(Console.WriteLine, LogLevel.Information)
+           .EnableSensitiveDataLogging()
+           .EnableDetailedErrors());
 
 // JWT Authentication & Authorization
 builder.Services.AddJwtAuthentication(builder.Configuration);

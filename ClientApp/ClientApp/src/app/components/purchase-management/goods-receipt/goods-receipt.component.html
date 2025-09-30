@@ -23,6 +23,11 @@
             <h5>Informations de la commande #{{ purchaseOrder.id }}</h5>
           </div>
           <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Note:</strong> Les quantités des produits ont déjà été réservées (stock diminué) lors de la soumission de cette commande. 
+              Cette réception ne fait que valider la livraison et augmentera le stock avec les produits reçus.
+            </div>
             <div class="row">
               <div class="col-md-6">
                 <p><strong>Fournisseur:</strong> {{ purchaseOrder.fournisseur.raisonSociale }}</p>
@@ -76,11 +81,21 @@
                       <td class="text-end">{{ purchaseOrder.lignes[i].quantite }}</td>
                       <td>
                         <input type="number" class="form-control" formControlName="quantiteRecue" 
-                               (input)="onQuantityChange(i)" min="0" [max]="purchaseOrder.lignes[i].quantite">
+                               (input)="onQuantityChange(i)" min="0" [max]="getMaxReceivableQuantity(i)">
+                        <small class="text-muted">Max: {{ getMaxReceivableQuantity(i) }}</small>
+                        <div *ngIf="getLine(i).get('quantiteRecue')?.invalid && getLine(i).get('quantiteRecue')?.touched" class="text-danger">
+                          <small *ngIf="getLine(i).get('quantiteRecue')?.errors?.['min']">La quantité ne peut pas être négative</small>
+                          <small *ngIf="getLine(i).get('quantiteRecue')?.errors?.['max']">La quantité dépasse le maximum autorisé</small>
+                        </div>
                       </td>
                       <td>
                         <input type="number" class="form-control" formControlName="quantiteRejetee" 
-                               (input)="onRejectQuantityChange(i)" min="0" [max]="purchaseOrder.lignes[i].quantite">
+                               (input)="onRejectQuantityChange(i)" min="0" [max]="getMaxRejectableQuantity(i)">
+                        <small class="text-muted">Max: {{ getMaxRejectableQuantity(i) }}</small>
+                        <div *ngIf="getLine(i).get('quantiteRejetee')?.invalid && getLine(i).get('quantiteRejetee')?.touched" class="text-danger">
+                          <small *ngIf="getLine(i).get('quantiteRejetee')?.errors?.['min']">La quantité ne peut pas être négative</small>
+                          <small *ngIf="getLine(i).get('quantiteRejetee')?.errors?.['max']">La quantité dépasse le maximum autorisé</small>
+                        </div>
                       </td>
                       <td>
                         <input type="text" class="form-control" formControlName="motifRejet" placeholder="Motif du rejet">

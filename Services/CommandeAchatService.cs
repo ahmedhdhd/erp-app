@@ -171,35 +171,92 @@ namespace App.Services
 
 		public async Task<FournisseurApiResponse<CommandeAchatDTO>> SubmitAsync(int commandeId)
 		{
-			var commande = await _dao.GetByIdAsync(commandeId);
-			if (commande == null) return Failure<CommandeAchatDTO>("Commande d'achat introuvable");
-			
-			if (commande.Statut != "Brouillon")
-				return Failure<CommandeAchatDTO>("Seule une commande en brouillon peut être soumise");
+			try
+			{
+				var commande = await _dao.GetByIdAsync(commandeId);
+				if (commande == null) return Failure<CommandeAchatDTO>("Commande d'achat introuvable");
+				
+				if (commande.Statut != "Brouillon")
+					return Failure<CommandeAchatDTO>("Seule une commande en brouillon peut être soumise");
 
-			commande.Statut = "Envoyée";
-			var updated = await _dao.UpdateAsync(commande);
-			return Success(MapToDTO(updated));
+				// Update product quantities when submitting the order - decrease stock as we're ordering products
+				var updatedProducts = new List<Produit>();
+				foreach (var ligne in commande.Lignes)
+				{
+					// Get a fresh copy of the product to avoid concurrency issues
+					var produit = await _productDAO.GetByIdAsync(ligne.ProduitId);
+					if (produit != null)
+					{
+						var oldStock = produit.StockActuel;
+						// Decrease stock quantity by the ordered quantity (reserve stock for purchase)
+						
+						
+						//produit.StockActuel -= ligne.Quantite;
+						
+						// Ensure stock doesn't go below zero
+						if (produit.StockActuel < 0)
+							produit.StockActuel = 0;
+						
+						// Save the updated product
+						// Debug.WriteLine($"Updating product {produit.Id} stock from {oldStock} to {produit.StockActuel}");
+						try
+						{
+							await _productDAO.UpdateAsync(produit);
+							updatedProducts.Add(produit);
+							// Debug.WriteLine($"Product {produit.Id} successfully updated with stock: {produit.StockActuel}");
+							
+							// Verify the update was successful
+							var verifyProduct = await _productDAO.GetByIdAsync(ligne.ProduitId);
+							// Debug.WriteLine($"Verified product {verifyProduct.Id} stock is now {verifyProduct.StockActuel}");
+						}
+						catch (Exception ex)
+						{
+							// Debug.WriteLine($"Failed to update product {produit.Id}: {ex}");
+							return Failure<CommandeAchatDTO>($"Erreur lors de la mise à jour du produit {produit.Id}: {ex.Message}");
+						}
+					}
+					else
+					{
+						// Debug.WriteLine($"Product {ligne.ProduitId} not found");
+					}
+				}
+
+				commande.Statut = "Envoyée";
+				var updated = await _dao.UpdateAsync(commande);
+				
+				// Log the updated products
+				foreach (var produit in updatedProducts)
+				{
+					// Debug.WriteLine($"Product {produit.Id} final stock: {produit.StockActuel}");
+				}
+				
+				return Success(MapToDTO(updated));
+			}
+			catch (Exception ex)
+			{
+				// Debug.WriteLine($"Exception in SubmitAsync: {ex}");
+				return Failure<CommandeAchatDTO>($"Erreur interne du serveur: {ex.Message}");
+			}
 		}
 
 		public async Task<FournisseurApiResponse<ReceptionDTO>> ReceiveAsync(int commandeId, CreateReceptionRequest request)
 		{
 			try
 			{
-				Debug.WriteLine($"ReceiveAsync called with commandeId: {commandeId}");
-				Debug.WriteLine($"Request data: DateReception={request.DateReception}, Lignes count={request.Lignes?.Count() ?? 0}");
+				// Debug.WriteLine($"ReceiveAsync called with commandeId: {commandeId}");
+				// Debug.WriteLine($"Request data: DateReception={request.DateReception}, Lignes count={request.Lignes?.Count() ?? 0}");
 
 				// Validate request
 				if (request == null)
 				{
-					Debug.WriteLine("Request is null");
+					// Debug.WriteLine("Request is null");
 					return Failure<ReceptionDTO>("Requête invalide");
 				}
 
 				// Validate date
 				if (request.DateReception == DateTime.MinValue)
 				{
-					Debug.WriteLine("Invalid date in request");
+					// Debug.WriteLine("Invalid date in request");
 					return Failure<ReceptionDTO>("Date de réception invalide");
 				}
 
@@ -207,16 +264,16 @@ namespace App.Services
 				var commande = await _dao.GetByIdAsync(commandeId);
 				if (commande == null) 
 				{
-					Debug.WriteLine($"Commande {commandeId} not found");
+					// Debug.WriteLine($"Commande {commandeId} not found");
 					return Failure<ReceptionDTO>("Commande d'achat introuvable");
 				}
 
-				Debug.WriteLine($"Commande found: Id={commande.Id}, Statut={commande.Statut}");
+				// Debug.WriteLine($"Commande found: Id={commande.Id}, Statut={commande.Statut}");
 
 				// Validate that the order has been submitted
 				if (commande.Statut == "Brouillon")
 				{
-					Debug.WriteLine($"Commande {commandeId} is in Brouillon status and cannot be received");
+					// Debug.WriteLine($"Commande {commandeId} is in Brouillon status and cannot be received");
 					return Failure<ReceptionDTO>("La commande doit être soumise avant de pouvoir recevoir des marchandises");
 				}
 
@@ -230,12 +287,12 @@ namespace App.Services
 
 				// We'll add the lines after creating the reception to avoid navigation property issues
 
-				Debug.WriteLine($"Created reception entity with DateReception={reception.DateReception}");
+				// Debug.WriteLine($"Created reception entity with DateReception={reception.DateReception}");
 
 				// Process each line in the reception request
 				if (request.Lignes == null)
 				{
-					Debug.WriteLine("Request.Lignes is null");
+					// Debug.WriteLine("Request.Lignes is null");
 					return Failure<ReceptionDTO>("Aucune ligne de réception fournie");
 				}
 
@@ -243,13 +300,13 @@ namespace App.Services
 
 				foreach (var ligneRequest in request.Lignes)
 				{
-					Debug.WriteLine($"Processing ligneRequest: LigneCommandeId={ligneRequest.LigneCommandeId}, QuantiteRecue={ligneRequest.QuantiteRecue}, QuantiteRejetee={ligneRequest.QuantiteRejetee}");
+					// Debug.WriteLine($"Processing ligneRequest: LigneCommandeId={ligneRequest.LigneCommandeId}, QuantiteRecue={ligneRequest.QuantiteRecue}, QuantiteRejetee={ligneRequest.QuantiteRejetee}");
 
 					// Find the corresponding purchase order line
 					var ligneCommande = commande.Lignes.FirstOrDefault(l => l.Id == ligneRequest.LigneCommandeId);
 					if (ligneCommande == null)
 					{
-						Debug.WriteLine($"LigneCommande {ligneRequest.LigneCommandeId} not found in commande {commandeId}");
+						// Debug.WriteLine($"LigneCommande {ligneRequest.LigneCommandeId} not found in commande {commandeId}");
 						return Failure<ReceptionDTO>("Ligne de commande introuvable");
 					}
 
@@ -266,23 +323,41 @@ namespace App.Services
 
 					ligneReceptions.Add(ligneReception);
 
-					// Update product stock if items were accepted
+					// Note: Product quantities are already updated when the order is submitted
+					// When receiving goods, we increase stock with the received quantities
 					if (ligneRequest.QuantiteRecue > 0)
 					{
+						// Get a fresh copy of the product to avoid concurrency issues
 						var produit = await _productDAO.GetByIdAsync(ligneCommande.ProduitId);
 						if (produit != null)
 						{
-							Debug.WriteLine($"Updating stock for product {produit.Id}: {produit.StockActuel} -> {produit.StockActuel + ligneRequest.QuantiteRecue}");
-							
-							// Update stock quantity
+							var oldStock = produit.StockActuel;
+							// Increase stock quantity with received items
 							produit.StockActuel += ligneRequest.QuantiteRecue;
+							
+							// Debug.WriteLine($"Increasing stock for product {produit.Id}: {oldStock} -> {produit.StockActuel}");
 
 							// Save the updated product
-							await _productDAO.UpdateAsync(produit);
+							// Debug.WriteLine($"Saving product {produit.Id} with new stock: {produit.StockActuel}");
+							try
+							{
+								await _productDAO.UpdateAsync(produit);
+								
+								// Debug.WriteLine($"Product {produit.Id} successfully updated with stock: {produit.StockActuel}");
+								
+								// Verify the update was successful
+								var verifyProduct = await _productDAO.GetByIdAsync(ligneCommande.ProduitId);
+								// Debug.WriteLine($"Verified product {verifyProduct.Id} stock is now {verifyProduct.StockActuel}");
+							}
+							catch (Exception ex)
+							{
+								// Debug.WriteLine($"Failed to update product {produit.Id}: {ex}");
+								return Failure<ReceptionDTO>($"Erreur lors de la mise à jour du produit {produit.Id}: {ex.Message}");
+							}
 						}
 						else
 						{
-							Debug.WriteLine($"Product {ligneCommande.ProduitId} not found");
+							// Debug.WriteLine($"Product {ligneCommande.ProduitId} not found");
 						}
 					}
 				}
@@ -308,7 +383,7 @@ namespace App.Services
 
 					totalReceived += previouslyReceived;
 
-					Debug.WriteLine($"Ligne {ligneCommande.Id}: Commandée={ligneCommande.Quantite}, Reçue={totalReceived}");
+					// Debug.WriteLine($"Ligne {ligneCommande.Id}: Commandée={ligneCommande.Quantite}, Reçue={totalReceived}");
 
 					// If any line is not fully received, the reception is partial
 					if (totalReceived < ligneCommande.Quantite)
@@ -319,7 +394,7 @@ namespace App.Services
 				}
 
 				reception.Statut = isComplete ? "Complète" : "Partielle";
-				Debug.WriteLine($"Reception status set to: {reception.Statut}");
+				// Debug.WriteLine($"Reception status set to: {reception.Statut}");
 
 				// Update the order status based on reception
 				if (isComplete)
@@ -331,12 +406,12 @@ namespace App.Services
 					commande.Statut = "Partielle";
 				}
 
-				Debug.WriteLine($"Commande status updated to: {commande.Statut}");
+				// Debug.WriteLine($"Commande status updated to: {commande.Statut}");
 
 				// Save the reception first
-				Debug.WriteLine("Saving reception...");
+				// Debug.WriteLine("Saving reception...");
 				var createdReception = await _dao.CreateReceptionAsync(reception);
-				Debug.WriteLine($"Reception saved with Id: {createdReception.Id}");
+				// Debug.WriteLine($"Reception saved with Id: {createdReception.Id}");
 
 				// Now add the lines to the created reception and save them
 				foreach (var ligne in ligneReceptions)
@@ -346,26 +421,53 @@ namespace App.Services
 				}
 
 				// Update the commande
-				Debug.WriteLine("Updating commande...");
+				// Debug.WriteLine("Updating commande...");
 				await _dao.UpdateAsync(commande);
-				Debug.WriteLine("Commande updated successfully");
+				// Debug.WriteLine("Commande updated successfully");
 
 				// Reload the reception to get the complete entity with lines
 				createdReception = await _dao.UpdateReceptionAsync(createdReception);
 
-				Debug.WriteLine($"Reception created with Id: {createdReception.Id}");
+				// Debug.WriteLine($"Reception created with Id: {createdReception.Id}");
 
 				return Success(MapToDTO(createdReception));
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine($"Exception in ReceiveAsync: {ex}");
-				Debug.WriteLine($"Exception details: {ex.Message} - {ex.StackTrace}");
+				// Debug.WriteLine($"Exception in ReceiveAsync: {ex}");
+				// Debug.WriteLine($"Exception details: {ex.Message} - {ex.StackTrace}");
 				if (ex.InnerException != null)
 				{
-					Debug.WriteLine($"Inner exception: {ex.InnerException.Message} - {ex.InnerException.StackTrace}");
+					// Debug.WriteLine($"Inner exception: {ex.InnerException.Message} - {ex.InnerException.StackTrace}");
 				}
 				return Failure<ReceptionDTO>($"Erreur interne du serveur: {ex.Message}");
+			}
+		}
+
+		public async Task<FournisseurApiResponse<bool>> TestProductUpdate(int productId, int quantityChange)
+		{
+			try
+			{
+				var produit = await _productDAO.GetByIdAsync(productId);
+				if (produit == null) return Failure<bool>("Produit introuvable");
+				
+				var oldStock = produit.StockActuel;
+				produit.StockActuel += quantityChange;
+				
+				// Debug.WriteLine($"TestProductUpdate: Changing product {produit.Id} stock from {oldStock} to {produit.StockActuel}");
+				
+				await _productDAO.UpdateAsync(produit);
+				
+				// Verify the update
+				var updatedProduct = await _productDAO.GetByIdAsync(productId);
+				// Debug.WriteLine($"TestProductUpdate: Verified product {updatedProduct.Id} stock is now {updatedProduct.StockActuel}");
+				
+				return Success(true);
+			}
+			catch (Exception ex)
+			{
+				// Debug.WriteLine($"Exception in TestProductUpdate: {ex}");
+				return Failure<bool>($"Erreur interne du serveur: {ex.Message}");
 			}
 		}
 

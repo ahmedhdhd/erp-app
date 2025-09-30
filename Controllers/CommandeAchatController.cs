@@ -99,5 +99,14 @@ namespace App.Controllers
 				Timestamp = System.DateTime.UtcNow 
 			});
 		}
+
+		[HttpPost("test-product-update/{productId}/{quantityChange}")]
+		[Authorize(Roles = "Admin")]
+		public async Task<ActionResult<FournisseurApiResponse<bool>>> TestProductUpdate([FromRoute] int productId, [FromRoute] int quantityChange)
+		{
+			var result = await _commandeAchatService.TestProductUpdate(productId, quantityChange);
+			if (!result.Success) return BadRequest(result);
+			return Ok(result);
+		}
 	}
 }

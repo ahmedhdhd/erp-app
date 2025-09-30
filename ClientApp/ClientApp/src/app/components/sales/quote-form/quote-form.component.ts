@@ -182,6 +182,16 @@ export class QuoteFormComponent implements OnInit {
       setTimeout(() => this.calculateTTCPrice(group), 0);
     });
     
+    // Add quantity validation
+    group.get('quantite')?.valueChanges.subscribe(value => {
+      setTimeout(() => this.validateQuantity(group), 0);
+    });
+    
+    // Add product selection validation
+    group.get('produitId')?.valueChanges.subscribe(value => {
+      setTimeout(() => this.validateQuantity(group), 0);
+    });
+    
     return group;
   }
 
@@ -290,6 +300,14 @@ export class QuoteFormComponent implements OnInit {
       // Calculate TTC price after setting the values
       setTimeout(() => {
         this.calculateTTCPrice(lineGroup);
+        
+        // Validate quantity against available stock
+        const quantite = lineGroup.get('quantite')?.value || 1;
+        if (product.stockActuel < quantite) {
+          // Show alert and set quantity to available stock
+          alert(`La quantité demandée (${quantite}) dépasse le stock disponible (${product.stockActuel}). La quantité sera ajustée au stock disponible.`);
+          lineGroup.get('quantite')?.setValue(product.stockActuel);
+        }
       }, 0);
     }
     
@@ -323,6 +341,21 @@ export class QuoteFormComponent implements OnInit {
     const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
     
     lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
+  }
+
+  // Validate quantity against available stock
+  validateQuantity(lineGroup: FormGroup): void {
+    const produitId = lineGroup.get('produitId')?.value;
+    const quantite = lineGroup.get('quantite')?.value;
+    
+    if (produitId && quantite) {
+      const product = this.products.find(p => p.id === produitId);
+      if (product && product.stockActuel < quantite) {
+        // Show alert and set quantity to available stock
+        alert(`La quantité demandée (${quantite}) dépasse le stock disponible (${product.stockActuel}). La quantité sera ajustée au stock disponible.`);
+        lineGroup.get('quantite')?.setValue(product.stockActuel);
+      }
+    }
   }
 
   // Get product details for a line

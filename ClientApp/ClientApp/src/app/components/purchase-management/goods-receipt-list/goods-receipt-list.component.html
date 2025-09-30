@@ -3,40 +3,51 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Goods to Receive</h2>
+        <div>
+          <button class="btn btn-secondary me-2" (click)="loadUnreceivedOrders()">
+            <i class="fas fa-sync-alt me-1"></i>
+            Refresh
+          </button>
+          <button class="btn btn-info" (click)="loadAllPurchaseOrders()">
+            <i class="fas fa-list me-1"></i>
+            Show All Orders
+          </button>
+        </div>
+      </div>
+
+      <!-- Debug information -->
+      <div class="alert alert-info" *ngIf="!loading && !error">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Debug Info:</strong><br>
+            Page: {{ page }}, Page Size: {{ pageSize }}, Total Count: {{ totalCount }}, Orders Displayed: {{ purchaseOrders?.length || 0 }}
+          </div>
+          <div class="col-md-6">
+            <strong>Current Filter:</strong> Showing orders with status containing "envoy" or "partiel"
+          </div>
+        </div>
       </div>
 
       <!-- Error message -->
       <div class="alert alert-danger" *ngIf="error">
-        {{ error }}
+        <h5><i class="fas fa-exclamation-triangle me-2"></i>Error Loading Data</h5>
+        <p>{{ error }}</p>
+        <div class="mt-2">
+          <button class="btn btn-outline-light btn-sm me-2" (click)="loadUnreceivedOrders()">
+            <i class="fas fa-redo me-1"></i>Retry
+          </button>
+          <button class="btn btn-outline-light btn-sm" (click)="loadAllPurchaseOrders()">
+            <i class="fas fa-list me-1"></i>Show All Orders (Debug)
+          </button>
+        </div>
       </div>
 
       <!-- Loading indicator -->
-      <div class="text-center py-4" *ngIf="loading">
+      <div class="text-center py-5" *ngIf="loading">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
-      </div>
-
-      <!-- Filters -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <label for="searchTerm" class="form-label">Search</label>
-              <input type="text" class="form-control" id="searchTerm" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search by supplier or order number">
-            </div>
-            <div class="col-md-6 d-flex align-items-end">
-              <button class="btn btn-primary me-2" (click)="onSearch()">
-                <i class="fas fa-search me-1"></i>
-                Search
-              </button>
-              <button class="btn btn-secondary" (click)="loadUnreceivedOrders()">
-                <i class="fas fa-sync-alt me-1"></i>
-                Refresh
-              </button>
-            </div>
-          </div>
-        </div>
+        <p class="mt-3">Loading purchase orders to receive...</p>
       </div>
 
       <!-- Purchase Orders Table -->
@@ -56,20 +67,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let order of purchaseOrders">
-                  <td>{{ order.id }}</td>
-                  <td>{{ order.fournisseur?.raisonSociale || 'N/A' }}</td>
-                  <td>{{ order.dateCommande | date:'short' }}</td>
-                  <td>{{ order.dateLivraisonPrevue | date:'short' }}</td>
+                <tr *ngFor="let order of purchaseOrders; let i = index">
+                  <td>{{ order?.id || 'N/A' }}</td>
+                  <td>{{ order?.fournisseur?.raisonSociale || 'N/A' }}</td>
+                  <td>{{ order?.dateCommande ? formatDate(order.dateCommande) : 'N/A' }}</td>
+                  <td>{{ order?.dateLivraisonPrevue ? formatDate(order.dateLivraisonPrevue) : 'N/A' }}</td>
                   <td>
-                    <span [ngClass]="getStatusClass(order.statut)" *ngIf="order.statut">
+                    <span [ngClass]="getStatusClass(order?.statut || '')" *ngIf="order?.statut">
                       {{ order.statut }}
                     </span>
-                    <span *ngIf="!order.statut">N/A</span>
+                    <span class="badge bg-secondary" *ngIf="!order?.statut">N/A</span>
                   </td>
-                  <td>{{ order.montantTTC | currency:'TND' }}</td>
+                  <td>{{ order?.montantTTC ? formatCurrency(order.montantTTC) : 'N/A' }}</td>
                   <td>
-                    <button class="btn btn-sm btn-primary" (click)="receiveGoods(order.id)">
+                    <button class="btn btn-sm btn-primary" (click)="receiveGoods(order?.id || 0)" [disabled]="!order?.id">
                       <i class="fas fa-truck me-1"></i>
                       Receive
                     </button>
@@ -99,9 +110,10 @@
       </div>
 
       <!-- No orders message -->
-      <div class="alert alert-info" *ngIf="!loading && (!purchaseOrders || purchaseOrders.length === 0) && !error">
-        <i class="fas fa-info-circle me-2"></i>
-        No unreceived purchase orders found.
+      <div class="alert alert-warning" *ngIf="!loading && (!purchaseOrders || purchaseOrders.length === 0) && !error">
+        <h5><i class="fas fa-info-circle me-2"></i>No Orders to Receive</h5>
+        <p>There are currently no purchase orders that need to be received.</p>
+        <p class="mb-0">Purchase orders with status containing "envoy" or "partiel" will appear here when they are ready to be received.</p>
       </div>
     </div>
   </div>

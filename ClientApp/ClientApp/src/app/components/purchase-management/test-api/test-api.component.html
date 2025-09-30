@@ -1,0 +1,27 @@
+<div class="container mt-4">
+  <h2>API Test Component</h2>
+  <div class="mb-3">
+    <button class="btn btn-primary me-2" (click)="testApi()">Test API</button>
+    <button class="btn btn-secondary" (click)="clearResults()">Clear</button>
+  </div>
+  
+  <div *ngIf="loading" class="alert alert-info">
+    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+    Loading...
+  </div>
+  
+  <div *ngIf="error" class="alert alert-danger">
+    <h5>Error:</h5>
+    <pre>{{ error | json }}</pre>
+  </div>
+  
+  <div *ngIf="data" class="alert alert-success">
+    <h5>Success Response:</h5>
+    <pre>{{ data | json }}</pre>
+  </div>
+  
+  <div *ngIf="rawData" class="alert alert-info">
+    <h5>Raw Data:</h5>
+    <pre>{{ rawData | json }}</pre>
+  </div>
+</div>

@@ -43,6 +43,7 @@ import { PurchaseOrderFormComponent } from './components/purchase-management/pur
 import { PurchaseOrderDetailComponent } from './components/purchase-management/purchase-order-detail/purchase-order-detail.component';
 import { GoodsReceiptComponent } from './components/purchase-management/goods-receipt/goods-receipt.component';
 import { GoodsReceiptListComponent } from './components/purchase-management/goods-receipt-list/goods-receipt-list.component';
+import { TestApiComponent } from './components/purchase-management/test-api/test-api.component';
 
 // Sales Management Components
 import { SalesComponent } from './components/sales/sales.component';
@@ -248,7 +249,8 @@ const routes: Routes = [
       { path: ':id', component: PurchaseOrderDetailComponent },
       { path: ':id/edit', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
       { path: ':id/receive', component: GoodsReceiptComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
-      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } }
+      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
+      { path: 'test-api', component: TestApiComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } }
     ]
   },
 

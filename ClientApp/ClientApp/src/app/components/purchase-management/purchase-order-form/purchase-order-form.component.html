@@ -135,7 +135,7 @@
                               </div>
                               <small class="text-muted">
                                 Prix Achat HT: {{ product.prixAchatHT | currency:'EUR':'symbol':'1.2-3' }} | 
-                                TVA: {{ product.tauxTVA }}%
+                                TVA: {{ product.tauxTVA }}% | Stock : {{ product.stockActuel| number }}
                               </small>
                             </a>
                             <div class="dropdown-item disabled" *ngIf="!(filteredProducts[i] || []).length">

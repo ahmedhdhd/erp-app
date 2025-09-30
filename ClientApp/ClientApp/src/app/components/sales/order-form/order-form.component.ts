@@ -178,8 +178,33 @@ createLineFormGroup(): FormGroup {
     setTimeout(() => this.calculateTTCPrice(group), 0);
   });
   
+  // Add quantity validation
+  group.get('quantite')?.valueChanges.subscribe(value => {
+    setTimeout(() => this.validateQuantity(group), 0);
+  });
+  
+  // Add product selection validation
+  group.get('produitId')?.valueChanges.subscribe(value => {
+    setTimeout(() => this.validateQuantity(group), 0);
+  });
+  
   return group;
 }
+
+  // Validate quantity against available stock
+  validateQuantity(lineGroup: FormGroup): void {
+    const produitId = lineGroup.get('produitId')?.value;
+    const quantite = lineGroup.get('quantite')?.value;
+    
+    if (produitId && quantite) {
+      const product = this.products.find(p => p.id === produitId);
+      if (product && product.stockActuel < quantite) {
+        // Show alert and set quantity to available stock
+        alert(`La quantité demandée (${quantite}) dépasse le stock disponible (${product.stockActuel}). La quantité sera ajustée au stock disponible.`);
+        lineGroup.get('quantite')?.setValue(product.stockActuel);
+      }
+    }
+  }
 
   // Add a new line
   addLine(): void {
@@ -288,6 +313,14 @@ createLineFormGroup(): FormGroup {
     setTimeout(() => {
       this.calculateTTCPrice(lineGroup);
       console.log('Line group after selection:', lineGroup.value);
+      
+      // Validate quantity against available stock
+      const quantite = lineGroup.get('quantite')?.value || 1;
+      if (product.stockActuel < quantite) {
+        // Show alert and set quantity to available stock
+        alert(`La quantité demandée (${quantite}) dépasse le stock disponible (${product.stockActuel}). La quantité sera ajustée au stock disponible.`);
+        lineGroup.get('quantite')?.setValue(product.stockActuel);
+      }
     }, 0);
   }
   
@@ -475,4 +508,5 @@ calculateTTCPrice(lineGroup: FormGroup): void {
       });
     }
   }
+
 }

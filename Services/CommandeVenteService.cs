@@ -131,17 +131,19 @@ namespace App.Services
 			existing.ModeLivraison = request.ModeLivraison ?? existing.ModeLivraison;
 			existing.ConditionsPaiement = request.ConditionsPaiement ?? existing.ConditionsPaiement;
 
-			// Recalculate amounts
+			// Clear existing line items and recreate them (simpler approach)
+			existing.Lignes.Clear();
+
+			// Recalculate amounts and create new line items
 			decimal montantHT = 0;
 			foreach (var ligneRequest in request.Lignes)
 			{
 				var produit = await _productDAO.GetByIdAsync(ligneRequest.ProduitId);
 				if (produit == null) continue; // Skip invalid products
 
-				// For simplicity, we're not handling line item updates properly here
-				// In a real implementation, we would need to handle line item CRUD operations properly
 				var ligne = new LigneCommandeVente
 				{
+					CommandeId = existing.Id,
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
 					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
@@ -150,6 +152,7 @@ namespace App.Services
 					TotalLigne = ligneRequest.Quantite * ligneRequest.PrixUnitaireHT
 				};
 
+				existing.Lignes.Add(ligne);
 				montantHT += ligne.TotalLigne;
 			}
 
@@ -180,6 +183,25 @@ namespace App.Services
 
 			if (commande.Statut != "Brouillon")
 				return Failure<CommandeVenteDTO>("Seule une commande en brouillon peut être soumise");
+
+			// Update product quantities when submitting the order - decrease stock as products are being sold
+			foreach (var ligne in commande.Lignes)
+			{
+				// Get a fresh copy of the product to avoid concurrency issues
+				var produit = await _productDAO.GetByIdAsync(ligne.ProduitId);
+				if (produit != null)
+				{
+					// Decrease stock quantity by the ordered quantity (products are being sold)
+					produit.StockActuel -= ligne.Quantite;
+					
+					// Ensure stock doesn't go below zero
+					if (produit.StockActuel < 0)
+						produit.StockActuel = 0;
+					
+					// Save the updated product
+					await _productDAO.UpdateAsync(produit);
+				}
+			}
 
 			commande.Statut = "Confirmé";
 			var updated = await _dao.UpdateAsync(commande);

@@ -80,9 +80,19 @@ namespace App.Data.Implementations
 
 		public async Task<Produit> UpdateAsync(Produit entity)
 		{
-			_db.Produits.Update(entity);
-			await _db.SaveChangesAsync();
-			return entity;
+			try
+			{
+				// Debug.WriteLine($"ProductDAO.UpdateAsync called for product {entity.Id} with stock {entity.StockActuel}");
+				_db.Produits.Update(entity);
+				var result = await _db.SaveChangesAsync();
+				// Debug.WriteLine($"ProductDAO.UpdateAsync saved {result} changes for product {entity.Id}");
+				return entity;
+			}
+			catch (Exception ex)
+			{
+				// Debug.WriteLine($"Exception in ProductDAO.UpdateAsync for product {entity.Id}: {ex}");
+				throw;
+			}
 		}
 
 		public async Task<bool> DeleteAsync(int id)

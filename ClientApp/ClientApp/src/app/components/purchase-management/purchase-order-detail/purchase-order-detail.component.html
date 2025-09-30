@@ -90,14 +90,26 @@
               <thead class="table-light">
                 <tr>
                   <th>Date</th>
-                  <th>Lines</th>
+                  <th>Status</th>
+                  <th>Product</th>
+                  <th>Reference</th>
+                  <th class="text-end">Received Quantity</th>
+                  <th class="text-end">Rejected Quantity</th>
+                  <th>Rejection Reason</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let reception of purchaseOrder.receptions">
-                  <td>{{ reception.dateReception | date:'short' }}</td>
-                  <td>{{ reception.lignes.length }} lines</td>
-                </tr>
+                <ng-container *ngFor="let reception of purchaseOrder.receptions">
+                  <tr *ngFor="let line of reception.lignes">
+                    <td>{{ reception.dateReception | date:'short' }}</td>
+                    <td>{{ reception.statut }}</td>
+                    <td>{{ getProductName(line) }}</td>
+                    <td>{{ getProductReference(line) }}</td>
+                    <td class="text-end">{{ line.quantiteRecue }}</td>
+                    <td class="text-end">{{ line.quantiteRejetee }}</td>
+                    <td>{{ line.motifRejet || '-' }}</td>
+                  </tr>
+                </ng-container>
               </tbody>
             </table>
           </div>
@@ -139,6 +151,10 @@
           </p>
         </div>
         <div class="card-footer bg-light">
+          <div class="alert alert-info" *ngIf="purchaseOrder.statut === 'Brouillon'">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Note:</strong> Submitting this order will reserve the quantities of all products included in this order by decreasing current stock.
+          </div>
           <div class="d-flex justify-content-between">
             <button class="btn btn-secondary" (click)="goToList()">
               <i class="fas fa-arrow-left me-1"></i>

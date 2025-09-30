@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
@@ -48,6 +49,7 @@ import { PurchaseOrderFormComponent } from './components/purchase-management/pur
 import { PurchaseOrderDetailComponent } from './components/purchase-management/purchase-order-detail/purchase-order-detail.component';
 import { GoodsReceiptComponent } from './components/purchase-management/goods-receipt/goods-receipt.component';
 import { GoodsReceiptListComponent } from './components/purchase-management/goods-receipt-list/goods-receipt-list.component';
+import { TestApiComponent } from './components/purchase-management/test-api/test-api.component';
 
 // Sales Management Components
 import { SalesComponent } from './components/sales/sales.component';
@@ -108,6 +110,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PurchaseOrderDetailComponent,
     GoodsReceiptComponent,
     GoodsReceiptListComponent,
+    TestApiComponent,
     // Sales Management Components
     SalesComponent,
     QuoteListComponent,
@@ -121,6 +124,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
