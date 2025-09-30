@@ -110,6 +110,33 @@ export interface CreateReturnLine {
   quantite: number;
 }
 
+// ========== COMPANY SETTINGS MODELS ==========
+
+export interface CompanySettingsResponse {
+  id: number;
+  nomSociete: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+  ice: string;
+  devise: string;
+  tauxTVA: number;
+  logo: string;
+  dateCreation: Date;
+  dateModification: Date;
+}
+
+export interface UpdateCompanySettingsRequest {
+  nomSociete: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+  ice: string;
+  devise: string;
+  tauxTVA: number;
+  logo: string;
+}
+
 // ========== RESPONSE MODELS ==========
 
 export interface QuoteLineResponse {

@@ -60,6 +60,9 @@ import { OrderListComponent } from './components/sales/order-list/order-list.com
 import { OrderFormComponent } from './components/sales/order-form/order-form.component';
 import { OrderDetailComponent } from './components/sales/order-detail/order-detail.component';
 
+// Company Settings Components
+import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
+
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
 
@@ -120,7 +123,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     OrderFormComponent,
     OrderDetailComponent,
     // Shared Components
-    HeaderComponent
+    HeaderComponent,
+    // Company Settings Components
+    CompanySettingsComponent
   ],
   imports: [
     BrowserModule,

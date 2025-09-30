@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SalesService } from '../../../services/sales.service';
-import { QuoteResponse, QuoteListResponse, QuoteSearchRequest, SalesApiResponse } from '../../../models/sales.models';
+import { InvoiceService } from '../../../services/invoice.service';
+import { QuoteResponse, QuoteListResponse, QuoteSearchRequest, SalesApiResponse, CompanySettingsResponse } from '../../../models/sales.models';
 import { ClientService } from '../../../services/client.service';
 import { ClientResponse, ClientApiResponse, ClientListResponse } from '../../../models/client.models';
 
@@ -14,6 +15,7 @@ export class QuoteListComponent implements OnInit {
   // Data
   quotes: QuoteResponse[] = [];
   clients: ClientResponse[] = [];
+  companySettings: CompanySettingsResponse | null = null;
   totalCount = 0;
   currentPage = 1;
   pageSize = 10;
@@ -53,6 +55,7 @@ export class QuoteListComponent implements OnInit {
 
   constructor(
     private salesService: SalesService,
+    private invoiceService: InvoiceService,
     private clientService: ClientService,
     private router: Router
   ) {}
@@ -60,6 +63,7 @@ export class QuoteListComponent implements OnInit {
   ngOnInit(): void {
     this.loadQuotes();
     this.loadClients();
+    this.loadCompanySettings();
   }
 
   // Load quotes
@@ -102,6 +106,20 @@ export class QuoteListComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading clients:', error);
+      }
+    });
+  }
+
+  // Load company settings
+  loadCompanySettings(): void {
+    this.salesService.getCompanySettings().subscribe({
+      next: (response: SalesApiResponse<CompanySettingsResponse>) => {
+        if (response.success && response.data) {
+          this.companySettings = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading company settings:', error);
       }
     });
   }
@@ -203,14 +221,13 @@ export class QuoteListComponent implements OnInit {
     } else {
       this.selectedQuoteIds.push(quoteId);
     }
-    this.selectAll = this.selectedQuoteIds.length === this.quotes.length;
   }
 
   isQuoteSelected(quoteId: number): boolean {
     return this.selectedQuoteIds.includes(quoteId);
   }
 
-  // Actions
+  // Navigation
   viewQuote(id: number): void {
     this.router.navigate(['/sales/quotes', id]);
   }
@@ -219,79 +236,31 @@ export class QuoteListComponent implements OnInit {
     this.router.navigate(['/sales/quotes/edit', id]);
   }
 
-  // Print quote
-  printQuote(id: number): void {
-    // Open a new tab with a simple invoice page
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Quote #${id}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .quote-info { margin-bottom: 20px; }
-              .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-              .items th, .items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              .items th { background-color: #f2f2f2; }
-              .total { text-align: right; font-weight: bold; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Quote #${id}</h1>
-              <p>Thank you for your business!</p>
-            </div>
-            <div class="quote-info">
-              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-              <p><strong>Quote ID:</strong> #${id}</p>
-            </div>
-            <table class="items">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Sample Product</td>
-                  <td>1</td>
-                  <td>$100.00</td>
-                  <td>$100.00</td>
-                </tr>
-                <tr>
-                  <td>Sample Service</td>
-                  <td>2</td>
-                  <td>$75.00</td>
-                  <td>$150.00</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="total">
-              <p><strong>Subtotal:</strong> $250.00</p>
-              <p><strong>Tax (20%):</strong> $50.00</p>
-              <p><strong>Total:</strong> $300.00</p>
-            </div>
-            <script>
-              window.onload = function() {
-                window.print();
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    } else {
-      alert('Please allow popups for this website to print the quote.');
-    }
-  }
-
   createQuote(): void {
     this.router.navigate(['/sales/quotes/new']);
+  }
+
+  // Print quote
+  printQuote(id: number): void {
+    // First, load the quote details to get real data
+    this.salesService.getQuote(id).subscribe({
+      next: (response: SalesApiResponse<QuoteResponse>) => {
+        if (response.success && response.data) {
+          try {
+            this.invoiceService.generateQuoteInvoice(response.data, this.companySettings);
+          } catch (error) {
+            console.error('Error generating quote invoice:', error);
+            alert('Error generating quote invoice. Please check the console for details.');
+          }
+        } else {
+          alert('Erreur lors du chargement du devis pour l\'impression');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading quote for print:', error);
+        alert('Erreur de connexion au serveur');
+      }
+    });
   }
 
   deleteQuote(quote: QuoteResponse): void {

@@ -16,7 +16,9 @@ import {
   QuoteListResponse,
   SalesOrderResponse,
   SalesOrderListResponse,
-  SalesApiResponse
+  SalesApiResponse,
+  CompanySettingsResponse,
+  UpdateCompanySettingsRequest
 } from '../models/sales.models';
 
 @Injectable({
@@ -176,6 +178,28 @@ export class SalesService {
   createReturn(request: CreateReturnRequest): Observable<SalesApiResponse<any>> {
     return this.http.post<SalesApiResponse<any>>(
       `${this.baseUrl}/commandevente/retours`,
+      request
+    );
+  }
+
+  // ========== COMPANY SETTINGS ==========
+
+  getCompanySettings(): Observable<SalesApiResponse<CompanySettingsResponse>> {
+    return this.http.get<SalesApiResponse<CompanySettingsResponse>>(
+      `${this.baseUrl}/company/settings`
+    );
+  }
+
+  updateCompanySettings(request: UpdateCompanySettingsRequest): Observable<SalesApiResponse<CompanySettingsResponse>> {
+    return this.http.put<SalesApiResponse<CompanySettingsResponse>>(
+      `${this.baseUrl}/company/settings`,
+      request
+    );
+  }
+
+  createCompanySettings(request: UpdateCompanySettingsRequest): Observable<SalesApiResponse<CompanySettingsResponse>> {
+    return this.http.post<SalesApiResponse<CompanySettingsResponse>>(
+      `${this.baseUrl}/company/settings`,
       request
     );
   }

@@ -1,0 +1,104 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2>Paramètres de l'entreprise</h2>
+      
+      <div *ngIf="loading" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success" role="alert">
+        {{ successMessage }}
+      </div>
+
+      <form [formGroup]="companySettingsForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+        <div class="card">
+          <div class="card-header">
+            <h5>Informations de l'entreprise</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="nomSociete" class="form-label">Nom de l'entreprise *</label>
+                  <input type="text" class="form-control" id="nomSociete" formControlName="nomSociete" required>
+                  <div *ngIf="companySettingsForm.get('nomSociete')?.invalid && companySettingsForm.get('nomSociete')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('nomSociete')?.errors?.['required']">Le nom de l'entreprise est requis</small>
+                    <small *ngIf="companySettingsForm.get('nomSociete')?.errors?.['maxlength']">Le nom ne peut pas dépasser 200 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="adresse" class="form-label">Adresse</label>
+                  <textarea class="form-control" id="adresse" formControlName="adresse" rows="3"></textarea>
+                  <div *ngIf="companySettingsForm.get('adresse')?.invalid && companySettingsForm.get('adresse')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('adresse')?.errors?.['maxlength']">L'adresse ne peut pas dépasser 500 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="telephone" class="form-label">Téléphone</label>
+                  <input type="text" class="form-control" id="telephone" formControlName="telephone">
+                  <div *ngIf="companySettingsForm.get('telephone')?.invalid && companySettingsForm.get('telephone')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('telephone')?.errors?.['maxlength']">Le téléphone ne peut pas dépasser 50 caractères</small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" formControlName="email">
+                  <div *ngIf="companySettingsForm.get('email')?.invalid && companySettingsForm.get('email')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('email')?.errors?.['maxlength']">L'email ne peut pas dépasser 100 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="ice" class="form-label">ICE</label>
+                  <input type="text" class="form-control" id="ice" formControlName="ice">
+                  <div *ngIf="companySettingsForm.get('ice')?.invalid && companySettingsForm.get('ice')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('ice')?.errors?.['maxlength']">L'ICE ne peut pas dépasser 20 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="devise" class="form-label">Devise</label>
+                  <input type="text" class="form-control" id="devise" formControlName="devise">
+                  <div *ngIf="companySettingsForm.get('devise')?.invalid && companySettingsForm.get('devise')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('devise')?.errors?.['maxlength']">La devise ne peut pas dépasser 10 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="tauxTVA" class="form-label">Taux TVA (%)</label>
+                  <input type="number" class="form-control" id="tauxTVA" formControlName="tauxTVA" min="0" max="100" step="0.01">
+                  <div *ngIf="companySettingsForm.get('tauxTVA')?.invalid && companySettingsForm.get('tauxTVA')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('tauxTVA')?.errors?.['min']">Le taux TVA doit être positif</small>
+                    <small *ngIf="companySettingsForm.get('tauxTVA')?.errors?.['max']">Le taux TVA ne peut pas dépasser 100%</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="loading">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="companySettingsForm.invalid || loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            {{ companySettings ? 'Mettre à jour' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

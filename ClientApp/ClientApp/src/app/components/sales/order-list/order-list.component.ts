@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SalesService } from '../../../services/sales.service';
+import { InvoiceService } from '../../../services/invoice.service';
 import { ClientService } from '../../../services/client.service';
-import { SalesOrderResponse, SalesApiResponse, SalesOrderListResponse } from '../../../models/sales.models';
+import { SalesOrderResponse, SalesApiResponse, SalesOrderListResponse, CompanySettingsResponse } from '../../../models/sales.models';
 import { ClientResponse, ClientApiResponse, ClientListResponse } from '../../../models/client.models';
 
 @Component({
@@ -14,6 +15,7 @@ export class OrderListComponent implements OnInit {
   // Data
   orders: SalesOrderResponse[] = [];
   clients: ClientResponse[] = [];
+  companySettings: CompanySettingsResponse | null = null;
   
   // Pagination
   currentPage = 1;
@@ -53,6 +55,7 @@ export class OrderListComponent implements OnInit {
 
   constructor(
     private salesService: SalesService,
+    private invoiceService: InvoiceService,
     private clientService: ClientService,
     private router: Router
   ) {}
@@ -60,6 +63,7 @@ export class OrderListComponent implements OnInit {
   ngOnInit(): void {
     this.loadOrders();
     this.loadClients();
+    this.loadCompanySettings();
   }
 
   // Load orders with pagination and filtering
@@ -103,6 +107,20 @@ export class OrderListComponent implements OnInit {
     });
   }
 
+  // Load company settings
+  loadCompanySettings(): void {
+    this.salesService.getCompanySettings().subscribe({
+      next: (response: SalesApiResponse<CompanySettingsResponse>) => {
+        if (response.success && response.data) {
+          this.companySettings = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading company settings:', error);
+      }
+    });
+  }
+
   // Navigation
   createOrder(): void {
     this.router.navigate(['/sales/orders/new']);
@@ -118,74 +136,25 @@ export class OrderListComponent implements OnInit {
 
   // Print invoice
   printInvoice(id: number): void {
-    // For now, we'll open a new tab with a simple message
-    // In a real implementation, this would generate a PDF
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Invoice #${id}</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .header { text-align: center; margin-bottom: 30px; }
-              .invoice-info { margin-bottom: 20px; }
-              .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-              .items th, .items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              .items th { background-color: #f2f2f2; }
-              .total { text-align: right; font-weight: bold; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Invoice #${id}</h1>
-              <p>Thank you for your business!</p>
-            </div>
-            <div class="invoice-info">
-              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-              <p><strong>Order ID:</strong> #${id}</p>
-            </div>
-            <table class="items">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Sample Product</td>
-                  <td>1</td>
-                  <td>$100.00</td>
-                  <td>$100.00</td>
-                </tr>
-                <tr>
-                  <td>Sample Service</td>
-                  <td>2</td>
-                  <td>$75.00</td>
-                  <td>$150.00</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="total">
-              <p><strong>Subtotal:</strong> $250.00</p>
-              <p><strong>Tax (20%):</strong> $50.00</p>
-              <p><strong>Total:</strong> $300.00</p>
-            </div>
-            <script>
-              window.onload = function() {
-                window.print();
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    } else {
-      alert('Please allow popups for this website to print the invoice.');
-    }
+    // First, load the order details to get real data
+    this.salesService.getSalesOrder(id).subscribe({
+      next: (response: SalesApiResponse<SalesOrderResponse>) => {
+        if (response.success && response.data) {
+          try {
+            this.invoiceService.generateSalesOrderInvoice(response.data, this.companySettings);
+          } catch (error) {
+            console.error('Error generating invoice:', error);
+            alert('Error generating invoice. Please check the console for details.');
+          }
+        } else {
+          alert('Erreur lors du chargement de la commande pour l\'impression');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading order for print:', error);
+        alert('Erreur de connexion au serveur');
+      }
+    });
   }
 
   // Order actions

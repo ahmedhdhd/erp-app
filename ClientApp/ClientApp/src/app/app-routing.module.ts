@@ -54,6 +54,9 @@ import { OrderListComponent } from './components/sales/order-list/order-list.com
 import { OrderFormComponent } from './components/sales/order-form/order-form.component';
 import { OrderDetailComponent } from './components/sales/order-detail/order-detail.component';
 
+// Company Settings Components
+import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
+
 const routes: Routes = [
   // Default route - redirect based on authentication
   {
@@ -303,6 +306,10 @@ const routes: Routes = [
       {
         path: 'users',
         component: RegisterComponent // Reuse register component for user management
+      },
+      {
+        path: 'company-settings',
+        component: CompanySettingsComponent
       }
     ]
   },

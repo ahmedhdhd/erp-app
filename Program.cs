@@ -1,5 +1,6 @@
 using System.Text;
 using App.Models;
+using App.Data;
 using App.Data.Interfaces;
 using App.Data.Implementations;
 using App.Services;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<IProductDAO, ProductDAO>();
 builder.Services.AddScoped<IFournisseurDAO, FournisseurDAO>();
 builder.Services.AddScoped<ICommandeAchatDAO, CommandeAchatDAO>();
 builder.Services.AddScoped<ICommandeVenteDAO, CommandeVenteDAO>();
+builder.Services.AddScoped<ICompanySettingsDAO, CompanySettingsDAO>();
 
 // Register Services
 builder.Services.AddScoped<AuthService>();
@@ -44,6 +46,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<FournisseurService>();
 builder.Services.AddScoped<CommandeAchatService>();
 builder.Services.AddScoped<CommandeVenteService>();
+builder.Services.AddScoped<CompanySettingsService>();
 
 // Logging
 builder.Services.AddLogging();

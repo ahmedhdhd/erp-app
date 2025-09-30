@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SalesService } from '../../../services/sales.service';
-import { QuoteResponse, SalesApiResponse } from '../../../models/sales.models';
+import { InvoiceService } from '../../../services/invoice.service';
+import { QuoteResponse, SalesApiResponse, CompanySettingsResponse } from '../../../models/sales.models';
 
 @Component({
   selector: 'app-quote-detail',
@@ -10,12 +11,14 @@ import { QuoteResponse, SalesApiResponse } from '../../../models/sales.models';
 })
 export class QuoteDetailComponent implements OnInit {
   quote: QuoteResponse | null = null;
+  companySettings: CompanySettingsResponse | null = null;
   loading = false;
   error: string | null = null;
   quoteId: number | null = null;
 
   constructor(
     private salesService: SalesService,
+    private invoiceService: InvoiceService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -25,6 +28,7 @@ export class QuoteDetailComponent implements OnInit {
       if (params['id']) {
         this.quoteId = +params['id'];
         this.loadQuote(this.quoteId);
+        this.loadCompanySettings();
       }
     });
   }
@@ -50,6 +54,19 @@ export class QuoteDetailComponent implements OnInit {
     });
   }
 
+  loadCompanySettings(): void {
+    this.salesService.getCompanySettings().subscribe({
+      next: (response: SalesApiResponse<CompanySettingsResponse>) => {
+        if (response.success && response.data) {
+          this.companySettings = response.data;
+        }
+      },
+      error: (err: any) => {
+        console.error('Error loading company settings:', err);
+      }
+    });
+  }
+
   editQuote(): void {
     if (this.quoteId) {
       this.router.navigate(['/sales/quotes/edit', this.quoteId]);
@@ -61,74 +78,16 @@ export class QuoteDetailComponent implements OnInit {
   }
 
   printQuote(): void {
-    if (this.quoteId) {
-      // Open a new tab with a simple invoice page
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Quote #${this.quoteId}</title>
-              <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .quote-info { margin-bottom: 20px; }
-                .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                .items th, .items td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                .items th { background-color: #f2f2f2; }
-                .total { text-align: right; font-weight: bold; }
-              </style>
-            </head>
-            <body>
-              <div class="header">
-                <h1>Quote #${this.quoteId}</h1>
-                <p>Thank you for your business!</p>
-              </div>
-              <div class="quote-info">
-                <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-                <p><strong>Quote ID:</strong> #${this.quoteId}</p>
-              </div>
-              <table class="items">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Sample Product</td>
-                    <td>1</td>
-                    <td>$100.00</td>
-                    <td>$100.00</td>
-                  </tr>
-                  <tr>
-                    <td>Sample Service</td>
-                    <td>2</td>
-                    <td>$75.00</td>
-                    <td>$150.00</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="total">
-                <p><strong>Subtotal:</strong> $250.00</p>
-                <p><strong>Tax (20%):</strong> $50.00</p>
-                <p><strong>Total:</strong> $300.00</p>
-              </div>
-              <script>
-                window.onload = function() {
-                  window.print();
-                }
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      } else {
-        alert('Please allow popups for this website to print the quote.');
-      }
+    if (!this.quote) {
+      alert('Quote data not loaded');
+      return;
+    }
+
+    try {
+      this.invoiceService.generateQuoteInvoice(this.quote, this.companySettings);
+    } catch (error) {
+      console.error('Error generating quote invoice:', error);
+      alert('Error generating quote invoice. Please check the console for details.');
     }
   }
 
