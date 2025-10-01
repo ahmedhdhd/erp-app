@@ -24,6 +24,7 @@ import { ProductDetailComponent } from './components/product/product-detail/prod
 import { ProductStatisticsComponent } from './components/product/product-statistics/product-statistics.component';
 import { CategoryManagementComponent } from './components/category-management/category-management.component';
 import { StockManagementComponent } from './components/stock-management/stock-management.component';
+import { StockMovementComponent } from './components/stock-management/stock-movement/stock-movement.component';
 
 // Client Components
 import { ClientListComponent } from './components/client/client-list/client-list.component';
@@ -297,6 +298,14 @@ const routes: Routes = [
     path: 'stock',
     canActivate: [AuthGuard],
     component: StockManagementComponent,
+    data: { requiredRoles: ['Admin', 'RH', 'Inventaire'] }
+  },
+
+  // Stock Movement routes
+  {
+    path: 'stock-movement',
+    canActivate: [AuthGuard],
+    component: StockMovementComponent,
     data: { requiredRoles: ['Admin', 'RH', 'Inventaire'] }
   },
 

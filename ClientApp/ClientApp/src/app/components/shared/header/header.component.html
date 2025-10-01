@@ -50,6 +50,7 @@
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" routerLink="/categories" *ngIf="hasRole('Admin') || hasRole('RH')"><i class="fas fa-tags me-2"></i>Categories</a></li>
             <li><a class="dropdown-item" routerLink="/stock" *ngIf="hasRole('Admin') || hasRole('Inventaire')"><i class="fas fa-warehouse me-2"></i>Stock Management</a></li>
+            <li><a class="dropdown-item" routerLink="/stock-movement" *ngIf="hasRole('Admin') || hasRole('Inventaire')"><i class="fas fa-exchange-alt me-2"></i>Mouvement de Stock</a></li>
             <li><a class="dropdown-item" routerLink="/products/statistics" *ngIf="hasRole('Admin') || hasRole('RH') || hasRole('Inventaire')"><i class="fas fa-chart-bar me-2"></i>Statistics</a></li>
           </ul>
         </li>

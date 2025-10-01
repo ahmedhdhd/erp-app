@@ -62,6 +62,7 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
+import { StockMovementComponent } from './components/stock-management/stock-movement/stock-movement.component';
 
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
@@ -107,6 +108,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     ProductStatisticsComponent,
     CategoryManagementComponent,
     StockManagementComponent,
+    StockMovementComponent,
     // Client Components
     ClientListComponent,
     ClientFormComponent,

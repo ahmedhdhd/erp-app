@@ -1,0 +1,179 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="fas fa-exchange-alt me-2"></i>
+            Mouvement de Stock
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Date Range Filter -->
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <label for="startDate" class="form-label">Date de début</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="startDate" 
+                [value]="movementForm.get('startDate')?.value"
+                (change)="onStartDateChange($event)">
+            </div>
+            <div class="col-md-4">
+              <label for="endDate" class="form-label">Date de fin</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="endDate" 
+                [value]="movementForm.get('endDate')?.value"
+                (change)="onEndDateChange($event)">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button class="btn btn-secondary" (click)="clearSelection()">
+                <i class="fas fa-times me-1"></i>
+                Effacer
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Search -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <label for="productSearch" class="form-label">Rechercher un produit</label>
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="productSearch" 
+                  placeholder="Rechercher par référence ou désignation..." 
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearchChange()"
+                  [disabled]="selectedProduct !== null">
+                <button 
+                  class="btn btn-outline-secondary" 
+                  type="button" 
+                  (click)="searchTerm=''; onSearchChange()"
+                  [disabled]="searchTerm === '' || selectedProduct !== null">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Selection -->
+          <div class="row mb-4" *ngIf="!selectedProduct">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Référence</th>
+                      <th>Désignation</th>
+                      <th>Stock Actuel</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let product of filteredProducts">
+                      <td>{{ product.reference }}</td>
+                      <td>{{ product.designation }}</td>
+                      <td>{{ product.stockActuel }}</td>
+                      <td>
+                        <button 
+                          class="btn btn-primary btn-sm" 
+                          (click)="onProductSelect(product)">
+                          <i class="fas fa-eye me-1"></i>
+                          Voir les mouvements
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="filteredProducts.length === 0">
+                      <td colspan="4" class="text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun produit trouvé
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Product Info -->
+          <div class="row mb-4" *ngIf="selectedProduct">
+            <div class="col-12">
+              <div class="alert alert-info">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Produit sélectionné:</strong> 
+                    {{ selectedProduct.reference }} - {{ selectedProduct.designation }}
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="clearSelection()">
+                    <i class="fas fa-times me-1"></i>
+                    Changer de produit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock Movements Table -->
+          <div class="row" *ngIf="selectedProduct">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Date</th>
+                      <th>Utilisateur</th>
+                      <th>Opération</th>
+                      <th>Qté Entrée</th>
+                      <th>Qté Sortie</th>
+                      <th>Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let movement of movements">
+                      <td>{{ formatDate(movement.date) }}</td>
+                      <td>{{ movement.utilisateur }}</td>
+                      <td>{{ movement.operation }}</td>
+                      <td class="text-success">{{ movement.qteEntre > 0 ? movement.qteEntre : '-' }}</td>
+                      <td class="text-danger">{{ movement.qteSortie > 0 ? movement.qteSortie : '-' }}</td>
+                      <td>{{ movement.stock }}</td>
+                    </tr>
+                    <tr *ngIf="movements.length === 0 && !loading">
+                      <td colspan="6" class="text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun mouvement de stock trouvé pour ce produit
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading Indicator -->
+          <div class="row" *ngIf="loading">
+            <div class="col-12 text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div class="row" *ngIf="error">
+            <div class="col-12">
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ error }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
