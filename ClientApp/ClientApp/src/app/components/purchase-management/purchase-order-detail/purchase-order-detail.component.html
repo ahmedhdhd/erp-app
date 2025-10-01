@@ -161,6 +161,10 @@
               Back to List
             </button>
             <div>
+              <button class="btn btn-primary me-2" (click)="printPurchaseOrder()">
+                <i class="fas fa-print me-1"></i>
+                Print
+              </button>
               <button class="btn btn-warning me-2" (click)="editPurchaseOrder()" 
                       *ngIf="purchaseOrder.statut === 'Brouillon'">
                 <i class="fas fa-edit me-1"></i>

@@ -32,7 +32,7 @@ namespace App.Controllers
 
 		[HttpPost]
 		[Authorize(Roles = "Admin,Acheteur")]
-		public async Task<ActionResult<ProductApiResponse<CategoryDTO>>> Create([FromBody] CreateCategoryRequest request)
+		public async Task<ActionResult<ProductApiResponse<CategoryDTO>>> Create([FromBody] CreateProductCategoryRequest request)
 		{
 			var result = await _service.CreateCategoryAsync(request);
 			return Ok(result);
@@ -40,7 +40,7 @@ namespace App.Controllers
 
 		[HttpPut("{id}")]
 		[Authorize(Roles = "Admin,Acheteur")]
-		public async Task<ActionResult<ProductApiResponse<CategoryDTO>>> Update([FromRoute] int id, [FromBody] UpdateCategoryRequest request)
+		public async Task<ActionResult<ProductApiResponse<CategoryDTO>>> Update([FromRoute] int id, [FromBody] UpdateProductCategoryRequest request)
 		{
 			var result = await _service.UpdateCategoryAsync(id, request);
 			if (!result.Success) return NotFound(result);
@@ -64,5 +64,3 @@ namespace App.Controllers
 		}
 	}
 }
-
-

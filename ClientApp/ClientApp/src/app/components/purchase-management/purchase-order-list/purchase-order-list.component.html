@@ -25,6 +25,132 @@
     </div>
   </div>
 
+  <!-- Search Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form (ngSubmit)="onSearch()">
+            <!-- Basic Search -->
+            <div class="row mb-3">
+              <div class="col-md-8">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [(ngModel)]="searchTerm"
+                    name="searchTerm"
+                    placeholder="Rechercher par fournisseur, numéro de commande..."
+                    autocomplete="off">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="btn-group w-100" role="group">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Rechercher
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary" 
+                    (click)="toggleAdvancedSearch()">
+                    <i class="fas fa-sliders-h"></i>
+                    {{ showAdvancedSearch ? 'Masquer' : 'Filtres avancés' }}
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-warning" 
+                    (click)="onResetSearch()">
+                    <i class="fas fa-times"></i>
+                    Effacer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advanced Search -->
+            <div class="advanced-search" [class.show]="showAdvancedSearch">
+              <hr>
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label">Fournisseur</label>
+                  <select 
+                    class="form-select"
+                    [(ngModel)]="searchRequest.fournisseurId"
+                    name="fournisseurId">
+                    <option [value]="null">Tous les fournisseurs</option>
+                    <!-- In a real implementation, you would populate this with actual suppliers -->
+                    <option value="1">Fournisseur 1</option>
+                    <option value="2">Fournisseur 2</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Statut</label>
+                  <select 
+                    class="form-select"
+                    [(ngModel)]="searchRequest.statut"
+                    name="statut">
+                    <option *ngFor="let status of statusOptions" [value]="status.value">
+                      {{ status.label }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Date de début</label>
+                  <input 
+                    type="date" 
+                    class="form-control"
+                    (change)="onDateDebutChange($event)"
+                    [value]="searchRequest.dateDebut ? (searchRequest.dateDebut | date:'yyyy-MM-dd') : ''">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Date de fin</label>
+                  <input 
+                    type="date" 
+                    class="form-control"
+                    (change)="onDateFinChange($event)"
+                    [value]="searchRequest.dateFin ? (searchRequest.dateFin | date:'yyyy-MM-dd') : ''">
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Trier par</label>
+                  <div class="row">
+                    <div class="col-8">
+                      <select class="form-select" [(ngModel)]="searchRequest.sortBy" name="sortBy">
+                        <option value="dateCommande">Date commande</option>
+                        <option value="dateLivraisonPrevue">Date livraison</option>
+                        <option value="montantHT">Montant HT</option>
+                        <option value="montantTTC">Montant TTC</option>
+                      </select>
+                    </div>
+                    <div class="col-4">
+                      <select class="form-select" [(ngModel)]="searchRequest.sortDirection" name="sortDirection">
+                        <option value="asc">Croissant</option>
+                        <option value="desc">Décroissant</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i>
+                    Appliquer les filtres
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading State -->
   <div class="row" *ngIf="loading">
     <div class="col-12 text-center">

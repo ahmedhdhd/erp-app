@@ -71,9 +71,13 @@ namespace App.Services
                     Telephone = request.Telephone,
                     Email = request.Email,
                     ICE = request.ICE,
+                    // Initialize new fields with empty strings to avoid null issues
+                    RC = request.RC ?? "",
+                    MF = request.MF ?? "",
+                    RIB = request.RIB ?? "",
                     Devise = request.Devise,
                     TauxTVA = request.TauxTVA,
-                    Logo = request.Logo
+                    Logo = request.Logo ?? ""
                 };
 
                 var created = await _dao.CreateAsync(settings);
@@ -117,9 +121,13 @@ namespace App.Services
                 existing.Telephone = request.Telephone;
                 existing.Email = request.Email;
                 existing.ICE = request.ICE;
+                // Handle new fields
+                existing.RC = request.RC ?? "";
+                existing.MF = request.MF ?? "";
+                existing.RIB = request.RIB ?? "";
                 existing.Devise = request.Devise;
                 existing.TauxTVA = request.TauxTVA;
-                existing.Logo = request.Logo;
+                existing.Logo = request.Logo ?? "";
 
                 var updated = await _dao.UpdateAsync(existing);
                 if (updated == null)
@@ -142,6 +150,8 @@ namespace App.Services
             }
             catch (System.Exception ex)
             {
+                // Log the full exception for debugging
+                System.Console.WriteLine($"Error updating company settings: {ex}");
                 return new ClientApiResponse<CompanySettingsDTO>
                 {
                     Success = false,
@@ -161,9 +171,13 @@ namespace App.Services
                 Telephone = s.Telephone,
                 Email = s.Email,
                 ICE = s.ICE,
+                // Handle new fields with null coalescing
+                RC = s.RC ?? "",
+                MF = s.MF ?? "",
+                RIB = s.RIB ?? "",
                 Devise = s.Devise,
                 TauxTVA = s.TauxTVA,
-                Logo = s.Logo,
+                Logo = s.Logo ?? "",
                 DateCreation = s.DateCreation,
                 DateModification = s.DateModification
             };

@@ -3,19 +3,15 @@ import { SalesOrderResponse, QuoteResponse, CompanySettingsResponse } from '../m
 import * as pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 
+// Initialize pdfMake fonts
+(pdfMake as any).vfs = pdfFonts.vfs;
+
 @Injectable({
   providedIn: 'root'
 })
 export class InvoiceService {
   constructor() {
-    // Initialize pdfMake fonts
-    try {
-      if (pdfFonts) {
-        (pdfMake as any).vfs = pdfFonts;
-      }
-    } catch (e) {
-      console.warn('Could not initialize pdfMake fonts', e);
-    }
+    // Constructor is now empty as pdfMake is initialized above
   }
 
   /**
@@ -23,11 +19,8 @@ export class InvoiceService {
    */
   generateSalesOrderInvoice(order: SalesOrderResponse, companySettings: CompanySettingsResponse | null): void {
     try {
-      const docDefinition = this.createSalesOrderDocDefinition(order, companySettings);
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-      
-      // Open PDF in a new window/tab
-      pdfDoc.open();
+      const docDefinition = this.generateSalesOrderDocDefinition(order, companySettings);
+      pdfMake.createPdf(docDefinition).download(`facture-${order.id}.pdf`);
     } catch (error) {
       console.error('Error generating sales order PDF:', error);
       throw new Error('Failed to generate PDF. Please try again.');
@@ -39,11 +32,8 @@ export class InvoiceService {
    */
   generateQuoteInvoice(quote: QuoteResponse, companySettings: CompanySettingsResponse | null): void {
     try {
-      const docDefinition = this.createQuoteDocDefinition(quote, companySettings);
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-      
-      // Open PDF in a new window/tab
-      pdfDoc.open();
+      const docDefinition = this.generateQuoteDocDefinition(quote, companySettings);
+      pdfMake.createPdf(docDefinition).download(`devis-${quote.id}.pdf`);
     } catch (error) {
       console.error('Error generating quote PDF:', error);
       throw new Error('Failed to generate PDF. Please try again.');
@@ -51,155 +41,193 @@ export class InvoiceService {
   }
 
   /**
-   * Create document definition for sales order
+   * Create document definition for sales order PDF
    */
-  private createSalesOrderDocDefinition(order: SalesOrderResponse, companySettings: CompanySettingsResponse | null): any {
+  private generateSalesOrderDocDefinition(order: SalesOrderResponse, companySettings: CompanySettingsResponse | null): any {
+    console.log('Generating sales order PDF with company settings:', companySettings); // Debug log
+    
+    // Format dates
+    const orderDate = new Date(order.dateCommande).toLocaleDateString('fr-FR');
+    
+    // Format invoice number with leading zeros (5 digits)
+    const invoiceNumber = order.id.toString().padStart(5, '0');
+    
+    // Generate table rows for order lines
+    const lineItems = order.lignes.map(line => [
+      line.produit.designation || '',
+      line.quantite.toString(),
+      line.prixUnitaireHT.toFixed(3),
+      line.totalLigne.toFixed(3),
+      line.tauxTVA + '%'
+    ]);
+
+    // Calculate totals
+    const htAmount = order.montantHT;
+    const vatAmount = order.montantTTC - order.montantHT;
+    const ttcAmount = order.montantTTC;
+
+    // Convert TTC amount to words in French
+    const ttcInWords = this.convertNumberToWords(ttcAmount);
+
+    // Prepare company header content - filter out empty items
+    const companyHeaderContent = [
+      { text: companySettings?.nomSociete || 'Nom de l\'entreprise', style: 'header' },
+      companySettings?.adresse ? { text: companySettings.adresse } : null,
+      companySettings?.telephone ? { text: 'Tél: ' + companySettings.telephone } : null,
+      companySettings?.rc ? { text: 'RC: ' + companySettings.rc } : null,
+      companySettings?.mf ? { text: 'MF: ' + companySettings.mf } : null,
+      companySettings?.rib ? { text: 'RIB: ' + companySettings.rib } : null,
+      companySettings?.email ? { text: 'Email: ' + companySettings.email } : null
+    ].filter(item => item !== null) as { text: string; style?: string }[];
+
+    console.log('Company header content:', companyHeaderContent); // Debug log
+
+    // Check if logo exists and is valid
+    const hasValidLogo = companySettings?.logo && companySettings.logo.startsWith('data:image');
+
     return {
       pageSize: 'A4',
       pageMargins: [40, 60, 40, 60],
       content: [
-        // Header
+        // Header with company info and logo
         {
           columns: [
             {
-              text: 'INVOICE',
-              style: 'header'
+              width: hasValidLogo ? '*' : '100%',
+              stack: companyHeaderContent
             },
-            {
-              text: `Order #${order.id}`,
-              style: 'subheader',
+            hasValidLogo ? {
+              width: 'auto',
+              image: companySettings!.logo,
+              fit: [100, 80],
               alignment: 'right'
-            }
+            } : {}
           ]
         },
-        {
-          canvas: [
-            { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } as any
-          ]
-        },
-        { text: ' ', margin: [0, 10] },
-        
-        // Company and Client Information
+        { text: '\n' },
+        // Invoice info boxes
         {
           columns: [
             {
-              width: '*',
+              width: '45%',
               stack: [
-                { text: 'FROM:', style: 'subheader' },
-                { text: companySettings?.nomSociete || 'Your Company Name' },
-                { text: companySettings?.adresse || 'Company Address' },
-                { text: `${companySettings?.email ? `Email: ${companySettings.email}` : ''}` },
-                { text: `${companySettings?.telephone ? `Phone: ${companySettings.telephone}` : ''}` }
-              ]
+                { text: 'Facture', style: 'subheader', alignment: 'center' },
+                { text: '\n' },
+                { text: 'Numéro: ' + invoiceNumber },
+                { text: 'Date: ' + orderDate }
+              ],
+              style: 'infobox'
             },
+            { width: '*', text: '' },
             {
-              width: '*',
+              width: '45%',
               stack: [
-                { text: 'TO:', style: 'subheader' },
-                { text: order.client.raisonSociale || `${order.client.nom} ${order.client.prenom}` },
-                { text: order.client.adresse || '' },
-                { text: `${order.client.ville || ''}, ${order.client.pays || ''}` },
-                { text: `Email: ${order.client.email || ''}` },
-                { text: `Phone: ${order.client.telephone || ''}` }
-              ]
+                { text: 'Client', style: 'subheader', alignment: 'center' },
+                { text: '\n' },
+                { text: order.client.raisonSociale || `${order.client.nom} ${order.client.prenom}`, bold: true },
+                order.client.adresse ? { text: order.client.adresse } : {},
+                order.client.ice ? { text: 'MF: ' + order.client.ice } : {}
+              ],
+              style: 'infobox'
             }
           ]
         },
-        { text: ' ', margin: [0, 20] },
-        
-        // Order Information
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                { text: 'Order Date:', bold: true },
-                { text: this.formatDate(order.dateCommande) }
-              ]
-            },
-            {
-              width: '*',
-              stack: [
-                { text: 'Status:', bold: true },
-                { text: order.statut }
-              ]
-            }
-          ]
-        },
-        { text: ' ', margin: [0, 20] },
-        
-        // Items Table
+        { text: '\n' },
+        // Items table
         {
           table: {
             headerRows: 1,
-            widths: ['*', 'auto', 'auto', 'auto'],
+            widths: ['*', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
-                { text: 'Item', style: 'tableHeader' },
-                { text: 'Quantity', style: 'tableHeader' },
-                { text: 'Unit Price', style: 'tableHeader' },
-                { text: 'Total', style: 'tableHeader' }
+                { text: 'Désignation', style: 'tableHeader' },
+                { text: 'Qté', style: 'tableHeader', alignment: 'right' },
+                { text: 'PU HT', style: 'tableHeader', alignment: 'right' },
+                { text: 'Total HT', style: 'tableHeader', alignment: 'right' },
+                { text: 'TVA %', style: 'tableHeader', alignment: 'right' }
               ],
-              ...order.lignes.map(line => [
-                `${line.produit.designation || ''}\n${line.produit.reference || ''}`,
-                line.quantite.toString(),
-                this.formatCurrency(line.prixUnitaireHT),
-                this.formatCurrency(line.totalLigne)
-              ]),
-              [
-                { text: 'Total HT', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(order.montantHT), bold: true }
-              ],
-              [
-                { text: 'VAT', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(order.montantTTC - order.montantHT), bold: true }
-              ],
-              [
-                { text: 'Total TTC', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(order.montantTTC), bold: true }
-              ]
-            ].flat()
+              ...lineItems
+            ]
           }
         },
-        { text: ' ', margin: [0, 20] },
-        
-        // Footer
+        { text: '\n' },
+        // Totals section with proper border box
+        {
+          stack: [
+            {
+              table: {
+                widths: ['*', 'auto'],
+                body: [
+                  [
+                    { text: 'Total HT:', bold: true },
+                    { text: htAmount.toFixed(3) + ' TND', alignment: 'right' }
+                  ],
+                  [
+                    { text: 'TVA:', bold: true },
+                    { text: vatAmount.toFixed(3) + ' TND', alignment: 'right' }
+                  ],
+                  [
+                    { text: 'Total TTC:', bold: true },
+                    { text: ttcAmount.toFixed(3) + ' TND', alignment: 'right', bold: true }
+                  ]
+                ]
+              },
+              layout: 'noBorders'
+            }
+          ],
+          style: 'borderedbox'
+        },
+        { text: '\n' },
+        // Amount in words section
+        {
+          text: 'Arrêtée la présente facture à la somme de:',
+          bold: true
+        },
+        { text: '\n' },
         {
           columns: [
-            { width: '*', text: '' },
             {
-              width: 'auto',
-              stack: [
-                { text: 'Thank you for your business!', alignment: 'center', margin: [0, 20] },
-                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1 } as any] },
-                { text: 'Signature', alignment: 'center' }
-              ]
+              width: '70%',
+              text: ttcInWords + ' TTC',
+              style: 'borderedbox'
             },
-            { width: '*', text: '' }
+            {
+              width: '5%',
+              text: ''
+            },
+            {
+              width: '25%',
+              text: 'Cachet et signature',
+              style: 'borderedbox',
+              alignment: 'center'
+            }
           ]
         }
       ],
       styles: {
         header: {
-          fontSize: 22,
+          fontSize: 18,
           bold: true,
           margin: [0, 0, 0, 10]
         },
         subheader: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 10, 0, 5]
+          fontSize: 14,
+          bold: true
+        },
+        infobox: {
+          border: [1, 1, 1, 1],
+          borderColor: '#000'
         },
         tableHeader: {
           bold: true,
-          fontSize: 13,
-          color: 'black'
+          fontSize: 11,
+          fillColor: '#eeeeee'
+        },
+        borderedbox: {
+          border: [1, 1, 1, 1],
+          borderColor: '#000',
+          margin: [0, 5, 0, 5],
+          padding: [10, 10, 10, 10]
         }
       },
       defaultStyle: {
@@ -209,162 +237,195 @@ export class InvoiceService {
   }
 
   /**
-   * Create document definition for quote
+   * Create document definition for quote PDF
    */
-  private createQuoteDocDefinition(quote: QuoteResponse, companySettings: CompanySettingsResponse | null): any {
+  private generateQuoteDocDefinition(quote: QuoteResponse, companySettings: CompanySettingsResponse | null): any {
+    console.log('Generating quote PDF with company settings:', companySettings); // Debug log
+    
+    // Format dates
+    const creationDate = new Date(quote.dateCreation).toLocaleDateString('fr-FR');
+    const expirationDate = new Date(quote.dateExpiration).toLocaleDateString('fr-FR');
+    
+    // Format quote number with leading zeros (5 digits)
+    const quoteNumber = quote.id.toString().padStart(5, '0');
+    
+    // Generate table rows for quote lines
+    const lineItems = quote.lignes.map(line => [
+      line.produit.designation || '',
+      line.quantite.toString(),
+      line.prixUnitaireHT.toFixed(3),
+      line.totalLigne.toFixed(3),
+      line.tauxTVA + '%'
+    ]);
+
+    // Calculate totals
+    const htAmount = quote.montantHT;
+    const vatAmount = quote.montantTTC - quote.montantHT;
+    const ttcAmount = quote.montantTTC;
+
+    // Convert TTC amount to words in French
+    const ttcInWords = this.convertNumberToWords(ttcAmount);
+
+    // Prepare company header content - filter out empty items
+    const companyHeaderContent = [
+      { text: companySettings?.nomSociete || 'Nom de l\'entreprise', style: 'header' }, // This is the line that shows "Nom de l'entreprise"
+      companySettings?.adresse ? { text: companySettings.adresse } : null,
+      companySettings?.telephone ? { text: 'Tél: ' + companySettings.telephone } : null,
+      companySettings?.rc ? { text: 'RC: ' + companySettings.rc } : null,
+      companySettings?.mf ? { text: 'MF: ' + companySettings.mf } : null,
+      companySettings?.rib ? { text: 'RIB: ' + companySettings.rib } : null,
+      companySettings?.email ? { text: 'Email: ' + companySettings.email } : null
+    ].filter(item => item !== null) as { text: string; style?: string }[];
+
+    console.log('Company header content for quote:', companyHeaderContent); // Debug log
+
+    // Check if logo exists and is valid
+    const hasValidLogo = companySettings?.logo && companySettings.logo.startsWith('data:image');
+
     return {
       pageSize: 'A4',
       pageMargins: [40, 60, 40, 60],
       content: [
-        // Header
+        // Header with company info and logo
         {
           columns: [
             {
-              text: 'QUOTE',
-              style: 'header'
+              width: hasValidLogo ? '*' : '100%',
+              stack: companyHeaderContent
             },
-            {
-              text: `Quote #${quote.id}`,
-              style: 'subheader',
+            hasValidLogo ? {
+              width: 'auto',
+              image: companySettings!.logo,
+              fit: [100, 80],
               alignment: 'right'
-            }
+            } : {}
           ]
         },
-        {
-          canvas: [
-            { type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1 } as any
-          ]
-        },
-        { text: ' ', margin: [0, 10] },
-        
-        // Company and Client Information
+        { text: '\n' },
+        // Quote info boxes
         {
           columns: [
             {
-              width: '*',
+              width: '45%',
               stack: [
-                { text: 'FROM:', style: 'subheader' },
-                { text: companySettings?.nomSociete || 'Your Company Name' },
-                { text: companySettings?.adresse || 'Company Address' },
-                { text: `${companySettings?.email ? `Email: ${companySettings.email}` : ''}` },
-                { text: `${companySettings?.telephone ? `Phone: ${companySettings.telephone}` : ''}` }
-              ]
+                { text: 'Devis', style: 'subheader', alignment: 'center' },
+                { text: '\n' },
+                { text: 'Numéro: ' + quoteNumber },
+                { text: 'Date: ' + creationDate },
+                { text: 'Date d\'expiration: ' + expirationDate }
+              ],
+              style: 'infobox'
             },
+            { width: '*', text: '' },
             {
-              width: '*',
+              width: '45%',
               stack: [
-                { text: 'TO:', style: 'subheader' },
-                { text: quote.client.raisonSociale || `${quote.client.nom} ${quote.client.prenom}` },
-                { text: quote.client.adresse || '' },
-                { text: `${quote.client.ville || ''}, ${quote.client.pays || ''}` },
-                { text: `Email: ${quote.client.email || ''}` },
-                { text: `Phone: ${quote.client.telephone || ''}` }
-              ]
+                { text: 'Client', style: 'subheader', alignment: 'center' },
+                { text: '\n' },
+                { text: quote.client.raisonSociale || `${quote.client.nom} ${quote.client.prenom}`, bold: true },
+                quote.client.adresse ? { text: quote.client.adresse } : {},
+                quote.client.ice ? { text: 'MF: ' + quote.client.ice } : {}
+              ],
+              style: 'infobox'
             }
           ]
         },
-        { text: ' ', margin: [0, 20] },
-        
-        // Quote Information
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                { text: 'Quote Date:', bold: true },
-                { text: this.formatDate(quote.dateCreation) }
-              ]
-            },
-            {
-              width: '*',
-              stack: [
-                { text: 'Expiration Date:', bold: true },
-                { text: this.formatDate(quote.dateExpiration) }
-              ]
-            },
-            {
-              width: '*',
-              stack: [
-                { text: 'Status:', bold: true },
-                { text: quote.statut }
-              ]
-            }
-          ]
-        },
-        { text: ' ', margin: [0, 20] },
-        
-        // Items Table
+        { text: '\n' },
+        // Items table
         {
           table: {
             headerRows: 1,
-            widths: ['*', 'auto', 'auto', 'auto'],
+            widths: ['*', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
-                { text: 'Item', style: 'tableHeader' },
-                { text: 'Quantity', style: 'tableHeader' },
-                { text: 'Unit Price', style: 'tableHeader' },
-                { text: 'Total', style: 'tableHeader' }
+                { text: 'Désignation', style: 'tableHeader' },
+                { text: 'Qté', style: 'tableHeader', alignment: 'right' },
+                { text: 'PU HT', style: 'tableHeader', alignment: 'right' },
+                { text: 'Total HT', style: 'tableHeader', alignment: 'right' },
+                { text: 'TVA %', style: 'tableHeader', alignment: 'right' }
               ],
-              ...quote.lignes.map(line => [
-                `${line.produit.designation || ''}\n${line.produit.reference || ''}`,
-                line.quantite.toString(),
-                this.formatCurrency(line.prixUnitaireHT),
-                this.formatCurrency(line.totalLigne)
-              ]),
-              [
-                { text: 'Total HT', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(quote.montantHT), bold: true }
-              ],
-              [
-                { text: 'VAT', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(quote.montantTTC - quote.montantHT), bold: true }
-              ],
-              [
-                { text: 'Total TTC', colSpan: 3, alignment: 'right' },
-                {},
-                {},
-                { text: this.formatCurrency(quote.montantTTC), bold: true }
-              ]
-            ].flat()
+              ...lineItems
+            ]
           }
         },
-        { text: ' ', margin: [0, 20] },
-        
-        // Footer
+        { text: '\n' },
+        // Totals section with proper border box
+        {
+          stack: [
+            {
+              table: {
+                widths: ['*', 'auto'],
+                body: [
+                  [
+                    { text: 'Total HT:', bold: true },
+                    { text: htAmount.toFixed(3) + ' TND', alignment: 'right' }
+                  ],
+                  [
+                    { text: 'TVA:', bold: true },
+                    { text: vatAmount.toFixed(3) + ' TND', alignment: 'right' }
+                  ],
+                  [
+                    { text: 'Total TTC:', bold: true },
+                    { text: ttcAmount.toFixed(3) + ' TND', alignment: 'right', bold: true }
+                  ]
+                ]
+              },
+              layout: 'noBorders'
+            }
+          ],
+          style: 'borderedbox'
+        },
+        { text: '\n' },
+        // Amount in words section
+        {
+          text: 'Arrêtée la présente facture à la somme de:',
+          bold: true
+        },
+        { text: '\n' },
         {
           columns: [
-            { width: '*', text: '' },
             {
-              width: 'auto',
-              stack: [
-                { text: 'Thank you for your business!', alignment: 'center', margin: [0, 20] },
-                { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1 } as any] },
-                { text: 'Signature', alignment: 'center' }
-              ]
+              width: '70%',
+              text: ttcInWords + ' TTC',
+              style: 'borderedbox'
             },
-            { width: '*', text: '' }
+            {
+              width: '5%',
+              text: ''
+            },
+            {
+              width: '25%',
+              text: 'Cachet et signature',
+              style: 'borderedbox',
+              alignment: 'center'
+            }
           ]
         }
       ],
       styles: {
         header: {
-          fontSize: 22,
+          fontSize: 18,
           bold: true,
           margin: [0, 0, 0, 10]
         },
         subheader: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 10, 0, 5]
+          fontSize: 14,
+          bold: true
+        },
+        infobox: {
+          border: [1, 1, 1, 1],
+          borderColor: '#000'
         },
         tableHeader: {
           bold: true,
-          fontSize: 13,
-          color: 'black'
+          fontSize: 11,
+          fillColor: '#eeeeee'
+        },
+        borderedbox: {
+          border: [1, 1, 1, 1],
+          borderColor: '#000',
+          margin: [0, 5, 0, 5],
+          padding: [10, 10, 10, 10]
         }
       },
       defaultStyle: {
@@ -374,16 +435,69 @@ export class InvoiceService {
   }
 
   /**
-   * Format date for display
+   * Convert number to words in French
    */
-  private formatDate(date: string | Date): string {
-    return new Date(date).toLocaleDateString('fr-FR');
+  private convertNumberToWords(num: number): string {
+    const units = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
+    const teens = ['dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+    const tens = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'];
+    
+    if (num === 0) return 'zéro';
+    
+    // Separate integer and decimal parts
+    const integerPart = Math.floor(num);
+    const decimalPart = Math.round((num - integerPart) * 1000); // 3 decimal places
+    
+    let result = '';
+    
+    if (integerPart === 0) {
+      result = 'zéro';
+    } else {
+      result = this.convertIntegerToWords(integerPart);
+    }
+    
+    // Add decimal part if exists
+    if (decimalPart > 0) {
+      result += ' virgule ' + this.convertIntegerToWords(decimalPart);
+    }
+    
+    return result + ' dinars tunisiens';
   }
-
-  /**
-   * Format currency for display
-   */
-  private formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(amount);
+  
+  private convertIntegerToWords(num: number): string {
+    const units = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
+    const teens = ['dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+    const tens = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'];
+    
+    if (num === 0) return '';
+    
+    if (num < 10) return units[num];
+    if (num < 20) return teens[num - 10];
+    if (num < 100) {
+      const ten = Math.floor(num / 10);
+      const unit = num % 10;
+      if (unit === 0) return tens[ten];
+      if (ten === 7 || ten === 9) return tens[ten] + '-' + this.convertIntegerToWords(unit + 10);
+      return tens[ten] + (unit === 1 ? '-et-un' : '-' + units[unit]);
+    }
+    if (num < 1000) {
+      const hundred = Math.floor(num / 100);
+      const remainder = num % 100;
+      if (hundred === 1) return 'cent' + (remainder === 0 ? '' : ' ' + this.convertIntegerToWords(remainder));
+      return units[hundred] + ' cent' + (remainder === 0 ? 's' : ' ' + this.convertIntegerToWords(remainder));
+    }
+    if (num < 1000000) {
+      const thousand = Math.floor(num / 1000);
+      const remainder = num % 1000;
+      if (thousand === 1) return 'mille' + (remainder === 0 ? '' : ' ' + this.convertIntegerToWords(remainder));
+      return this.convertIntegerToWords(thousand) + ' mille' + (remainder === 0 ? '' : ' ' + this.convertIntegerToWords(remainder));
+    }
+    if (num < 1000000000) {
+      const million = Math.floor(num / 1000000);
+      const remainder = num % 1000000;
+      if (million === 1) return 'un million' + (remainder === 0 ? '' : ' ' + this.convertIntegerToWords(remainder));
+      return this.convertIntegerToWords(million) + ' millions' + (remainder === 0 ? '' : ' ' + this.convertIntegerToWords(remainder));
+    }
+    return '';
   }
 }

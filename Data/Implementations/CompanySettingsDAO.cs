@@ -39,6 +39,9 @@ namespace App.Data.Implementations
             existing.Telephone = settings.Telephone;
             existing.Email = settings.Email;
             existing.ICE = settings.ICE;
+            existing.RC = settings.RC; // New field
+            existing.MF = settings.MF; // New field
+            existing.RIB = settings.RIB; // New field
             existing.Devise = settings.Devise;
             existing.TauxTVA = settings.TauxTVA;
             existing.Logo = settings.Logo;

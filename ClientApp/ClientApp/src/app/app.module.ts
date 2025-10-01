@@ -66,6 +66,14 @@ import { CompanySettingsComponent } from './components/company-settings/company-
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
 
+// Financial Components
+import { FinancialDashboardComponent } from './components/financial/financial-dashboard.component';
+import { TransactionListComponent } from './components/financial/transaction-list.component';
+import { TransactionFormComponent } from './components/financial/transaction-form.component';
+import { CategoryListComponent } from './components/financial/category-list.component';
+import { CategoryFormComponent } from './components/financial/category-form.component';
+import { FinancialTestComponent } from './components/financial/financial-test.component';
+
 // Services and Guards
 import { AuthService } from './services/auth.service';
 import { EmployeeService } from './services/employee.service';
@@ -74,6 +82,8 @@ import { ClientService } from './services/client.service';
 import { ConfigService } from './services/config.service';
 import { PurchaseService } from './services/purchase.service';
 import { SalesService } from './services/sales.service';
+import { FinancialService } from './services/financial.service';
+import { InvoiceService } from './services/invoice.service';
 import { AuthGuard, AdminGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -125,7 +135,14 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     // Shared Components
     HeaderComponent,
     // Company Settings Components
-    CompanySettingsComponent
+    CompanySettingsComponent,
+    // Financial Components
+    FinancialDashboardComponent,
+    TransactionListComponent,
+    TransactionFormComponent,
+    CategoryListComponent,
+    CategoryFormComponent,
+    FinancialTestComponent
   ],
   imports: [
     BrowserModule,
@@ -144,6 +161,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     ConfigService,
     PurchaseService,
     SalesService,
+    FinancialService,
+    InvoiceService,
     AuthGuard,
     AdminGuard,
     GuestGuard,

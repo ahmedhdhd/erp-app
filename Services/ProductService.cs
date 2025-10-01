@@ -151,13 +151,13 @@ namespace App.Services
 			if (c == null) return Failure<CategoryDTO>("Catégorie introuvable");
 			return Success(MapToDTO(c));
 		}
-		public async Task<ProductApiResponse<CategoryDTO>> CreateCategoryAsync(CreateCategoryRequest request)
+		public async Task<ProductApiResponse<CategoryDTO>> CreateCategoryAsync(CreateProductCategoryRequest request)
 		{
 			var cat = new Category { Nom = request.Nom, Description = request.Description, CategorieParentId = request.CategorieParentId, EstActif = request.EstActif };
 			var created = await _dao.CreateCategoryAsync(cat);
 			return Success(MapToDTO(created));
 		}
-		public async Task<ProductApiResponse<CategoryDTO>> UpdateCategoryAsync(int id, UpdateCategoryRequest request)
+		public async Task<ProductApiResponse<CategoryDTO>> UpdateCategoryAsync(int id, UpdateProductCategoryRequest request)
 		{
 			var cat = await _dao.GetCategoryByIdAsync(id);
 			if (cat == null) return Failure<CategoryDTO>("Catégorie introuvable");

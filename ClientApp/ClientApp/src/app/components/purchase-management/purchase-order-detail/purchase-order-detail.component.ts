@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PurchaseService } from '../../../services/purchase.service';
 import { PurchaseOrderResponse, PurchaseApiResponse } from '../../../models/purchase.models';
+import { InvoiceService } from '../../../services/invoice.service';
+import { SalesOrderResponse } from '../../../models/sales.models';
 
 @Component({
   selector: 'app-purchase-order-detail',
@@ -16,6 +18,7 @@ export class PurchaseOrderDetailComponent implements OnInit {
 
   constructor(
     private purchaseService: PurchaseService,
+    private invoiceService: InvoiceService,
     private route: ActivatedRoute,
     public router: Router
   ) {}
@@ -158,5 +161,79 @@ export class PurchaseOrderDetailComponent implements OnInit {
       }
     }
     return 'N/A';
+  }
+
+  printPurchaseOrder(): void {
+    if (!this.purchaseOrder) {
+      alert('Purchase order data not loaded');
+      return;
+    }
+
+    try {
+      // Create a mock SalesOrderResponse object to use with the invoice service
+      const salesOrder: SalesOrderResponse = {
+        id: this.purchaseOrder.id,
+        clientId: this.purchaseOrder.fournisseurId,
+        client: {
+          id: this.purchaseOrder.fournisseur.id,
+          nom: '',
+          prenom: '',
+          raisonSociale: this.purchaseOrder.fournisseur.raisonSociale,
+          typeClient: '',
+          ice: this.purchaseOrder.fournisseur.ice,
+          adresse: '',
+          ville: '',
+          codePostal: '',
+          pays: '',
+          telephone: '',
+          email: '',
+          classification: '',
+          limiteCredit: 0,
+          soldeActuel: 0,
+          estActif: true,
+          dateCreation: new Date()
+        },
+        dateCommande: this.purchaseOrder.dateCommande,
+        statut: this.purchaseOrder.statut,
+        montantHT: this.purchaseOrder.montantHT,
+        montantTTC: this.purchaseOrder.montantTTC,
+        modeLivraison: '',
+        conditionsPaiement: '',
+        lignes: this.purchaseOrder.lignes.map(line => ({
+          id: line.id,
+          commandeId: this.purchaseOrder?.id || 0,
+          produitId: line.produitId,
+          produit: {
+            id: line.produit.id,
+            reference: line.produit.reference,
+            designation: line.produit.designation,
+            description: line.produit.description,
+            categorie: '',
+            sousCategorie: '',
+            prixAchat: 0,
+            prixVente: line.prixUnitaireHT,
+            prixVenteMin: 0,
+            unite: '',
+            statut: '',
+            stockActuel: 0,
+            stockMinimum: 0,
+            stockMaximum: 0
+          },
+          quantite: line.quantite,
+          prixUnitaireHT: line.prixUnitaireHT,
+          tauxTVA: line.tauxTVA,
+          prixUnitaireTTC: line.prixUnitaireTTC,
+          totalLigne: line.totalLigne
+        })),
+        livraisons: [],
+        factures: []
+      };
+
+      // Use the invoice service to generate the PDF
+      this.invoiceService.generateSalesOrderInvoice(salesOrder, null);
+    } catch (error) {
+      console.error('Error generating purchase order PDF:', error);
+      alert('Error generating purchase order PDF. Please check the console for details.');
+    }
   }
 }

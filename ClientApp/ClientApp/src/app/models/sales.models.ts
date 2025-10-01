@@ -122,6 +122,9 @@ export interface CompanySettingsResponse {
   devise: string;
   tauxTVA: number;
   logo: string;
+  rc: string; // New field for RC (Registre de Commerce)
+  rib: string; // New field for RIB (Relevé d'Identité Bancaire)
+  mf: string; // New field for MF (Matricule Fiscal)
   dateCreation: Date;
   dateModification: Date;
 }
@@ -135,6 +138,9 @@ export interface UpdateCompanySettingsRequest {
   devise: string;
   tauxTVA: number;
   logo: string;
+  rc: string; // New field for RC (Registre de Commerce)
+  rib: string; // New field for RIB (Relevé d'Identité Bancaire)
+  mf: string; // New field for MF (Matricule Fiscal)
 }
 
 // ========== RESPONSE MODELS ==========

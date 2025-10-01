@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PurchaseService } from '../../../services/purchase.service';
-import { PurchaseOrderResponse, PurchaseOrderListResponse, PurchaseApiResponse } from '../../../models/purchase.models';
+import { PurchaseOrderResponse, PurchaseOrderListResponse, PurchaseOrderSearchRequest, PurchaseApiResponse } from '../../../models/purchase.models';
 
 @Component({
   selector: 'app-purchase-order-list',
@@ -17,6 +17,30 @@ export class PurchaseOrderListComponent implements OnInit {
   totalCount = 0;
   totalPages = 0;
 
+  // Search properties
+  searchTerm = '';
+  showAdvancedSearch = false;
+  searchRequest: PurchaseOrderSearchRequest = {
+    fournisseurId: null,
+    statut: null,
+    dateDebut: null,
+    dateFin: null,
+    page: 1,
+    pageSize: 10,
+    sortBy: 'dateCommande',
+    sortDirection: 'desc'
+  };
+
+  // For dropdown options
+  statusOptions = [
+    { value: null, label: 'Tous les statuts' },
+    { value: 'Brouillon', label: 'Brouillon' },
+    { value: 'Envoyée', label: 'Envoyée' },
+    { value: 'Partielle', label: 'Partielle' },
+    { value: 'Livrée', label: 'Livrée' },
+    { value: 'Annulée', label: 'Annulée' }
+  ];
+
   constructor(
     private purchaseService: PurchaseService,
     private router: Router
@@ -30,7 +54,11 @@ export class PurchaseOrderListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.purchaseService.getAllPurchaseOrders(this.page, this.pageSize).subscribe({
+    // Update search request with current page and page size
+    this.searchRequest.page = this.page;
+    this.searchRequest.pageSize = this.pageSize;
+
+    this.purchaseService.searchPurchaseOrders(this.searchRequest).subscribe({
       next: (response: PurchaseApiResponse<PurchaseOrderListResponse>) => {
         if (response.success && response.data) {
           this.purchaseOrders = response.data.commandes;
@@ -102,5 +130,42 @@ export class PurchaseOrderListComponent implements OnInit {
       default:
         return 'badge bg-secondary';
     }
+  }
+
+  // Search methods
+  onSearch(): void {
+    this.page = 1; // Reset to first page when searching
+    this.loadPurchaseOrders();
+  }
+
+  onResetSearch(): void {
+    // Reset search criteria
+    this.searchTerm = '';
+    this.searchRequest = {
+      fournisseurId: null,
+      statut: null,
+      dateDebut: null,
+      dateFin: null,
+      page: 1,
+      pageSize: 10,
+      sortBy: 'dateCommande',
+      sortDirection: 'desc'
+    };
+    this.page = 1;
+    this.loadPurchaseOrders();
+  }
+
+  onDateDebutChange(event: any): void {
+    const target = event.target as HTMLInputElement;
+    this.searchRequest.dateDebut = target.value ? new Date(target.value) : null;
+  }
+
+  onDateFinChange(event: any): void {
+    const target = event.target as HTMLInputElement;
+    this.searchRequest.dateFin = target.value ? new Date(target.value) : null;
+  }
+
+  toggleAdvancedSearch(): void {
+    this.showAdvancedSearch = !this.showAdvancedSearch;
   }
 }

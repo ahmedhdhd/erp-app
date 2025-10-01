@@ -49,9 +49,7 @@
                     <small *ngIf="companySettingsForm.get('telephone')?.errors?.['maxlength']">Le téléphone ne peut pas dépasser 50 caractères</small>
                   </div>
                 </div>
-              </div>
-              
-              <div class="col-md-6">
+                
                 <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
                   <input type="email" class="form-control" id="email" formControlName="email">
@@ -65,6 +63,32 @@
                   <input type="text" class="form-control" id="ice" formControlName="ice">
                   <div *ngIf="companySettingsForm.get('ice')?.invalid && companySettingsForm.get('ice')?.touched" class="text-danger">
                     <small *ngIf="companySettingsForm.get('ice')?.errors?.['maxlength']">L'ICE ne peut pas dépasser 20 caractères</small>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="rc" class="form-label">RC (Registre de Commerce)</label>
+                  <input type="text" class="form-control" id="rc" formControlName="rc">
+                  <div *ngIf="companySettingsForm.get('rc')?.invalid && companySettingsForm.get('rc')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('rc')?.errors?.['maxlength']">Le RC ne peut pas dépasser 50 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="mf" class="form-label">MF (Matricule Fiscal)</label>
+                  <input type="text" class="form-control" id="mf" formControlName="mf">
+                  <div *ngIf="companySettingsForm.get('mf')?.invalid && companySettingsForm.get('mf')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('mf')?.errors?.['maxlength']">Le MF ne peut pas dépasser 50 caractères</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="rib" class="form-label">RIB (Relevé d'Identité Bancaire)</label>
+                  <input type="text" class="form-control" id="rib" formControlName="rib">
+                  <div *ngIf="companySettingsForm.get('rib')?.invalid && companySettingsForm.get('rib')?.touched" class="text-danger">
+                    <small *ngIf="companySettingsForm.get('rib')?.errors?.['maxlength']">Le RIB ne peut pas dépasser 50 caractères</small>
                   </div>
                 </div>
                 
@@ -82,6 +106,22 @@
                   <div *ngIf="companySettingsForm.get('tauxTVA')?.invalid && companySettingsForm.get('tauxTVA')?.touched" class="text-danger">
                     <small *ngIf="companySettingsForm.get('tauxTVA')?.errors?.['min']">Le taux TVA doit être positif</small>
                     <small *ngIf="companySettingsForm.get('tauxTVA')?.errors?.['max']">Le taux TVA ne peut pas dépasser 100%</small>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="logo" class="form-label">Logo (URL)</label>
+                  <input type="text" class="form-control" id="logo" formControlName="logo" placeholder="URL du logo" (input)="onLogoUrlChange($event)">
+                  <!-- No max length validation for logo field -->
+                  <small class="form-text text-muted">Entrez l'URL de votre logo ou utilisez le sélecteur de fichiers ci-dessous</small>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="logoFile" class="form-label">Sélectionner un logo depuis votre ordinateur</label>
+                  <input type="file" class="form-control" id="logoFile" (change)="onFileSelected($event)" accept="image/*">
+                  <small class="form-text text-muted">Formats supportés: JPG, PNG, GIF (max 2MB)</small>
+                  <div *ngIf="logoPreview" class="mt-2">
+                    <img [src]="logoPreview" alt="Logo preview" class="img-thumbnail" style="max-height: 100px;">
                   </div>
                 </div>
               </div>

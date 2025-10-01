@@ -21,13 +21,21 @@ namespace App.Models
         [StringLength(20)]
         public string ICE { get; set; } = string.Empty;
         
+        [StringLength(50)] 
+        public string RC { get; set; } = string.Empty; // Registre de Commerce
+        
+        [StringLength(50)]
+        public string MF { get; set; } = string.Empty; // Matricule Fiscal
+        
+        [StringLength(50)]
+        public string RIB { get; set; } = string.Empty; // Relevé d'Identité Bancaire
+        
         [StringLength(10)]
         public string Devise { get; set; } = "TND";
         
         [Column(TypeName = "decimal(5,2)")]
         public decimal TauxTVA { get; set; } = 19; // TVA standard en Tunisie
         
-        [StringLength(100)]
         public string Logo { get; set; } = string.Empty;
     }
 }

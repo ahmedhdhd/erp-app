@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using App.Models.Financial;
 
 namespace App.Models;
 public class ApplicationDbContext : DbContext
@@ -458,12 +459,16 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaiementClient> PaiementClients { get; set; }
     public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
 
+    // Add Financial module DbSets
+    public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<TransactionCategory> TransactionCategories { get; set; }
+    public DbSet<Budget> Budgets { get; set; }
+    public DbSet<FinancialReport> FinancialReports { get; set; }
+
     // ========== 8. Administration Système ==========
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<CompanySettings> CompanySettings { get; set; }
-    public DbSet<ParametreSociete> ParametreSocietes { get; set; }
-    public DbSet<SequenceNumerique> SequenceNumeriques { get; set; }
 
     // ========== 9. Reporting (These are typically not DbSets as they're for reporting purposes) ==========
     // public DbSet<RapportVente> RapportVentes { get; set; }
@@ -471,6 +476,6 @@ public class ApplicationDbContext : DbContext
     // public DbSet<RapportStock> RapportStocks { get; set; }
     // public DbSet<SalesReport> SalesReports { get; set; }
     // public DbSet<InventoryReport> InventoryReports { get; set; }
-    // public DbSet<FinancialReport> FinancialReports { get; set; }
+    // public DbSet<Models.Financial.FinancialReport> FinancialReports { get; set; }
 }
 

@@ -3,6 +3,25 @@ using System.Collections.Generic;
 
 namespace App.Models.DTOs
 {
+	public class ProductSearchRequest
+	{
+		public string? SearchTerm { get; set; }
+		public int? CategorieId { get; set; }
+		public string? SousCategorie { get; set; }
+		public string? Statut { get; set; }
+		public decimal? PrixMin { get; set; }
+		public decimal? PrixMax { get; set; }
+		public bool? StockFaible { get; set; }
+		public bool? RuptureStock { get; set; }
+		public string? Unite { get; set; }
+		public DateTime? DateCreationFrom { get; set; }
+		public DateTime? DateCreationTo { get; set; }
+		public int Page { get; set; } = 1;
+		public int PageSize { get; set; } = 50;
+		public string SortBy { get; set; } = "designation";
+		public string SortDirection { get; set; } = "asc";
+	}
+
 	public class CreateProductRequest
 	{
 		public string Reference { get; set; }
@@ -21,35 +40,16 @@ namespace App.Models.DTOs
 		public decimal PrixVenteTTC { get; set; }
 		public decimal PrixVenteMinTTC { get; set; }
 		public string Unite { get; set; }
+		public string Statut { get; set; }
 		public int StockActuel { get; set; }
 		public int StockMinimum { get; set; }
 		public int StockMaximum { get; set; }
-		public string Statut { get; set; }
 		public List<CreateVariantRequest> Variantes { get; set; } = new();
 	}
 
 	public class UpdateProductRequest : CreateProductRequest
 	{
 		public int Id { get; set; }
-	}
-
-	public class ProductSearchRequest
-	{
-		public string? SearchTerm { get; set; }
-		public int? CategorieId { get; set; }
-		public string? SousCategorie { get; set; }
-		public string? Statut { get; set; }
-		public decimal? PrixMin { get; set; }
-		public decimal? PrixMax { get; set; }
-		public bool? StockFaible { get; set; }
-		public bool? RuptureStock { get; set; }
-		public string? Unite { get; set; }
-		public DateTime? DateCreationFrom { get; set; }
-		public DateTime? DateCreationTo { get; set; }
-		public string SortBy { get; set; }
-		public string SortDirection { get; set; }
-		public int Page { get; set; }
-		public int PageSize { get; set; }
 	}
 
 	public class CreateVariantRequest
@@ -61,19 +61,6 @@ namespace App.Models.DTOs
 	}
 
 	public class UpdateVariantRequest : CreateVariantRequest
-	{
-		public int Id { get; set; }
-	}
-
-	public class CreateCategoryRequest
-	{
-		public string Nom { get; set; }
-		public string Description { get; set; }
-		public int? CategorieParentId { get; set; }
-		public bool EstActif { get; set; }
-	}
-
-	public class UpdateCategoryRequest : CreateCategoryRequest
 	{
 		public int Id { get; set; }
 	}
@@ -137,6 +124,19 @@ namespace App.Models.DTOs
 		public DateTime DateCreation { get; set; }
 		public DateTime? DateModification { get; set; }
 		public List<CategoryDTO> SousCategories { get; set; } = new();
+	}
+
+	public class CreateProductCategoryRequest
+	{
+		public string Nom { get; set; }
+		public string Description { get; set; }
+		public int? CategorieParentId { get; set; }
+		public bool EstActif { get; set; }
+	}
+
+	public class UpdateProductCategoryRequest : CreateProductCategoryRequest
+	{
+		public int Id { get; set; }
 	}
 
 	public class StockMovementDTO
@@ -207,5 +207,3 @@ namespace App.Models.DTOs
 		public string Reason { get; set; }
 	}
 }
-
-
