@@ -72,6 +72,16 @@ namespace App.Services
 
 		public async Task<ClientApiResponse<ClientDTO>> CreateAsync(CreateClientRequest request)
 		{
+			// Check for duplicate ICE
+			if (!string.IsNullOrWhiteSpace(request.ICE))
+			{
+				var iceExists = await _dao.IcesExistsAsync(request.ICE);
+				if (iceExists)
+				{
+					return Failure<ClientDTO>("Un client avec le même ICE existe déjà. Veuillez utiliser un ICE différent.");
+				}
+			}
+
 			var entity = new Client
 			{
 				Nom = request.Nom,
@@ -98,6 +108,16 @@ namespace App.Services
 		{
 			var existing = await _dao.GetByIdAsync(id);
 			if (existing == null) return Failure<ClientDTO>("Client introuvable");
+
+			// Check for duplicate ICE when updating
+			if (!string.IsNullOrWhiteSpace(request.ICE) && request.ICE != existing.ICE)
+			{
+				var iceExists = await _dao.IcesExistsAsync(request.ICE, id);
+				if (iceExists)
+				{
+					return Failure<ClientDTO>("Un client avec le même ICE existe déjà. Veuillez utiliser un ICE différent.");
+				}
+			}
 
 			existing.Nom = request.Nom;
 			existing.Prenom = request.Prenom;

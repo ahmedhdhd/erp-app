@@ -31,6 +31,7 @@ namespace App.Data.Interfaces
 		Task<List<string>> GetClientTypesAsync();
 		Task<List<string>> GetClassificationsAsync();
 		Task<List<string>> GetCitiesAsync();
+		Task<bool> IcesExistsAsync(string ice, int? excludeId = null);
 	}
 }
 

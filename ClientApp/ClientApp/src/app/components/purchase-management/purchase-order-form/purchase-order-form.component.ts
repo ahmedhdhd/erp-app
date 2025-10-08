@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { PurchaseService } from '../../../services/purchase.service';
 import { SupplierService } from '../../../services/supplier.service';
 import { ProductService } from '../../../services/product.service';
+import { AuthService } from '../../../services/auth.service';
 import { PurchaseOrderResponse, CreatePurchaseOrderRequest, UpdatePurchaseOrderRequest, PurchaseApiResponse } from '../../../models/purchase.models';
 import { SupplierResponse, SupplierListResponse, SupplierApiResponse } from '../../../models/supplier.models';
 import { ProductResponse, ProductListResponse, ProductApiResponse } from '../../../models/product.models';
@@ -33,6 +34,7 @@ export class PurchaseOrderFormComponent implements OnInit {
     private purchaseService: PurchaseService,
     private supplierService: SupplierService,
     private productService: ProductService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -352,6 +354,9 @@ calculateTTCPrice(lineGroup: FormGroup): void {
       this.successMessage = null;
 
       const formValue = this.purchaseOrderForm.value;
+      const currentUser = this.authService.getCurrentUser();
+      const userName = currentUser ? `${currentUser.prenomEmploye} ${currentUser.nomEmploye}` : 'Utilisateur inconnu';
+      
       const request: CreatePurchaseOrderRequest | UpdatePurchaseOrderRequest = {
         fournisseurId: formValue.fournisseurId,
         dateLivraisonPrevue: new Date(formValue.dateLivraisonPrevue),

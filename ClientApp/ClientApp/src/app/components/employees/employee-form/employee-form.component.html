@@ -126,12 +126,20 @@
                   type="text"
                   id="cin"
                   class="form-control"
-                  [class.is-invalid]="isFieldInvalid('cin')"
+                  [class.is-invalid]="isFieldInvalid('cin') || cinError"
+                  [class.is-valid]="!isFieldInvalid('cin') && !cinError && employeeForm.get('cin')?.value"
                   formControlName="cin"
                   placeholder="Enter CIN number"
                   maxlength="20">
-                <div *ngIf="isFieldInvalid('cin')" class="invalid-feedback">
-                  {{ getFieldErrorMessage('cin') }}
+                <div *ngIf="isCinChecking" class="form-text text-info">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Checking CIN availability...
+                </div>
+                <div *ngIf="cinError" class="invalid-feedback">
+                  {{ cinError }}
+                </div>
+                <div *ngIf="!isFieldInvalid('cin') && !cinError && employeeForm.get('cin')?.value && !isCinChecking" class="valid-feedback">
+                  <i class="fas fa-check-circle me-1"></i>This CIN is available
                 </div>
               </div>
             </div>

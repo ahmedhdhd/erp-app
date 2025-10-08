@@ -28,7 +28,6 @@ namespace App.Data.Interfaces
 		Task<List<string>> GetDepartmentsAsync();
 		Task<List<string>> GetPositionsAsync();
 		Task<List<string>> GetStatusesAsync();
+		Task<bool> IsCinAvailableAsync(string cin);
 	}
 }
-
-

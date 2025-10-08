@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, timer } from 'rxjs';
 import { Employee, CreateEmployeeRequest, UpdateEmployeeRequest } from '../../../models/employee.models';
 import { EmployeeService } from '../../../services/employee.service';
 import { AuthService } from '../../../services/auth.service';
@@ -21,6 +21,10 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
+  
+  // CIN validation
+  isCinChecking = false;
+  cinError = '';
   
   // Form validation patterns
   readonly phonePattern = /^[\+]?[\s\-\(\)]?[\d\s\-\(\)]+$/;
@@ -54,12 +58,10 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
     'Consultant',
     'Intern'
   ];
-  
-  statuses = [
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' },
-    { value: 'On Leave', label: 'On Leave' },
-    { value: 'Terminated', label: 'Terminated' }
+   statuses = [
+    { value: 'Actif', label: 'Active' },
+    { value: 'Inactif', label: 'Inactive' },
+    { value: 'Suspendu', label: 'Suspended' },
   ];
 
   constructor(
@@ -75,6 +77,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkPermissions();
     this.checkRouteParams();
+    this.setupCinValidation();
   }
 
   ngOnDestroy(): void {
@@ -97,6 +100,46 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
         this.isEditMode = true;
         this.loadEmployee();
       }
+    });
+  }
+
+  private setupCinValidation(): void {
+    // Setup CIN validation with debounce
+    this.employeeForm.get('cin')?.valueChanges.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value && value.length >= 8) {
+        this.checkCinAvailability(value);
+      } else {
+        this.cinError = '';
+        this.isCinChecking = false;
+      }
+    });
+  }
+
+  private checkCinAvailability(cin: string): void {
+    // Clear previous error
+    this.cinError = '';
+    this.isCinChecking = true;
+    
+    // Debounce the API call
+    timer(500).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.employeeService.isCinAvailable(cin).subscribe({
+        next: (response) => {
+          this.isCinChecking = false;
+          if (response.success && response.data !== undefined) {
+            if (!response.data && !(this.isEditMode && this.employeeForm.get('cin')?.value === cin)) {
+              this.cinError = 'This CIN is already in use. Please use a different CIN.';
+            }
+          }
+        },
+        error: (error) => {
+          this.isCinChecking = false;
+          console.error('Error checking CIN availability:', error);
+        }
+      });
     });
   }
 
@@ -160,7 +203,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.employeeForm.invalid) {
+    if (this.employeeForm.invalid || this.cinError) {
       this.markFormGroupTouched();
       return;
     }
@@ -286,6 +329,12 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
         return `${this.getFieldDisplayName(fieldName)} must not exceed ${field.errors['max'].max}`;
       }
     }
+    
+    // Special handling for CIN error
+    if (fieldName === 'cin' && this.cinError) {
+      return this.cinError;
+    }
+    
     return '';
   }
 

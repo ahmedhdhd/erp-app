@@ -165,6 +165,11 @@ namespace App.Data.Implementations
 				.OrderBy(s => s)
 				.ToListAsync();
 		}
+
+		public async Task<bool> IsCinAvailableAsync(string cin)
+		{
+			return !await _db.Employes.AnyAsync(e => e.CIN == cin);
+		}
 	}
 }
 

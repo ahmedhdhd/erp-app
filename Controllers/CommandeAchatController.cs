@@ -3,6 +3,7 @@ using App.Models.DTOs;
 using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace App.Controllers
 {
@@ -46,7 +47,14 @@ namespace App.Controllers
 		[Authorize(Roles = "Admin,Acheteur")]
 		public async Task<ActionResult<FournisseurApiResponse<CommandeAchatDTO>>> Create([FromBody] CreateCommandeAchatRequest request)
 		{
-			var result = await _commandeAchatService.CreateAsync(request);
+			// Get current user information
+			var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+			var userNameClaim = User.FindFirst(ClaimTypes.Name);
+			
+			var userId = userIdClaim != null && int.TryParse(userIdClaim.Value, out int id) ? id : 0;
+			var userName = userNameClaim?.Value ?? "Utilisateur inconnu";
+			
+			var result = await _commandeAchatService.CreateAsync(request, userId, userName);
 			return Ok(result);
 		}
 
@@ -81,7 +89,14 @@ namespace App.Controllers
 		[Authorize(Roles = "Admin,Acheteur,StockManager")]
 		public async Task<ActionResult<FournisseurApiResponse<ReceptionDTO>>> Receive([FromRoute] int commandeId, [FromBody] CreateReceptionRequest request)
 		{
-			var result = await _commandeAchatService.ReceiveAsync(commandeId, request);
+			// Get current user information
+			var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+			var userNameClaim = User.FindFirst(ClaimTypes.Name);
+			
+			var userId = userIdClaim != null && int.TryParse(userIdClaim.Value, out int id) ? id : 0;
+			var userName = userNameClaim?.Value ?? "Utilisateur inconnu";
+			
+			var result = await _commandeAchatService.ReceiveAsync(commandeId, request, userId, userName);
 			if (!result.Success) return BadRequest(result);
 			return Ok(result);
 		}

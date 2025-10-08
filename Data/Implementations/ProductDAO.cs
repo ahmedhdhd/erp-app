@@ -42,7 +42,6 @@ namespace App.Data.Implementations
 					EF.Functions.Like(p.Description.ToLower(), $"%{term}%")
 				);
 			}
-			if (categorieId.HasValue) query = query.Where(p => EF.Property<int>(p, "CategoryId") == categorieId.Value);
 			if (!string.IsNullOrWhiteSpace(sousCategorie)) query = query.Where(p => p.SousCategorie == sousCategorie);
 			if (!string.IsNullOrWhiteSpace(statut)) query = query.Where(p => p.Statut == statut);
 			if (prixMin.HasValue) query = query.Where(p => p.PrixVente >= prixMin.Value);
@@ -137,7 +136,14 @@ namespace App.Data.Implementations
 			var product = await _db.Produits.FindAsync(movement.ProduitId);
 			if (product != null)
 			{
-				product.StockActuel = movement.Quantite;
+				// For stock adjustments, we should add the quantity to the current stock
+				// For purchase receipts, we should add the received quantity
+				// For sales, we should subtract the sold quantity
+				product.StockActuel += movement.Quantite;
+				
+				// Ensure stock doesn't go below zero
+				if (product.StockActuel < 0)
+					product.StockActuel = 0;
 			}
 			await _db.SaveChangesAsync();
 			return movement;

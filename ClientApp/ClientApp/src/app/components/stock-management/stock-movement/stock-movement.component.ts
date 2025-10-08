@@ -117,6 +117,7 @@ export class StockMovementComponent implements OnInit {
           this.movements = this.transformMovements(response.data);
         } else {
           this.movements = [];
+          this.error = response.message || 'No data available';
         }
         this.loading = false;
       },
@@ -145,28 +146,38 @@ export class StockMovementComponent implements OnInit {
       });
     }
     
+    // Sort filtered movements by date for stock calculation
+    const sortedMovements = [...filteredMovements].sort((a, b) => 
+      new Date(a.dateMouvement).getTime() - new Date(b.dateMouvement).getTime()
+    );
+    
     // Transform to display format
     return filteredMovements.map(movement => {
       let operation = '';
       let qteEntre = 0;
       let qteSortie = 0;
       
-      // Determine operation type and quantities
-      if (movement.type.toLowerCase().includes('achat') || movement.type === 'ENTREE' || movement.type.toLowerCase().includes('purchase')) {
-        operation = `Facture Achat n° : ${movement.referenceDocument}`;
+      // Extract command number from reference document
+      const commandNumberMatch = movement.referenceDocument?.match(/\d+/);
+      const commandNumber = commandNumberMatch ? commandNumberMatch[0] : 'N/A';
+      
+      // Determine operation type and quantities based on movement type
+      if (movement.type.toLowerCase().includes('achat') || movement.type === 'ENTREE' || movement.type === 'Achat') {
+        operation = `Facture Achat n° : ${commandNumber}`;
         qteEntre = movement.quantite;
         qteSortie = 0;
-      } else if (movement.type.toLowerCase().includes('vente') || movement.type === 'SORTIE' || movement.type.toLowerCase().includes('sale')) {
-        operation = `Facture Vente n° : ${movement.referenceDocument}`;
+      } else if (movement.type.toLowerCase().includes('vente') || movement.type === 'SORTIE' || movement.type === 'Vente') {
+        operation = `Facture Vente n° : ${commandNumber}`;
         qteEntre = 0;
-        qteSortie = movement.quantite;
+        qteSortie = Math.abs(movement.quantite); // Make sure it's positive for display
       } else {
-        operation = movement.referenceDocument || movement.type;
-        // For other types, we'll need to determine based on quantity sign
-        if (movement.quantite >= 0) {
+        // For other types like adjustments
+        if (movement.quantite > 0) {
+          operation = `${movement.type} (+${movement.quantite})`;
           qteEntre = movement.quantite;
           qteSortie = 0;
         } else {
+          operation = `${movement.type} (${movement.quantite})`;
           qteEntre = 0;
           qteSortie = Math.abs(movement.quantite);
         }
@@ -174,19 +185,49 @@ export class StockMovementComponent implements OnInit {
       
       return {
         date: new Date(movement.dateMouvement),
-        utilisateur: movement.creePar,
+        utilisateur: movement.creePar || 'Utilisateur inconnu',
         operation: operation,
         qteEntre: qteEntre,
         qteSortie: qteSortie,
-        stock: this.calculateStockLevel(movement) // This would need to be calculated properly
+        stock: this.calculateStockLevel(sortedMovements, movement)
       };
     }).sort((a, b) => b.date.getTime() - a.date.getTime()); // Sort by date descending
   }
 
-  calculateStockLevel(movement: StockMovementResponse): number {
-    // This is a simplified calculation - in a real app, you would calculate the actual stock level
-    // based on all previous movements
-    return movement.quantite >= 0 ? movement.quantite : Math.abs(movement.quantite);
+  calculateStockLevel(movements: StockMovementResponse[], currentMovement: StockMovementResponse): number {
+    // Sort movements by date
+    const sortedMovements = [...movements].sort((a, b) => 
+      new Date(a.dateMouvement).getTime() - new Date(b.dateMouvement).getTime()
+    );
+    
+    // Calculate cumulative stock up to and including the current movement
+    let stockLevel = 0;
+    for (const movement of sortedMovements) {
+      // Add entry movements (positive quantities)
+      if (movement.type.toLowerCase().includes('achat') || 
+          movement.type === 'ENTREE' || 
+          movement.type === 'Achat' || 
+          movement.type === 'Stock Initial' ||
+          (movement.quantite > 0 && !movement.type.toLowerCase().includes('vente')) ||
+          movement.type === 'Ajustement +') {
+        stockLevel += movement.quantite;
+      } 
+      // Subtract exit movements (negative quantities or vente)
+      else if (movement.type.toLowerCase().includes('vente') || 
+               movement.type === 'SORTIE' || 
+               movement.type === 'Vente' ||
+               movement.type === 'Ajustement -' ||
+               movement.quantite < 0) {
+        stockLevel -= Math.abs(movement.quantite);
+      }
+      
+      // Stop when we reach the current movement
+      if (movement.id === currentMovement.id) {
+        break;
+      }
+    }
+    
+    return Math.max(0, stockLevel); // Ensure non-negative stock
   }
 
   onDateChange(): void {

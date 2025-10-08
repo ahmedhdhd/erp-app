@@ -97,6 +97,11 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     // Add form value change listeners
     this.setupFormValidation();
     this.setupTVACalculations();
+    
+    // Initialize TTC values based on default HT values and TVA rate
+    setTimeout(() => {
+      this.calculateTTCFromHT(19);
+    }, 0);
   }
 
   private setupFormValidation(): void {
@@ -146,37 +151,85 @@ export class ProductFormComponent implements OnInit, OnDestroy {
     // Auto-calculate TTC when HT changes
     this.productForm.get('prixAchatHT')?.valueChanges.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(() => {
-      const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
-      this.calculateTTCFromHT(tauxTVA);
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+        // Also update the base price field
+        this.productForm.get('prixAchat')?.setValue(value, { emitEvent: false });
+      }
     });
 
     this.productForm.get('prixVenteHT')?.valueChanges.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(() => {
-      const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
-      this.calculateTTCFromHT(tauxTVA);
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+        // Also update the base price field
+        this.productForm.get('prixVente')?.setValue(value, { emitEvent: false });
+      }
     });
 
     this.productForm.get('prixVenteMinHT')?.valueChanges.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(() => {
-      const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
-      this.calculateTTCFromHT(tauxTVA);
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+        // Also update the base price field
+        this.productForm.get('prixVenteMin')?.setValue(value, { emitEvent: false });
+      }
     });
-  }
+  
+    // Also sync base price fields to HT fields when they change
+    this.productForm.get('prixAchat')?.valueChanges.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.productForm.get('prixAchatHT')?.setValue(value, { emitEvent: false });
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+      }
+    });
 
-  private calculateTTCFromHT(tauxTVA: number): void {
-    const multiplier = 1 + (tauxTVA / 100);
-    
-    const prixAchatHT = this.productForm.get('prixAchatHT')?.value || 0;
-    const prixVenteHT = this.productForm.get('prixVenteHT')?.value || 0;
-    const prixVenteMinHT = this.productForm.get('prixVenteMinHT')?.value || 0;
+    this.productForm.get('prixVente')?.valueChanges.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.productForm.get('prixVenteHT')?.setValue(value, { emitEvent: false });
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+      }
+    });
 
-    this.productForm.get('prixAchatTTC')?.setValue(parseFloat((prixAchatHT * multiplier).toFixed(2)), { emitEvent: false });
-    this.productForm.get('prixVenteTTC')?.setValue(parseFloat((prixVenteHT * multiplier).toFixed(2)), { emitEvent: false });
-    this.productForm.get('prixVenteMinTTC')?.setValue(parseFloat((prixVenteMinHT * multiplier).toFixed(2)), { emitEvent: false });
-  }
+    this.productForm.get('prixVenteMin')?.valueChanges.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      if (value !== null && value !== undefined) {
+        this.productForm.get('prixVenteMinHT')?.setValue(value, { emitEvent: false });
+        const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
+        this.calculateTTCFromHT(tauxTVA);
+      }
+    });
+}
+
+private calculateTTCFromHT(tauxTVA: number): void {
+  const multiplier = 1 + (tauxTVA / 100);
+  
+  const prixAchatHT = this.productForm.get('prixAchatHT')?.value || 0;
+  const prixVenteHT = this.productForm.get('prixVenteHT')?.value || 0;
+  const prixVenteMinHT = this.productForm.get('prixVenteMinHT')?.value || 0;
+
+  this.productForm.get('prixAchatTTC')?.setValue(parseFloat((prixAchatHT * multiplier).toFixed(2)), { emitEvent: false });
+  this.productForm.get('prixVenteTTC')?.setValue(parseFloat((prixVenteHT * multiplier).toFixed(2)), { emitEvent: false });
+  this.productForm.get('prixVenteMinTTC')?.setValue(parseFloat((prixVenteMinHT * multiplier).toFixed(2)), { emitEvent: false });
+  
+  // Also update the base price fields
+  this.productForm.get('prixAchat')?.setValue(prixAchatHT, { emitEvent: false });
+  this.productForm.get('prixVente')?.setValue(prixVenteHT, { emitEvent: false });
+  this.productForm.get('prixVenteMin')?.setValue(prixVenteMinHT, { emitEvent: false });
+}
 
   calculateHTFromTTC(field: string): void {
     const tauxTVA = this.productForm.get('tauxTVA')?.value || 19;
@@ -301,6 +354,7 @@ export class ProductFormComponent implements OnInit, OnDestroy {
   }
 
   private populateForm(product: ProductResponse): void {
+    // Set the form values
     this.productForm.patchValue({
       reference: product.reference,
       designation: product.designation,
@@ -326,6 +380,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       stockMaximum: product.stockMaximum,
       statut: product.statut
     });
+
+    // Ensure synchronization between HT and base price fields
+    setTimeout(() => {
+      this.productForm.get('prixAchat')?.setValue(product.prixAchatHT, { emitEvent: false });
+      this.productForm.get('prixVente')?.setValue(product.prixVenteHT, { emitEvent: false });
+      this.productForm.get('prixVenteMin')?.setValue(product.prixVenteMinHT, { emitEvent: false });
+    }, 0);
 
     // Load variants if any
     if (product.variantes && product.variantes.length > 0) {

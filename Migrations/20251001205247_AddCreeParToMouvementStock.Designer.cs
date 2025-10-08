@@ -4,6 +4,7 @@ using App.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251001205247_AddCreeParToMouvementStock")]
+    partial class AddCreeParToMouvementStock
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,7 +53,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("ActiviteEmployes", (string)null);
+                    b.ToTable("ActiviteEmployes");
                 });
 
             modelBuilder.Entity("App.Models.AnalyseClient", b =>
@@ -86,7 +88,7 @@ namespace App.Migrations
                     b.HasIndex("ClientId")
                         .IsUnique();
 
-                    b.ToTable("AnalyseClients", (string)null);
+                    b.ToTable("AnalyseClients");
                 });
 
             modelBuilder.Entity("App.Models.AuditLog", b =>
@@ -127,7 +129,7 @@ namespace App.Migrations
 
                     b.HasIndex("UtilisateurId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("App.Models.Category", b =>
@@ -172,7 +174,7 @@ namespace App.Migrations
 
                     b.HasIndex("CategorieParentId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("App.Models.Client", b =>
@@ -248,7 +250,7 @@ namespace App.Migrations
                     b.HasIndex("ICE")
                         .IsUnique();
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("App.Models.CommandeAchat", b =>
@@ -285,7 +287,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("CommandeAchats", (string)null);
+                    b.ToTable("CommandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.CommandeVente", b =>
@@ -329,7 +331,7 @@ namespace App.Migrations
 
                     b.HasIndex("DevisId");
 
-                    b.ToTable("CommandeVentes", (string)null);
+                    b.ToTable("CommandeVentes");
                 });
 
             modelBuilder.Entity("App.Models.CompanySettings", b =>
@@ -408,7 +410,7 @@ namespace App.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CompanySettings", (string)null);
+                    b.ToTable("CompanySettings");
                 });
 
             modelBuilder.Entity("App.Models.ContactClient", b =>
@@ -446,7 +448,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ContactClients", (string)null);
+                    b.ToTable("ContactClients");
                 });
 
             modelBuilder.Entity("App.Models.ContactFournisseur", b =>
@@ -480,7 +482,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("ContactFournisseurs", (string)null);
+                    b.ToTable("ContactFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.DemandeAchat", b =>
@@ -505,7 +507,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("DemandeAchats", (string)null);
+                    b.ToTable("DemandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.Department", b =>
@@ -552,7 +554,7 @@ namespace App.Migrations
                         .IsUnique()
                         .HasFilter("[ManagerId] IS NOT NULL");
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("App.Models.Devis", b =>
@@ -589,7 +591,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Devis", (string)null);
+                    b.ToTable("Devis");
                 });
 
             modelBuilder.Entity("App.Models.Employe", b =>
@@ -651,7 +653,7 @@ namespace App.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Employes", (string)null);
+                    b.ToTable("Employes");
                 });
 
             modelBuilder.Entity("App.Models.FactureAchat", b =>
@@ -693,7 +695,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("FactureAchats", (string)null);
+                    b.ToTable("FactureAchats");
                 });
 
             modelBuilder.Entity("App.Models.FactureVente", b =>
@@ -735,7 +737,7 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("FactureVentes", (string)null);
+                    b.ToTable("FactureVentes");
                 });
 
             modelBuilder.Entity("App.Models.Financial.Budget", b =>
@@ -797,7 +799,7 @@ namespace App.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Budgets", (string)null);
+                    b.ToTable("Budgets");
                 });
 
             modelBuilder.Entity("App.Models.Financial.FinancialReport", b =>
@@ -868,7 +870,7 @@ namespace App.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FinancialReports", (string)null);
+                    b.ToTable("FinancialReports");
                 });
 
             modelBuilder.Entity("App.Models.Financial.Transaction", b =>
@@ -948,7 +950,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("App.Models.Financial.TransactionCategory", b =>
@@ -993,7 +995,7 @@ namespace App.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("TransactionCategories", (string)null);
+                    b.ToTable("TransactionCategories");
                 });
 
             modelBuilder.Entity("App.Models.Fournisseur", b =>
@@ -1055,7 +1057,7 @@ namespace App.Migrations
                     b.HasIndex("ICE")
                         .IsUnique();
 
-                    b.ToTable("Fournisseurs", (string)null);
+                    b.ToTable("Fournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Inventaire", b =>
@@ -1086,7 +1088,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("Inventaires", (string)null);
+                    b.ToTable("Inventaires");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeAchat", b =>
@@ -1124,7 +1126,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneCommandeAchats", (string)null);
+                    b.ToTable("LigneCommandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeVente", b =>
@@ -1162,7 +1164,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneCommandeVentes", (string)null);
+                    b.ToTable("LigneCommandeVentes");
                 });
 
             modelBuilder.Entity("App.Models.LigneDemandeAchat", b =>
@@ -1192,7 +1194,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneDemandeAchats", (string)null);
+                    b.ToTable("LigneDemandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneDevis", b =>
@@ -1230,7 +1232,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneDevis", (string)null);
+                    b.ToTable("LigneDevis");
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureAchat", b =>
@@ -1268,7 +1270,7 @@ namespace App.Migrations
 
                     b.HasIndex("LigneCommandeId");
 
-                    b.ToTable("LigneFactureAchats", (string)null);
+                    b.ToTable("LigneFactureAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureVente", b =>
@@ -1304,7 +1306,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("LigneFactureVentes", (string)null);
+                    b.ToTable("LigneFactureVentes");
                 });
 
             modelBuilder.Entity("App.Models.LigneLivraison", b =>
@@ -1328,7 +1330,7 @@ namespace App.Migrations
 
                     b.HasIndex("LivraisonId");
 
-                    b.ToTable("LigneLivraisons", (string)null);
+                    b.ToTable("LigneLivraisons");
                 });
 
             modelBuilder.Entity("App.Models.LigneReception", b =>
@@ -1369,7 +1371,7 @@ namespace App.Migrations
 
                     b.HasIndex("ReceptionId");
 
-                    b.ToTable("LigneReceptions", (string)null);
+                    b.ToTable("LigneReceptions");
                 });
 
             modelBuilder.Entity("App.Models.LigneRetourVente", b =>
@@ -1393,7 +1395,7 @@ namespace App.Migrations
 
                     b.HasIndex("RetourId");
 
-                    b.ToTable("LigneRetourVentes", (string)null);
+                    b.ToTable("LigneRetourVentes");
                 });
 
             modelBuilder.Entity("App.Models.Livraison", b =>
@@ -1426,7 +1428,7 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("Livraisons", (string)null);
+                    b.ToTable("Livraisons");
                 });
 
             modelBuilder.Entity("App.Models.MouvementStock", b =>
@@ -1466,7 +1468,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("MouvementStocks", (string)null);
+                    b.ToTable("MouvementStocks");
                 });
 
             modelBuilder.Entity("App.Models.PaiementClient", b =>
@@ -1507,7 +1509,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("PaiementClients", (string)null);
+                    b.ToTable("PaiementClients");
                 });
 
             modelBuilder.Entity("App.Models.PaiementFournisseur", b =>
@@ -1548,7 +1550,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("PaiementFournisseurs", (string)null);
+                    b.ToTable("PaiementFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.PerformanceFournisseur", b =>
@@ -1576,7 +1578,7 @@ namespace App.Migrations
                     b.HasIndex("FournisseurId")
                         .IsUnique();
 
-                    b.ToTable("PerformanceFournisseurs", (string)null);
+                    b.ToTable("PerformanceFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Produit", b =>
@@ -1646,7 +1648,7 @@ namespace App.Migrations
                     b.HasIndex("Reference")
                         .IsUnique();
 
-                    b.ToTable("Produits", (string)null);
+                    b.ToTable("Produits");
                 });
 
             modelBuilder.Entity("App.Models.Reception", b =>
@@ -1671,7 +1673,7 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("Receptions", (string)null);
+                    b.ToTable("Receptions");
                 });
 
             modelBuilder.Entity("App.Models.RetourVente", b =>
@@ -1705,7 +1707,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("RetourVentes", (string)null);
+                    b.ToTable("RetourVentes");
                 });
 
             modelBuilder.Entity("App.Models.TransactionClient", b =>
@@ -1737,7 +1739,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("TransactionClients", (string)null);
+                    b.ToTable("TransactionClients");
                 });
 
             modelBuilder.Entity("App.Models.TransactionFournisseur", b =>
@@ -1765,7 +1767,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("TransactionFournisseurs", (string)null);
+                    b.ToTable("TransactionFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Utilisateur", b =>
@@ -1802,7 +1804,7 @@ namespace App.Migrations
                     b.HasIndex("NomUtilisateur")
                         .IsUnique();
 
-                    b.ToTable("Utilisateurs", (string)null);
+                    b.ToTable("Utilisateurs");
                 });
 
             modelBuilder.Entity("App.Models.VariantProduit", b =>
@@ -1835,7 +1837,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("VariantProduits", (string)null);
+                    b.ToTable("VariantProduits");
                 });
 
             modelBuilder.Entity("App.Models.ActiviteEmploye", b =>

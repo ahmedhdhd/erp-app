@@ -3,6 +3,7 @@ using App.Models.DTOs;
 using App.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace App.Controllers
 {
@@ -47,7 +48,14 @@ namespace App.Controllers
 		[Authorize(Roles = "Admin,Vendeur")]
 		public async Task<ActionResult<ClientApiResponse<CommandeVenteDTO>>> CreateCommande([FromBody] CreateCommandeVenteRequest request)
 		{
-			var result = await _commandeVenteService.CreateAsync(request);
+			// Get current user information
+			var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+			var userNameClaim = User.FindFirst(ClaimTypes.Name);
+			
+			var userId = userIdClaim != null && int.TryParse(userIdClaim.Value, out int id) ? id : 0;
+			var userName = userNameClaim?.Value ?? "Utilisateur inconnu";
+			
+			var result = await _commandeVenteService.CreateAsync(request, userId, userName);
 			return Ok(result);
 		}
 
@@ -73,7 +81,14 @@ namespace App.Controllers
 		[Authorize(Roles = "Admin,Vendeur")]
 		public async Task<ActionResult<ClientApiResponse<CommandeVenteDTO>>> SubmitCommande([FromRoute] int commandeId)
 		{
-			var result = await _commandeVenteService.SubmitAsync(commandeId);
+			// Get current user information
+			var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+			var userNameClaim = User.FindFirst(ClaimTypes.Name);
+			
+			var userId = userIdClaim != null && int.TryParse(userIdClaim.Value, out int id) ? id : 0;
+			var userName = userNameClaim?.Value ?? "Utilisateur inconnu";
+			
+			var result = await _commandeVenteService.SubmitAsync(commandeId, userId, userName);
 			if (!result.Success) return BadRequest(result);
 			return Ok(result);
 		}

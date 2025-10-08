@@ -67,6 +67,16 @@ namespace App.Data.Implementations
 			return (items, total);
 		}
 
+		public async Task<bool> IcesExistsAsync(string ice, int? excludeId = null)
+		{
+			var query = _db.Clients.Where(c => c.ICE == ice);
+			if (excludeId.HasValue)
+			{
+				query = query.Where(c => c.Id != excludeId.Value);
+			}
+			return await query.AnyAsync();
+		}
+
 		public Task<Client?> GetByIdAsync(int id)
 		{
 			return _db.Clients.Include(c => c.Contacts).FirstOrDefaultAsync(c => c.Id == id);

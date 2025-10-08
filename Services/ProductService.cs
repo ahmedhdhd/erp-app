@@ -78,6 +78,11 @@ namespace App.Services
 			var category = await _dao.GetCategoryByIdAsync(request.CategorieId);
 			var categoryName = category?.Nom ?? "Non classé";
 
+			// Use HT values if provided, otherwise use the base price values
+			var prixAchat = request.PrixAchatHT > 0 ? request.PrixAchatHT : request.PrixAchat;
+			var prixVente = request.PrixVenteHT > 0 ? request.PrixVenteHT : request.PrixVente;
+			var prixVenteMin = request.PrixVenteMinHT > 0 ? request.PrixVenteMinHT : request.PrixVenteMin;
+
 			var entity = new Produit
 			{
 				Reference = request.Reference,
@@ -85,9 +90,9 @@ namespace App.Services
 				Description = request.Description,
 				Categorie = categoryName, // Set the category name
 				SousCategorie = request.SousCategorie,
-				PrixAchat = request.PrixAchat,
-				PrixVente = request.PrixVente,
-				PrixVenteMin = request.PrixVenteMin,
+				PrixAchat = prixAchat,
+				PrixVente = prixVente,
+				PrixVenteMin = prixVenteMin,
 				TauxTVA = request.TauxTVA, // Set the VAT rate
 				Unite = request.Unite,
 				Statut = request.Statut,
@@ -110,13 +115,24 @@ namespace App.Services
 		{
 			var existing = await _dao.GetByIdAsync(id);
 			if (existing == null) return Failure<ProductDTO>("Produit introuvable");
+			
+			// Get the category name based on the category ID
+			var category = await _dao.GetCategoryByIdAsync(request.CategorieId);
+			var categoryName = category?.Nom ?? existing.Categorie;
+
+			// Use HT values if provided, otherwise use the base price values
+			var prixAchat = request.PrixAchatHT > 0 ? request.PrixAchatHT : request.PrixAchat;
+			var prixVente = request.PrixVenteHT > 0 ? request.PrixVenteHT : request.PrixVente;
+			var prixVenteMin = request.PrixVenteMinHT > 0 ? request.PrixVenteMinHT : request.PrixVenteMin;
+
 			existing.Reference = request.Reference;
 			existing.Designation = request.Designation;
 			existing.Description = request.Description;
+			existing.Categorie = categoryName;
 			existing.SousCategorie = request.SousCategorie;
-			existing.PrixAchat = request.PrixAchat;
-			existing.PrixVente = request.PrixVente;
-			existing.PrixVenteMin = request.PrixVenteMin;
+			existing.PrixAchat = prixAchat;
+			existing.PrixVente = prixVente;
+			existing.PrixVenteMin = prixVenteMin;
 			existing.TauxTVA = request.TauxTVA; // Update the VAT rate
 			existing.Unite = request.Unite;
 			existing.Statut = request.Statut;
@@ -227,6 +243,17 @@ namespace App.Services
 
 		private static ProductDTO MapToDTO(Produit p)
 		{
+			// HT values are the same as the base prices in the entity
+			var prixAchatHT = p.PrixAchat;
+			var prixVenteHT = p.PrixVente;
+			var prixVenteMinHT = p.PrixVenteMin;
+			
+			// Calculate TTC values based on HT and VAT rate
+			var multiplier = 1 + (p.TauxTVA / 100);
+			var prixAchatTTC = Math.Round(prixAchatHT * multiplier, 2);
+			var prixVenteTTC = Math.Round(prixVenteHT * multiplier, 2);
+			var prixVenteMinTTC = Math.Round(prixVenteMinHT * multiplier, 2);
+
 			var dto = new ProductDTO
 			{
 				Id = p.Id,
@@ -240,12 +267,12 @@ namespace App.Services
 				PrixVente = p.PrixVente,
 				PrixVenteMin = p.PrixVenteMin,
 				TauxTVA = p.TauxTVA,
-				PrixAchatHT = p.PrixAchat,
-				PrixVenteHT = p.PrixVente,
-				PrixVenteMinHT = p.PrixVenteMin,
-				PrixAchatTTC = p.PrixAchat * (1 + p.TauxTVA / 100),
-				PrixVenteTTC = p.PrixVente * (1 + p.TauxTVA / 100),
-				PrixVenteMinTTC = p.PrixVenteMin * (1 + p.TauxTVA / 100),
+				PrixAchatHT = prixAchatHT,
+				PrixVenteHT = prixVenteHT,
+				PrixVenteMinHT = prixVenteMinHT,
+				PrixAchatTTC = prixAchatTTC,
+				PrixVenteTTC = prixVenteTTC,
+				PrixVenteMinTTC = prixVenteMinTTC,
 				Unite = p.Unite,
 				Statut = p.Statut,
 				StockActuel = p.StockActuel,
@@ -265,7 +292,7 @@ namespace App.Services
 
 		private static VariantDTO MapToDTO(VariantProduit v) => new VariantDTO { Id = v.Id, ProduitId = v.ProduitId, Taille = v.Taille, Couleur = v.Couleur, ReferenceVariant = v.ReferenceVariant, StockActuel = v.StockActuel, EstRuptureStock = v.StockActuel <= 0 };
 		private static CategoryDTO MapToDTO(Category c) => new CategoryDTO { Id = c.Id, Nom = c.Nom, Description = c.Description, CategorieParentId = c.CategorieParentId, CategorieParent = c.CategorieParent?.Nom ?? string.Empty, EstActif = c.EstActif, NombreProduits = c.Produits?.Count ?? 0, NombreSousCategories = c.SousCategories?.Count ?? 0, DateCreation = DateTime.UtcNow, SousCategories = c.SousCategories?.Select(MapToDTO).ToList() ?? new List<CategoryDTO>() };
-		private static StockMovementDTO MapToDTO(MouvementStock m) => new StockMovementDTO { Id = m.Id, ProduitId = m.ProduitId, ProduitReference = string.Empty, ProduitDesignation = string.Empty, DateMouvement = m.DateMouvement, Type = m.Type, Quantite = m.Quantite, ReferenceDocument = m.ReferenceDocument, Emplacement = m.Emplacement, CreePar = string.Empty };
+		private static StockMovementDTO MapToDTO(MouvementStock m) => new StockMovementDTO { Id = m.Id, ProduitId = m.ProduitId, ProduitReference = string.Empty, ProduitDesignation = string.Empty, DateMouvement = m.DateMouvement, Type = m.Type, Quantite = m.Quantite, ReferenceDocument = m.ReferenceDocument, Emplacement = m.Emplacement, CreePar = m.CreePar ?? string.Empty };
 
 		private static ProductApiResponse<T> Success<T>(T data) => new ProductApiResponse<T> { Success = true, Message = "OK", Data = data };
 		private static ProductApiResponse<T> Failure<T>(string message) => new ProductApiResponse<T> { Success = false, Message = message, Errors = new List<string> { message } };

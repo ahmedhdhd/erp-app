@@ -69,7 +69,7 @@ namespace App.Services
 			return Success(MapToDTO(commande));
 		}
 
-		public async Task<ClientApiResponse<CommandeVenteDTO>> CreateAsync(CreateCommandeVenteRequest request)
+		public async Task<ClientApiResponse<CommandeVenteDTO>> CreateAsync(CreateCommandeVenteRequest request, int userId = 0, string userName = "Utilisateur inconnu")
 		{
 			try
 			{
@@ -176,7 +176,7 @@ namespace App.Services
 			return ok ? Success(true) : Failure<bool>("Suppression impossible");
 		}
 
-		public async Task<ClientApiResponse<CommandeVenteDTO>> SubmitAsync(int commandeId)
+		public async Task<ClientApiResponse<CommandeVenteDTO>> SubmitAsync(int commandeId, int userId = 0, string userName = "Utilisateur inconnu")
 		{
 			var commande = await _dao.GetByIdAsync(commandeId);
 			if (commande == null) return Failure<CommandeVenteDTO>("Commande de vente introuvable");
@@ -185,6 +185,7 @@ namespace App.Services
 				return Failure<CommandeVenteDTO>("Seule une commande en brouillon peut être soumise");
 
 			// Update product quantities when submitting the order - decrease stock as products are being sold
+			var stockMovements = new List<MouvementStock>(); // To track stock movements
 			foreach (var ligne in commande.Lignes)
 			{
 				// Get a fresh copy of the product to avoid concurrency issues
@@ -200,7 +201,27 @@ namespace App.Services
 					
 					// Save the updated product
 					await _productDAO.UpdateAsync(produit);
+					
+					// Create stock movement record
+					var stockMovement = new MouvementStock
+					{
+						ProduitId = produit.Id,
+						DateMouvement = DateTime.UtcNow,
+						Type = "Vente", // Use the enum value
+						Quantite = -ligne.Quantite, // Negative for outgoing stock
+						ReferenceDocument = $"Facture Vente n° : {commande.Id}",
+						Emplacement = "Entrepôt principal",
+						CreePar = userName // Use the actual user name
+					};
+					
+					stockMovements.Add(stockMovement);
 				}
+			}
+
+			// Save stock movements
+			foreach (var movement in stockMovements)
+			{
+				await _productDAO.CreateStockAdjustmentAsync(movement);
 			}
 
 			commande.Statut = "Confirmé";

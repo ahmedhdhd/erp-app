@@ -13,6 +13,34 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure decimal precision for all decimal properties to avoid truncation warnings
+        foreach (var property in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetProperties())
+            .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+        {
+            property.SetColumnType("decimal(18,2)");
+        }
+
+        // Explicitly configure the TauxTVA property for Produit entity
+        modelBuilder.Entity<Produit>()
+            .Property(p => p.TauxTVA)
+            .HasColumnType("decimal(5,2)")
+            .HasDefaultValue(19.00m);
+
+        // Explicitly configure the CreePar property for MouvementStock entity
+        modelBuilder.Entity<MouvementStock>()
+            .Property(m => m.CreePar)
+            .HasMaxLength(100);
+
+        // Explicitly configure the Email and Telephone properties for Employe entity
+        modelBuilder.Entity<Employe>()
+            .Property(e => e.Email)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<Employe>()
+            .Property(e => e.Telephone)
+            .HasMaxLength(20);
+
         // ========== 1. Gestion de la Relation Client (CRM) ==========
         modelBuilder.Entity<Client>()
             .HasMany(c => c.Contacts)
@@ -478,4 +506,3 @@ public class ApplicationDbContext : DbContext
     // public DbSet<InventoryReport> InventoryReports { get; set; }
     // public DbSet<Models.Financial.FinancialReport> FinancialReports { get; set; }
 }
-

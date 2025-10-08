@@ -71,43 +71,71 @@ namespace App.Services
 
 		public async Task<EmployeeApiResponse<EmployeeDTO>> CreateAsync(CreateEmployeeRequest request)
 		{
-			var entity = new Employe
+			try
 			{
-				Nom = request.Nom,
-				Prenom = request.Prenom,
-				CIN = request.CIN,
-				Poste = request.Poste,
-				Departement = request.Departement,
-				Email = request.Email ?? string.Empty,
-				Telephone = request.Telephone ?? string.Empty,
-				SalaireBase = request.SalaireBase,
-				Prime = request.Prime,
-				DateEmbauche = request.DateEmbauche,
-				Statut = request.Statut
-			};
-			var created = await _dao.CreateAsync(entity);
-			return Success(MapToDTO(created));
+				var entity = new Employe
+				{
+					Nom = request.Nom,
+					Prenom = request.Prenom,
+					CIN = request.CIN,
+					Poste = request.Poste,
+					Departement = request.Departement,
+					Email = request.Email ?? string.Empty,
+					Telephone = request.Telephone ?? string.Empty,
+					SalaireBase = request.SalaireBase,
+					Prime = request.Prime,
+					DateEmbauche = request.DateEmbauche,
+					Statut = request.Statut
+				};
+				var created = await _dao.CreateAsync(entity);
+				return Success(MapToDTO(created));
+			}
+			catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+			{
+				// Check if it's a duplicate CIN error
+				if (ex.InnerException?.Message?.Contains("IX_Employes_CIN") == true ||
+					ex.InnerException?.Message?.Contains("duplicate key") == true)
+				{
+					return Failure<EmployeeDTO>("An employee with this CIN already exists. Please use a different CIN.");
+				}
+				// Re-throw if it's a different database error
+				throw;
+			}
 		}
 
 		public async Task<EmployeeApiResponse<EmployeeDTO>> UpdateAsync(int id, UpdateEmployeeRequest request)
 		{
-			var existing = await _dao.GetByIdAsync(id);
-			if (existing == null) return Failure<EmployeeDTO>("Employé introuvable");
+			try
+			{
+				var existing = await _dao.GetByIdAsync(id);
+				if (existing == null) return Failure<EmployeeDTO>("Employé introuvable");
 
-			existing.Nom = request.Nom;
-			existing.Prenom = request.Prenom;
-			existing.CIN = request.CIN;
-			existing.Poste = request.Poste;
-			existing.Departement = request.Departement;
-			existing.Email = request.Email ?? string.Empty;
-			existing.Telephone = request.Telephone ?? string.Empty;
-			existing.SalaireBase = request.SalaireBase;
-			existing.Prime = request.Prime;
-			existing.DateEmbauche = request.DateEmbauche;
-			existing.Statut = request.Statut;
+				existing.Nom = request.Nom;
+				existing.Prenom = request.Prenom;
+				existing.CIN = request.CIN;
+				existing.Poste = request.Poste;
+				existing.Departement = request.Departement;
+				existing.Email = request.Email ?? string.Empty;
+				existing.Telephone = request.Telephone ?? string.Empty;
+				existing.SalaireBase = request.SalaireBase;
+				existing.Prime = request.Prime;
+				existing.DateEmbauche = request.DateEmbauche;
+				existing.Statut = request.Statut;
 
-			var updated = await _dao.UpdateAsync(existing);
-			return Success(MapToDTO(updated));
+				var updated = await _dao.UpdateAsync(existing);
+				return Success(MapToDTO(updated));
+			}
+			catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+			{
+				// Check if it's a duplicate CIN error
+				if (ex.InnerException?.Message?.Contains("IX_Employes_CIN") == true ||
+					ex.InnerException?.Message?.Contains("duplicate key") == true)
+				{
+					return Failure<EmployeeDTO>("An employee with this CIN already exists. Please use a different CIN.");
+				}
+				// Re-throw if it's a different database error
+				throw;
+			}
 		}
 
 		public async Task<EmployeeApiResponse<bool>> DeleteAsync(int id)
@@ -173,6 +201,13 @@ namespace App.Services
 		public async Task<List<string>> GetDepartmentsAsync() => await _dao.GetDepartmentsAsync();
 		public async Task<List<string>> GetPositionsAsync() => await _dao.GetPositionsAsync();
 		public async Task<List<string>> GetStatusesAsync() => await _dao.GetStatusesAsync();
+
+		public async Task<bool> IsCinAvailableAsync(string cin)
+		{
+			// Check if any employee already has this CIN
+			var (items, _) = await _dao.GetAllAsync(1, 1, cin);
+			return !items.Any();
+		}
 
 		private static EmployeeDTO MapToDTO(Employe e)
 		{

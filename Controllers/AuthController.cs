@@ -265,11 +265,11 @@ namespace App.Controllers
             try
             {
                 // Log user info for debugging
-                Console.WriteLine($"User authenticated: {User.Identity?.IsAuthenticated}");
-                Console.WriteLine($"User roles: {string.Join(", ", User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value))}");
+               // Console.WriteLine($"User authenticated: {User.Identity?.IsAuthenticated}");
+                //Console.WriteLine($"User roles: {string.Join(", ", User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value))}");
                 
                 var employees = await _authService.GetAvailableEmployeesAsync();
-                Console.WriteLine($"Returning {employees.Count} employees in API response");
+               // Console.WriteLine($"Returning {employees.Count} employees in API response");
                 
                 // Map Employe entities to EmployeeDTOs for proper JSON serialization
                 var employeeDTOs = employees.Select(e => new EmployeeDTO

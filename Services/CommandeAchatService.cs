@@ -70,7 +70,7 @@ namespace App.Services
 			return Success(MapToDTO(commande));
 		}
 
-		public async Task<FournisseurApiResponse<CommandeAchatDTO>> CreateAsync(CreateCommandeAchatRequest request)
+		public async Task<FournisseurApiResponse<CommandeAchatDTO>> CreateAsync(CreateCommandeAchatRequest request, int userId = 0, string userName = "Utilisateur inconnu")
 		{
 			// Validate fournisseur exists
 			var fournisseur = await _fournisseurDAO.GetByIdAsync(request.FournisseurId);
@@ -97,6 +97,7 @@ namespace App.Services
 				{
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
+					PrixUnitaire = ligneRequest.PrixUnitaireHT, // Set the PrixUnitaire to match PrixUnitaireHT
 					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
 					TauxTVA = ligneRequest.TauxTVA,
 					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
@@ -140,6 +141,7 @@ namespace App.Services
 				{
 					ProduitId = ligneRequest.ProduitId,
 					Quantite = ligneRequest.Quantite,
+					PrixUnitaire = ligneRequest.PrixUnitaireHT, // Set the PrixUnitaire to match PrixUnitaireHT
 					PrixUnitaireHT = ligneRequest.PrixUnitaireHT,
 					TauxTVA = ligneRequest.TauxTVA,
 					PrixUnitaireTTC = ligneRequest.PrixUnitaireTTC,
@@ -191,7 +193,7 @@ namespace App.Services
 						// Decrease stock quantity by the ordered quantity (reserve stock for purchase)
 						
 						
-						//produit.StockActuel -= ligne.Quantite;
+						produit.StockActuel -= ligne.Quantite;
 						
 						// Ensure stock doesn't go below zero
 						if (produit.StockActuel < 0)
@@ -239,7 +241,7 @@ namespace App.Services
 			}
 		}
 
-		public async Task<FournisseurApiResponse<ReceptionDTO>> ReceiveAsync(int commandeId, CreateReceptionRequest request)
+		public async Task<FournisseurApiResponse<ReceptionDTO>> ReceiveAsync(int commandeId, CreateReceptionRequest request, int userId = 0, string userName = "Utilisateur inconnu")
 		{
 			try
 			{
@@ -297,6 +299,7 @@ namespace App.Services
 				}
 
 				var ligneReceptions = new List<LigneReception>();
+				var stockMovements = new List<MouvementStock>(); // To track stock movements
 
 				foreach (var ligneRequest in request.Lignes)
 				{
@@ -348,6 +351,20 @@ namespace App.Services
 								// Verify the update was successful
 								var verifyProduct = await _productDAO.GetByIdAsync(ligneCommande.ProduitId);
 								// Debug.WriteLine($"Verified product {verifyProduct.Id} stock is now {verifyProduct.StockActuel}");
+								
+								// Create stock movement record
+								var stockMovement = new MouvementStock
+								{
+									ProduitId = produit.Id,
+									DateMouvement = DateTime.UtcNow,
+									Type = "Achat", // Use the enum value
+									Quantite = ligneRequest.QuantiteRecue,
+									ReferenceDocument = $"Facture Achat n° : {commande.Id}",
+									Emplacement = "Entrepôt principal",
+									CreePar = userName // Use the actual user name
+								};
+								
+								stockMovements.Add(stockMovement);
 							}
 							catch (Exception ex)
 							{
@@ -418,6 +435,12 @@ namespace App.Services
 				{
 					ligne.ReceptionId = createdReception.Id; // Set the foreign key
 					await _dao.CreateLigneReceptionAsync(ligne);
+				}
+
+				// Save stock movements
+				foreach (var movement in stockMovements)
+				{
+					await _productDAO.CreateStockAdjustmentAsync(movement);
 				}
 
 				// Update the commande

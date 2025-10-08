@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, FormArray, AbstractControl } from '
 import { SalesService } from '../../../services/sales.service';
 import { ClientService } from '../../../services/client.service';
 import { ProductService } from '../../../services/product.service';
+import { AuthService } from '../../../services/auth.service';
 import { SalesOrderResponse, CreateSalesOrderRequest, UpdateSalesOrderRequest, SalesApiResponse } from '../../../models/sales.models';
 import { ClientResponse, ClientApiResponse, ClientListResponse } from '../../../models/client.models';
 import { ProductResponse, ProductApiResponse, ProductListResponse } from '../../../models/product.models';
@@ -48,6 +49,7 @@ export class OrderFormComponent implements OnInit {
     private salesService: SalesService,
     private clientService: ClientService,
     private productService: ProductService,
+    private authService: AuthService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router
@@ -443,6 +445,9 @@ calculateTTCPrice(lineGroup: FormGroup): void {
 
       // Prepare request data
       const formValue = this.orderForm.value;
+      const currentUser = this.authService.getCurrentUser();
+      const userName = currentUser ? `${currentUser.prenomEmploye} ${currentUser.nomEmploye}` : 'Utilisateur inconnu';
+      
       const request: CreateSalesOrderRequest | UpdateSalesOrderRequest = {
         clientId: formValue.clientId,
         modeLivraison: formValue.modeLivraison,

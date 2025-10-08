@@ -11,5 +11,6 @@ namespace App.Models
         public int Quantite { get; set; }
         public string ReferenceDocument { get; set; } // Bon de commande, facture, etc.
         public string Emplacement { get; set; } // Entrepôt, Rayon, etc.
+        public string CreePar { get; set; } // User information
     }
 }

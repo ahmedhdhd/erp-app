@@ -143,6 +143,20 @@ namespace App.Controllers
 
 			return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "employees.csv");
 		}
+
+		[HttpGet("cin-available/{cin}")]
+		[Authorize(Roles = "Admin,RH")]
+		public async Task<ActionResult<EmployeeApiResponse<bool>>> IsCinAvailable([FromRoute] string cin)
+		{
+			var isAvailable = await _service.IsCinAvailableAsync(cin);
+			return Ok(new EmployeeApiResponse<bool> 
+			{ 
+				Success = true, 
+				Message = "OK", 
+				Data = isAvailable, 
+				Timestamp = DateTime.UtcNow 
+			});
+		}
 	}
 }
 

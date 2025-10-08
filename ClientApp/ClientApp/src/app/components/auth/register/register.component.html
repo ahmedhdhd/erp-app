@@ -112,11 +112,24 @@
               <label for="employeId" class="form-label">
                 <i class="fas fa-id-badge me-2"></i>Employé associé *
               </label>
+              
+              <!-- Show message when no employees are available -->
+              <div *ngIf="availableEmployees.length === 0" class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Aucun employé disponible !</strong>
+                <p class="mb-0">
+                  Tous les employés existants ont déjà un compte utilisateur associé.
+                  <a routerLink="/employees/create" class="alert-link">Créer un nouvel employé</a> 
+                  avant de créer un compte utilisateur.
+                </p>
+              </div>
+              
               <select
                 class="form-select"
                 id="employeId"
                 formControlName="employeId"
                 [class.is-invalid]="isFieldInvalid('employeId')"
+                [disabled]="availableEmployees.length === 0"
               >
                 <option value="">Sélectionner un employé</option>
                 <option *ngFor="let employee of availableEmployees" [value]="employee.id">

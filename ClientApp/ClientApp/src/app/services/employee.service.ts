@@ -180,6 +180,14 @@ export class EmployeeService {
     }).pipe(catchError(this.handleError));
   }
 
+  /**
+   * Check if CIN is available
+   */
+  isCinAvailable(cin: string): Observable<EmployeeApiResponse<boolean>> {
+    return this.http.get<EmployeeApiResponse<boolean>>(`${this.apiUrl}/cin-available/${encodeURIComponent(cin)}`)
+      .pipe(catchError(this.handleError));
+  }
+
   // ========== HELPER METHODS ==========
 
   /**
