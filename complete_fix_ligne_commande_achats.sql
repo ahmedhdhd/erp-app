@@ -1,8 +1,31 @@
 -- Complete script to fix LigneCommandeAchats table structure
 
--- First, make the existing PrixUnitaire column nullable
-ALTER TABLE LigneCommandeAchats ALTER COLUMN PrixUnitaire DECIMAL(18,2) NULL;
-PRINT 'Made PrixUnitaire column nullable';
+-- First, check if PrixUnitaire column exists, and if so, make it nullable
+IF EXISTS (
+    SELECT * 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = 'LigneCommandeAchats' 
+    AND COLUMN_NAME = 'PrixUnitaire'
+)
+BEGIN
+    -- Check if the column is currently NOT NULL
+    IF (SELECT IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_NAME = 'LigneCommandeAchats' AND COLUMN_NAME = 'PrixUnitaire') = 'NO'
+    BEGIN
+        ALTER TABLE LigneCommandeAchats ALTER COLUMN PrixUnitaire DECIMAL(18,2) NULL;
+        PRINT 'Made PrixUnitaire column nullable';
+    END
+    ELSE
+    BEGIN
+        PRINT 'PrixUnitaire column is already nullable';
+    END
+END
+ELSE
+BEGIN
+    -- Add the PrixUnitaire column if it doesn't exist
+    ALTER TABLE LigneCommandeAchats ADD PrixUnitaire DECIMAL(18,2) NULL;
+    PRINT 'Added PrixUnitaire column';
+END
 
 -- Add the missing columns if they don't exist
 IF NOT EXISTS (
