@@ -72,7 +72,7 @@ jobs:
 # 2️⃣ DEPLOY STAGING
 # =============================
   deploy-staging:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     if: github.ref == 'refs/heads/develop'
     environment: staging
@@ -101,15 +101,15 @@ jobs:
     environment: production
 
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: webapp
-        path: ${{ env.AZURE_PACKAGE_PATH }}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: ${{ env.AZURE_PACKAGE_PATH }}
 
-    - name: 'Deploy to Azure WebApp (Production)'
-      uses: azure/webapps-deploy@v3
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        package: ${{ env.AZURE_PACKAGE_PATH }}
-        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+      - name: 'Deploy to Azure WebApp (Production)'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
