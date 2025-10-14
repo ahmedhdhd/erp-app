@@ -14,7 +14,7 @@ env:
   DOTNET_VERSION: '8.0.x'
   NODE_VERSION: '18.x'
   ANGULAR_DIR: 'ClientApp/ClientApp'   # 👈 change if your Angular folder is different
-  AZURE_WEBAPP_NAME: 'erpappservice'   # 👈 your Azure App Service name
+  AZURE_WEBAPP_NAME: 'erpappservice'   # erpappservice👈 your Azure App Service name
   AZURE_PACKAGE_PATH: './publish'
 
 jobs:
@@ -95,7 +95,7 @@ jobs:
 # 3️⃣ DEPLOY PRODUCTION
 # =============================
   deploy-production:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     if: github.ref == 'refs/heads/main'
     environment: production
