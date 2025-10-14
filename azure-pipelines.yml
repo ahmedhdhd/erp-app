@@ -1,5 +1,5 @@
 # CI/CD Pipeline for .NET 8 + Angular
-# Build, test, and deploy to Azure App Service
+# Build, test, and deploy to Azure App Service  , change to github now
 
 trigger:
 - main
