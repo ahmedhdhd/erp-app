@@ -139,55 +139,55 @@ app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 
 // -------------------- Dev-only seeding --------------------
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var db = services.GetRequiredService<ApplicationDbContext>();
-        if (!db.Utilisateurs.Any())
-        {
-            var defaultEmployee = db.Employes.FirstOrDefault() ?? new Employe
-            {
-                Nom = "Admin",
-                Prenom = "Default",
-                CIN = Guid.NewGuid().ToString("N").Substring(0, 8),
-                Poste = "Admin",
-                Departement = "IT",
-                Email = "admin@example.com",
-                Telephone = "000000000",
-                SalaireBase = 0,
-                Prime = 0,
-                DateEmbauche = DateTime.UtcNow,
-                Statut = "Actif"
-            };
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     try
+//     {
+//         var db = services.GetRequiredService<ApplicationDbContext>();
+//         if (!db.Utilisateurs.Any())
+//         {
+//             var defaultEmployee = db.Employes.FirstOrDefault() ?? new Employe
+//             {
+//                 Nom = "Admin",
+//                 Prenom = "Default",
+//                 CIN = Guid.NewGuid().ToString("N").Substring(0, 8),
+//                 Poste = "Admin",
+//                 Departement = "IT",
+//                 Email = "admin@example.com",
+//                 Telephone = "000000000",
+//                 SalaireBase = 0,
+//                 Prime = 0,
+//                 DateEmbauche = DateTime.UtcNow,
+//                 Statut = "Actif"
+//             };
 
-            if (defaultEmployee.Id == 0)
-            {
-                db.Employes.Add(defaultEmployee);
-                db.SaveChanges();
-            }
+//             if (defaultEmployee.Id == 0)
+//             {
+//                 db.Employes.Add(defaultEmployee);
+//                 db.SaveChanges();
+//             }
 
-            // password: Admin@123
-            using var sha = System.Security.Cryptography.SHA256.Create();
-            var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes("Admin@123")));
+//             // password: Admin@123
+//             using var sha = System.Security.Cryptography.SHA256.Create();
+//             var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes("Admin@123")));
 
-            db.Utilisateurs.Add(new Utilisateur
-            {
-                NomUtilisateur = "admin",
-                MotDePasse = hash,
-                Role = "Admin",
-                EmployeId = defaultEmployee.Id,
-                EstActif = true
-            });
-            db.SaveChanges();
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Erreur durant le seeding de l'admin par défaut");
-    }
-}
+//             db.Utilisateurs.Add(new Utilisateur
+//             {
+//                 NomUtilisateur = "admin",
+//                 MotDePasse = hash,
+//                 Role = "Admin",
+//                 EmployeId = defaultEmployee.Id,
+//                 EstActif = true
+//             });
+//             db.SaveChanges();
+//         }
+//     }
+//     catch (Exception ex)
+//     {
+//         var logger = services.GetRequiredService<ILogger<Program>>();
+//         logger.LogError(ex, "Erreur durant le seeding de l'admin par défaut");
+//     }
+// }
 
 app.Run();
