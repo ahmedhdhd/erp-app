@@ -46,13 +46,19 @@
     "maximumWarning": "6kb",
     "maximumError": "10kb"
                 }
-              ],"allowedCommonJsDependencies": [
+              ],
+"allowedCommonJsDependencies": [
   "pdfmake/build/pdfmake",
   "pdfmake/build/vfs_fonts",
   "bootstrap/dist/js/bootstrap.bundle.min.js"
-]
-,
-              "outputHashing": "all"
+],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "buildOptimizer": false,
