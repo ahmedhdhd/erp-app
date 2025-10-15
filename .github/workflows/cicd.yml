@@ -13,14 +13,11 @@ on:
 env:
   DOTNET_VERSION: '8.0.x'
   NODE_VERSION: '18.x'
-  ANGULAR_DIR: 'ClientApp/ClientApp'   # 👈 change if your Angular folder is different
-  AZURE_WEBAPP_NAME: 'erpappservice'   # erpappservice👈 your Azure App Service name
+  ANGULAR_DIR: 'ClientApp/ClientApp'
+  AZURE_WEBAPP_NAME: 'erpappservice'
   AZURE_PACKAGE_PATH: './publish'
 
 jobs:
-# =============================
-# 1️⃣ BUILD & TEST
-# =============================
   build:
     runs-on: windows-latest
 
@@ -68,14 +65,11 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_PACKAGE_PATH }}
 
-# =============================
-# 2️⃣ DEPLOY STAGING
-# =============================
-  deploy-staging:
+  deploy-production:
     runs-on: windows-latest
     needs: build
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
+    if: github.ref == 'refs/heads/main'  # 👈 Only deploys on main branch
+    environment: production
 
     steps:
     - name: Download artifact
@@ -84,32 +78,9 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_PACKAGE_PATH }}
 
-    - name: 'Deploy to Azure WebApp (Staging)'
+    - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v3
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         package: ${{ env.AZURE_PACKAGE_PATH }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-
-# =============================
-# 3️⃣ DEPLOY PRODUCTION
-# =============================
-  deploy-production:
-    runs-on: windows-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    environment: production
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: webapp
-          path: ${{ env.AZURE_PACKAGE_PATH }}
-
-      - name: 'Deploy to Azure WebApp (Production)'
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ${{ env.AZURE_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
