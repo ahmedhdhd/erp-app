@@ -118,23 +118,6 @@
           </ul>
         </li>
 
-        <!-- Financial Management -->
-        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Comptable')">
-          <a class="nav-link dropdown-toggle" href="#" role="button" 
-             id="financialDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-money-bill-wave"></i>
-            Financial
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="financialDropdown">
-            <li><a class="dropdown-item" routerLink="/financial"><i class="fas fa-tachometer-alt me-2"></i>Financial Dashboard</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" routerLink="/financial/transactions"><i class="fas fa-exchange-alt me-2"></i>Transactions</a></li>
-            <li><a class="dropdown-item" routerLink="/financial/transactions/new" *ngIf="hasRole('Admin') || hasRole('Comptable')"><i class="fas fa-plus me-2"></i>New Transaction</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" routerLink="/financial/categories"><i class="fas fa-tags me-2"></i>Categories</a></li>
-            <li><a class="dropdown-item" routerLink="/financial/categories/new" *ngIf="hasRole('Admin') || hasRole('Comptable')"><i class="fas fa-plus me-2"></i>New Category</a></li>
-          </ul>
-        </li>
 
         <!-- Admin Section -->
         <li class="nav-item dropdown" *ngIf="isAdmin()">

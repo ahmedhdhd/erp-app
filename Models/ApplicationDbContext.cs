@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using App.Models.Financial;
 
 namespace App.Models;
 public class ApplicationDbContext : DbContext
@@ -487,11 +486,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaiementClient> PaiementClients { get; set; }
     public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
 
-    // Add Financial module DbSets
-    public DbSet<Transaction> Transactions { get; set; }
-    public DbSet<TransactionCategory> TransactionCategories { get; set; }
-    public DbSet<Budget> Budgets { get; set; }
-    public DbSet<FinancialReport> FinancialReports { get; set; }
 
     // ========== 8. Administration Système ==========
     public DbSet<Utilisateur> Utilisateurs { get; set; }

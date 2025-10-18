@@ -54,7 +54,6 @@ builder.Services.AddScoped<FournisseurService>();
 builder.Services.AddScoped<CommandeAchatService>();
 builder.Services.AddScoped<CommandeVenteService>();
 builder.Services.AddScoped<CompanySettingsService>();
-builder.Services.AddScoped<FinancialService>();
 
 // Logging
 builder.Services.AddLogging();

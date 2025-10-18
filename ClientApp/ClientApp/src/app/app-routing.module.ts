@@ -58,13 +58,6 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
 
-// Financial Components
-import { FinancialDashboardComponent } from './components/financial/financial-dashboard.component';
-import { TransactionListComponent } from './components/financial/transaction-list.component';
-import { TransactionFormComponent } from './components/financial/transaction-form.component';
-import { CategoryListComponent } from './components/financial/category-list.component';
-import { CategoryFormComponent } from './components/financial/category-form.component';
-import { FinancialTestComponent } from './components/financial/financial-test.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -315,24 +308,6 @@ const routes: Routes = [
     redirectTo: '/stock'
   },
 
-  // Financial Management routes
-  {
-    path: 'financial',
-    canActivate: [AuthGuard],
-    children: [
-      { path: '', component: FinancialDashboardComponent },
-      // Transactions
-      { path: 'transactions', component: TransactionListComponent },
-      { path: 'transactions/new', component: TransactionFormComponent, data: { requiredRoles: ['Admin', 'Comptable'] } },
-      { path: 'transactions/edit/:id', component: TransactionFormComponent, data: { requiredRoles: ['Admin', 'Comptable'] } },
-      // Categories
-      { path: 'categories', component: CategoryListComponent },
-      { path: 'categories/new', component: CategoryFormComponent, data: { requiredRoles: ['Admin', 'Comptable'] } },
-      { path: 'categories/edit/:id', component: CategoryFormComponent, data: { requiredRoles: ['Admin', 'Comptable'] } },
-      // Test
-      { path: 'test', component: FinancialTestComponent }
-    ]
-  },
 
   // Admin routes
   {

@@ -177,30 +177,6 @@
       "PackagePath": "staticwebassets\\js\\bootstrap.min.js.map"
     },
     {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\3rdpartylicenses.txt",
-      "PackagePath": "staticwebassets\\3rdpartylicenses.txt"
-    },
-    {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\main.30744dc02b8aed16.js",
-      "PackagePath": "staticwebassets\\main.30744dc02b8aed16.js"
-    },
-    {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\polyfills.ae91e41ffb49937e.js",
-      "PackagePath": "staticwebassets\\polyfills.ae91e41ffb49937e.js"
-    },
-    {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\runtime.bd959a95de79c180.js",
-      "PackagePath": "staticwebassets\\runtime.bd959a95de79c180.js"
-    },
-    {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\scripts.cbc41f404d22c487.js",
-      "PackagePath": "staticwebassets\\scripts.cbc41f404d22c487.js"
-    },
-    {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\styles.d3bb797d3578328d.css",
-      "PackagePath": "staticwebassets\\styles.d3bb797d3578328d.css"
-    },
-    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.App.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
