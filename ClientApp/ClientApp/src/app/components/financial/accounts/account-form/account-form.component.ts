@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FinancialService } from '../../../services/financial.service';
-import { Account, CreateAccountDTO, UpdateAccountDTO, AccountType } from '../../../models/financial.models';
+import { Account, CreateAccountDTO, UpdateAccountDTO, AccountType } from '../../../../models/financial.models';
+import { FinancialService } from '../../../../services/financial.service';
 
 @Component({
   selector: 'app-account-form',
@@ -66,10 +66,10 @@ export class AccountFormComponent implements OnInit {
 
   loadParentAccounts(): void {
     this.financialService.getAccounts().subscribe({
-      next: (accounts) => {
+      next: (accounts: Account[]) => {
         this.parentAccounts = accounts.filter(account => account.isActive);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading parent accounts:', error);
       }
     });
@@ -82,7 +82,7 @@ export class AccountFormComponent implements OnInit {
     this.errorMessage = null;
 
     this.financialService.getAccountById(this.accountId).subscribe({
-      next: (account) => {
+      next: (account: Account) => {
         this.accountForm.patchValue({
           code: account.code,
           name: account.name,
@@ -93,7 +93,7 @@ export class AccountFormComponent implements OnInit {
         });
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading account:', error);
         this.errorMessage = 'Erreur lors du chargement du compte';
         this.loading = false;
@@ -128,7 +128,7 @@ export class AccountFormComponent implements OnInit {
               this.router.navigate(['/financial/accounts']);
             }, 2000);
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Error updating account:', error);
             this.errorMessage = 'Erreur lors de la mise à jour du compte';
             this.saving = false;
@@ -141,6 +141,7 @@ export class AccountFormComponent implements OnInit {
           name: formValue.name,
           type: formValue.type,
           description: formValue.description || undefined,
+          isActive: true,
           parentAccountId: formValue.parentAccountId || undefined
         };
 
@@ -153,7 +154,7 @@ export class AccountFormComponent implements OnInit {
               this.router.navigate(['/financial/accounts']);
             }, 2000);
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error('Error creating account:', error);
             this.errorMessage = 'Erreur lors de la création du compte';
             this.saving = false;

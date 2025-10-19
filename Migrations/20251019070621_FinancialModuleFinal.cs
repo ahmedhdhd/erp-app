@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace App.Migrations
 {
     /// <inheritdoc />
-    public partial class FinancialModuleComplete : Migration
+    public partial class FinancialModuleFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -82,13 +82,13 @@ namespace App.Migrations
                 oldType: "decimal(5,2)");
 
             migrationBuilder.CreateTable(
-                name: "Accounts",
+                name: "FinancialAccounts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -100,23 +100,23 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Accounts", x => x.Id);
+                    table.PrimaryKey("PK_FinancialAccounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_Accounts_ParentAccountId",
+                        name: "FK_FinancialAccounts_FinancialAccounts_ParentAccountId",
                         column: x => x.ParentAccountId,
-                        principalTable: "Accounts",
+                        principalTable: "FinancialAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Journals",
+                name: "FinancialJournals",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -128,11 +128,11 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Journals", x => x.Id);
+                    table.PrimaryKey("PK_FinancialJournals", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Partners",
+                name: "FinancialPartners",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -144,7 +144,7 @@ namespace App.Migrations
                     Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PostalCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     TaxNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -159,17 +159,17 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Partners", x => x.Id);
+                    table.PrimaryKey("PK_FinancialPartners", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "VATs",
+                name: "FinancialVATs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Rate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Rate = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
                     AccountCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
@@ -181,11 +181,11 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VATs", x => x.Id);
+                    table.PrimaryKey("PK_FinancialVATs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Invoices",
+                name: "FinancialInvoices",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -212,23 +212,23 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Invoices", x => x.Id);
+                    table.PrimaryKey("PK_FinancialInvoices", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Invoices_Journals_JournalId",
+                        name: "FK_FinancialInvoices_FinancialJournals_JournalId",
                         column: x => x.JournalId,
-                        principalTable: "Journals",
+                        principalTable: "FinancialJournals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Invoices_Partners_PartnerId",
+                        name: "FK_FinancialInvoices_FinancialPartners_PartnerId",
                         column: x => x.PartnerId,
-                        principalTable: "Partners",
+                        principalTable: "FinancialPartners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
+                name: "FinancialPayments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -251,23 +251,23 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.PrimaryKey("PK_FinancialPayments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payments_Journals_JournalId",
+                        name: "FK_FinancialPayments_FinancialJournals_JournalId",
                         column: x => x.JournalId,
-                        principalTable: "Journals",
+                        principalTable: "FinancialJournals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Payments_Partners_PartnerId",
+                        name: "FK_FinancialPayments_FinancialPartners_PartnerId",
                         column: x => x.PartnerId,
-                        principalTable: "Partners",
+                        principalTable: "FinancialPartners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "InvoiceLines",
+                name: "FinancialInvoiceLines",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -277,10 +277,10 @@ namespace App.Migrations
                     ProductCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
                     DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     LineTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    VATRate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    VATRate = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
                     VATAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     LineTotalWithVAT = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Unit = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -292,17 +292,17 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InvoiceLines", x => x.Id);
+                    table.PrimaryKey("PK_FinancialInvoiceLines", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_InvoiceLines_Invoices_InvoiceId",
+                        name: "FK_FinancialInvoiceLines_FinancialInvoices_InvoiceId",
                         column: x => x.InvoiceId,
-                        principalTable: "Invoices",
+                        principalTable: "FinancialInvoices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "JournalEntries",
+                name: "FinancialJournalEntries",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -328,41 +328,41 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_JournalEntries", x => x.Id);
+                    table.PrimaryKey("PK_FinancialJournalEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_JournalEntries_Accounts_AccountId",
+                        name: "FK_FinancialJournalEntries_FinancialAccounts_AccountId",
                         column: x => x.AccountId,
-                        principalTable: "Accounts",
+                        principalTable: "FinancialAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_JournalEntries_Invoices_InvoiceId",
+                        name: "FK_FinancialJournalEntries_FinancialInvoices_InvoiceId",
                         column: x => x.InvoiceId,
-                        principalTable: "Invoices",
+                        principalTable: "FinancialInvoices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_JournalEntries_Journals_JournalId",
+                        name: "FK_FinancialJournalEntries_FinancialJournals_JournalId",
                         column: x => x.JournalId,
-                        principalTable: "Journals",
+                        principalTable: "FinancialJournals",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_JournalEntries_Partners_PartnerId",
+                        name: "FK_FinancialJournalEntries_FinancialPartners_PartnerId",
                         column: x => x.PartnerId,
-                        principalTable: "Partners",
+                        principalTable: "FinancialPartners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_JournalEntries_Payments_PaymentId",
+                        name: "FK_FinancialJournalEntries_FinancialPayments_PaymentId",
                         column: x => x.PaymentId,
-                        principalTable: "Payments",
+                        principalTable: "FinancialPayments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PaymentTranches",
+                name: "FinancialPaymentTranches",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -381,23 +381,23 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PaymentTranches", x => x.Id);
+                    table.PrimaryKey("PK_FinancialPaymentTranches", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PaymentTranches_Invoices_InvoiceId",
+                        name: "FK_FinancialPaymentTranches_FinancialInvoices_InvoiceId",
                         column: x => x.InvoiceId,
-                        principalTable: "Invoices",
+                        principalTable: "FinancialInvoices",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_PaymentTranches_Payments_PaymentId",
+                        name: "FK_FinancialPaymentTranches_FinancialPayments_PaymentId",
                         column: x => x.PaymentId,
-                        principalTable: "Payments",
+                        principalTable: "FinancialPayments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Reconciliations",
+                name: "FinancialReconciliations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -416,171 +416,177 @@ namespace App.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Reconciliations", x => x.Id);
+                    table.PrimaryKey("PK_FinancialReconciliations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Reconciliations_Invoices_InvoiceId",
+                        name: "FK_FinancialReconciliations_FinancialInvoices_InvoiceId",
                         column: x => x.InvoiceId,
-                        principalTable: "Invoices",
+                        principalTable: "FinancialInvoices",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Reconciliations_PaymentTranches_PaymentTrancheId",
+                        name: "FK_FinancialReconciliations_FinancialPaymentTranches_PaymentTrancheId",
                         column: x => x.PaymentTrancheId,
-                        principalTable: "PaymentTranches",
+                        principalTable: "FinancialPaymentTranches",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Reconciliations_Payments_PaymentId",
+                        name: "FK_FinancialReconciliations_FinancialPayments_PaymentId",
                         column: x => x.PaymentId,
-                        principalTable: "Payments",
+                        principalTable: "FinancialPayments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_Code",
-                table: "Accounts",
+                name: "IX_FinancialAccounts_Code",
+                table: "FinancialAccounts",
                 column: "Code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_ParentAccountId",
-                table: "Accounts",
+                name: "IX_FinancialAccounts_ParentAccountId",
+                table: "FinancialAccounts",
                 column: "ParentAccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InvoiceLines_InvoiceId",
-                table: "InvoiceLines",
+                name: "IX_FinancialInvoiceLines_InvoiceId",
+                table: "FinancialInvoiceLines",
                 column: "InvoiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Invoices_InvoiceNumber",
-                table: "Invoices",
+                name: "IX_FinancialInvoices_InvoiceNumber",
+                table: "FinancialInvoices",
                 column: "InvoiceNumber",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Invoices_JournalId",
-                table: "Invoices",
+                name: "IX_FinancialInvoices_JournalId",
+                table: "FinancialInvoices",
                 column: "JournalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Invoices_PartnerId",
-                table: "Invoices",
+                name: "IX_FinancialInvoices_PartnerId",
+                table: "FinancialInvoices",
                 column: "PartnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_AccountId",
-                table: "JournalEntries",
+                name: "IX_FinancialJournalEntries_AccountId",
+                table: "FinancialJournalEntries",
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_InvoiceId",
-                table: "JournalEntries",
+                name: "IX_FinancialJournalEntries_InvoiceId",
+                table: "FinancialJournalEntries",
                 column: "InvoiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_JournalId",
-                table: "JournalEntries",
+                name: "IX_FinancialJournalEntries_JournalId",
+                table: "FinancialJournalEntries",
                 column: "JournalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_PartnerId",
-                table: "JournalEntries",
+                name: "IX_FinancialJournalEntries_PartnerId",
+                table: "FinancialJournalEntries",
                 column: "PartnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_JournalEntries_PaymentId",
-                table: "JournalEntries",
+                name: "IX_FinancialJournalEntries_PaymentId",
+                table: "FinancialJournalEntries",
                 column: "PaymentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Journals_Code",
-                table: "Journals",
+                name: "IX_FinancialJournals_Code",
+                table: "FinancialJournals",
                 column: "Code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Partners_ICE",
-                table: "Partners",
+                name: "IX_FinancialPartners_ICE",
+                table: "FinancialPartners",
                 column: "ICE",
                 unique: true,
                 filter: "[ICE] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_JournalId",
-                table: "Payments",
+                name: "IX_FinancialPayments_JournalId",
+                table: "FinancialPayments",
                 column: "JournalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_PartnerId",
-                table: "Payments",
+                name: "IX_FinancialPayments_PartnerId",
+                table: "FinancialPayments",
                 column: "PartnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_PaymentNumber",
-                table: "Payments",
+                name: "IX_FinancialPayments_PaymentNumber",
+                table: "FinancialPayments",
                 column: "PaymentNumber",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentTranches_InvoiceId",
-                table: "PaymentTranches",
+                name: "IX_FinancialPaymentTranches_InvoiceId",
+                table: "FinancialPaymentTranches",
                 column: "InvoiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentTranches_PaymentId",
-                table: "PaymentTranches",
+                name: "IX_FinancialPaymentTranches_PaymentId",
+                table: "FinancialPaymentTranches",
                 column: "PaymentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reconciliations_InvoiceId",
-                table: "Reconciliations",
+                name: "IX_FinancialReconciliations_InvoiceId",
+                table: "FinancialReconciliations",
                 column: "InvoiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reconciliations_PaymentId",
-                table: "Reconciliations",
+                name: "IX_FinancialReconciliations_PaymentId",
+                table: "FinancialReconciliations",
                 column: "PaymentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reconciliations_PaymentTrancheId",
-                table: "Reconciliations",
+                name: "IX_FinancialReconciliations_PaymentTrancheId",
+                table: "FinancialReconciliations",
                 column: "PaymentTrancheId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FinancialVATs_Name",
+                table: "FinancialVATs",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "InvoiceLines");
+                name: "FinancialInvoiceLines");
 
             migrationBuilder.DropTable(
-                name: "JournalEntries");
+                name: "FinancialJournalEntries");
 
             migrationBuilder.DropTable(
-                name: "Reconciliations");
+                name: "FinancialReconciliations");
 
             migrationBuilder.DropTable(
-                name: "VATs");
+                name: "FinancialVATs");
 
             migrationBuilder.DropTable(
-                name: "Accounts");
+                name: "FinancialAccounts");
 
             migrationBuilder.DropTable(
-                name: "PaymentTranches");
+                name: "FinancialPaymentTranches");
 
             migrationBuilder.DropTable(
-                name: "Invoices");
+                name: "FinancialInvoices");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "FinancialPayments");
 
             migrationBuilder.DropTable(
-                name: "Journals");
+                name: "FinancialJournals");
 
             migrationBuilder.DropTable(
-                name: "Partners");
+                name: "FinancialPartners");
 
             migrationBuilder.DropColumn(
                 name: "PrixUnitaire",

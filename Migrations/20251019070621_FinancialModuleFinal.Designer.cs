@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace App.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251018163129_FinancialModuleComplete")]
-    partial class FinancialModuleComplete
+    [Migration("20251019070621_FinancialModuleFinal")]
+    partial class FinancialModuleFinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -774,8 +774,8 @@ namespace App.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("ParentAccountId")
                         .HasColumnType("int");
@@ -793,7 +793,7 @@ namespace App.Migrations
 
                     b.HasIndex("ParentAccountId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("FinancialAccounts", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.Invoice", b =>
@@ -874,7 +874,7 @@ namespace App.Migrations
 
                     b.HasIndex("PartnerId");
 
-                    b.ToTable("Invoices");
+                    b.ToTable("FinancialInvoices", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.InvoiceLine", b =>
@@ -898,7 +898,7 @@ namespace App.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
@@ -940,13 +940,13 @@ namespace App.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("VATRate")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("InvoiceId");
 
-                    b.ToTable("InvoiceLines");
+                    b.ToTable("FinancialInvoiceLines", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.Journal", b =>
@@ -985,8 +985,8 @@ namespace App.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -999,7 +999,7 @@ namespace App.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Journals");
+                    b.ToTable("FinancialJournals", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.JournalEntry", b =>
@@ -1081,7 +1081,7 @@ namespace App.Migrations
 
                     b.HasIndex("PaymentId");
 
-                    b.ToTable("JournalEntries");
+                    b.ToTable("FinancialJournalEntries", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.Partner", b =>
@@ -1105,6 +1105,7 @@ namespace App.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Country")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -1166,7 +1167,7 @@ namespace App.Migrations
                         .IsUnique()
                         .HasFilter("[ICE] IS NOT NULL");
 
-                    b.ToTable("Partners");
+                    b.ToTable("FinancialPartners", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.Payment", b =>
@@ -1236,7 +1237,7 @@ namespace App.Migrations
                     b.HasIndex("PaymentNumber")
                         .IsUnique();
 
-                    b.ToTable("Payments");
+                    b.ToTable("FinancialPayments", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.PaymentTranche", b =>
@@ -1288,7 +1289,7 @@ namespace App.Migrations
 
                     b.HasIndex("PaymentId");
 
-                    b.ToTable("PaymentTranches");
+                    b.ToTable("FinancialPaymentTranches", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.Reconciliation", b =>
@@ -1341,7 +1342,7 @@ namespace App.Migrations
 
                     b.HasIndex("PaymentTrancheId");
 
-                    b.ToTable("Reconciliations");
+                    b.ToTable("FinancialReconciliations", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Financial.VAT", b =>
@@ -1381,14 +1382,17 @@ namespace App.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("Rate")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("VATs");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("FinancialVATs", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Fournisseur", b =>
@@ -2501,7 +2505,7 @@ namespace App.Migrations
                     b.HasOne("App.Models.Financial.Invoice", "Invoice")
                         .WithMany("PaymentTranches")
                         .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("App.Models.Financial.Payment", "Payment")

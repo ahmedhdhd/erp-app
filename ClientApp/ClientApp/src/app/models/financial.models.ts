@@ -1,13 +1,5 @@
-// Financial Module Models and Interfaces
+// Financial Models and Enums
 
-// Base Entity Interface
-export interface BaseEntity {
-  id: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-// Account Types and Models
 export enum AccountType {
   Asset = 1,
   Liability = 2,
@@ -21,36 +13,6 @@ export enum AccountType {
   Payable = 10
 }
 
-export interface Account extends BaseEntity {
-  code: string;
-  name: string;
-  type: AccountType;
-  description?: string;
-  isActive: boolean;
-  parentAccountId?: number;
-  parentAccount?: Account;
-  childAccounts?: Account[];
-  balance: number;
-}
-
-export interface CreateAccountDTO {
-  code: string;
-  name: string;
-  type: AccountType;
-  description?: string;
-  parentAccountId?: number;
-}
-
-export interface UpdateAccountDTO {
-  code?: string;
-  name?: string;
-  type?: AccountType;
-  description?: string;
-  parentAccountId?: number;
-  isActive?: boolean;
-}
-
-// Journal Types and Models
 export enum JournalType {
   Sales = 1,
   Purchase = 2,
@@ -59,93 +21,12 @@ export enum JournalType {
   Miscellaneous = 5
 }
 
-export interface Journal extends BaseEntity {
-  code: string;
-  name: string;
-  type: JournalType;
-  description?: string;
-  isActive: boolean;
-  defaultDebitAccountCode?: string;
-  defaultCreditAccountCode?: string;
-}
-
-export interface CreateJournalDTO {
-  code: string;
-  name: string;
-  type: JournalType;
-  description?: string;
-  defaultDebitAccountCode?: string;
-  defaultCreditAccountCode?: string;
-}
-
-export interface UpdateJournalDTO {
-  code?: string;
-  name?: string;
-  type?: JournalType;
-  description?: string;
-  defaultDebitAccountCode?: string;
-  defaultCreditAccountCode?: string;
-  isActive?: boolean;
-}
-
-// Partner Types and Models
 export enum PartnerType {
   Client = 1,
   Supplier = 2,
   Both = 3
 }
 
-export interface Partner extends BaseEntity {
-  name: string;
-  code?: string;
-  type: PartnerType;
-  ice?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
-  country: string;
-  phone?: string;
-  email?: string;
-  taxNumber?: string;
-  creditLimit: number;
-  currentBalance: number;
-  totalDebit: number;
-  totalCredit: number;
-  isActive: boolean;
-}
-
-export interface CreatePartnerDTO {
-  name: string;
-  code?: string;
-  type: PartnerType;
-  ice?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
-  country?: string;
-  phone?: string;
-  email?: string;
-  taxNumber?: string;
-  creditLimit?: number;
-}
-
-export interface UpdatePartnerDTO {
-  name?: string;
-  code?: string;
-  type?: PartnerType;
-  ice?: string;
-  address?: string;
-  city?: string;
-  postalCode?: string;
-  country?: string;
-  phone?: string;
-  email?: string;
-  taxNumber?: string;
-  creditLimit?: number;
-  isActive?: boolean;
-}
-
-// Invoice Types and Models
 export enum InvoiceType {
   Sales = 1,
   Purchase = 2,
@@ -162,80 +43,6 @@ export enum InvoiceStatus {
   Cancelled = 6
 }
 
-export interface InvoiceLine {
-  id: number;
-  invoiceId: number;
-  description: string;
-  productCode?: string;
-  quantity: number;
-  unitPrice: number;
-  discount: number;
-  discountAmount: number;
-  lineTotal: number;
-  vatRate: number;
-  vatAmount: number;
-  lineTotalWithVAT: number;
-  unit?: string;
-  accountCode?: string;
-  notes?: string;
-}
-
-export interface Invoice extends BaseEntity {
-  invoiceNumber: string;
-  partnerId: number;
-  partner: Partner;
-  journalId: number;
-  journal: Journal;
-  invoiceDate: Date;
-  dueDate?: Date;
-  type: InvoiceType;
-  status: InvoiceStatus;
-  subTotal: number;
-  vatAmount: number;
-  totalAmount: number;
-  paidAmount: number;
-  remainingAmount: number;
-  notes?: string;
-  reference?: string;
-  postedDate?: Date;
-  paidDate?: Date;
-  lines: InvoiceLine[];
-}
-
-export interface CreateInvoiceDTO {
-  partnerId: number;
-  journalId: number;
-  invoiceDate: Date;
-  dueDate?: Date;
-  type: InvoiceType;
-  notes?: string;
-  reference?: string;
-  lines: CreateInvoiceLineDTO[];
-}
-
-export interface CreateInvoiceLineDTO {
-  description: string;
-  productCode?: string;
-  quantity: number;
-  unitPrice: number;
-  discount?: number;
-  vatRate?: number;
-  unit?: string;
-  accountCode?: string;
-  notes?: string;
-}
-
-export interface UpdateInvoiceDTO {
-  partnerId?: number;
-  journalId?: number;
-  invoiceDate?: Date;
-  dueDate?: Date;
-  type?: InvoiceType;
-  notes?: string;
-  reference?: string;
-}
-
-// Payment Types and Models
 export enum PaymentType {
   Incoming = 1,
   Outgoing = 2
@@ -256,6 +63,272 @@ export enum PaymentMethod {
   Other = 5
 }
 
+export enum TrancheStatus {
+  Draft = 1,
+  Validated = 2,
+  Posted = 3,
+  Cancelled = 4
+}
+
+export enum EntryType {
+  Debit = 1,
+  Credit = 2,
+  Both = 3
+}
+
+export enum ReconciliationStatus {
+  Pending = 1,
+  Reconciled = 2,
+  Cancelled = 3
+}
+
+// Account Models
+export interface Account {
+  id: number;
+  code: string;
+  name: string;
+  type: AccountType;
+  description?: string;
+  isActive: boolean;
+  parentAccountId?: number;
+  balance: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateAccountDTO {
+  code: string;
+  name: string;
+  type: AccountType;
+  description?: string;
+  isActive: boolean;
+  parentAccountId?: number;
+}
+
+export interface UpdateAccountDTO {
+  code: string;
+  name: string;
+  type: AccountType;
+  description?: string;
+  isActive: boolean;
+  parentAccountId?: number;
+}
+
+// Journal Models
+export interface Journal {
+  id: number;
+  code: string;
+  name: string;
+  type: JournalType;
+  description?: string;
+  isActive: boolean;
+  defaultDebitAccountCode?: string;
+  defaultCreditAccountCode?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateJournalDTO {
+  code: string;
+  name: string;
+  type: JournalType;
+  description?: string;
+  isActive: boolean;
+  defaultDebitAccountCode?: string;
+  defaultCreditAccountCode?: string;
+}
+
+export interface UpdateJournalDTO {
+  code: string;
+  name: string;
+  type: JournalType;
+  description?: string;
+  isActive: boolean;
+  defaultDebitAccountCode?: string;
+  defaultCreditAccountCode?: string;
+}
+
+// Partner Models
+export interface Partner {
+  id: number;
+  name: string;
+  code?: string;
+  type: PartnerType;
+  ice?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  taxNumber?: string;
+  creditLimit: number;
+  currentBalance: number;
+  totalDebit: number;
+  totalCredit: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreatePartnerDTO {
+  name: string;
+  code?: string;
+  type: PartnerType;
+  ice?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  taxNumber?: string;
+  creditLimit: number;
+  isActive: boolean;
+}
+
+export interface UpdatePartnerDTO {
+  name: string;
+  code?: string;
+  type: PartnerType;
+  ice?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  taxNumber?: string;
+  creditLimit: number;
+  isActive: boolean;
+}
+
+// Invoice Models
+export interface Invoice {
+  id: number;
+  invoiceNumber: string;
+  partnerId: number;
+  partnerName: string;
+  journalId: number;
+  journalName: string;
+  invoiceDate: Date;
+  dueDate?: Date;
+  type: InvoiceType;
+  status: InvoiceStatus;
+  subTotal: number;
+  vatAmount: number;
+  totalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  notes?: string;
+  reference?: string;
+  postedDate?: Date;
+  paidDate?: Date;
+  lines: InvoiceLine[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateInvoiceDTO {
+  invoiceNumber: string;
+  partnerId: number;
+  journalId: number;
+  invoiceDate: Date;
+  dueDate?: Date;
+  type: InvoiceType;
+  notes?: string;
+  reference?: string;
+  lines: CreateInvoiceLineDTO[];
+}
+
+export interface UpdateInvoiceDTO {
+  invoiceNumber: string;
+  partnerId: number;
+  journalId: number;
+  invoiceDate: Date;
+  dueDate?: Date;
+  type: InvoiceType;
+  notes?: string;
+  reference?: string;
+}
+
+export interface InvoiceLine {
+  id: number;
+  description: string;
+  productCode?: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  discountAmount: number;
+  lineTotal: number;
+  vatRate: number;
+  vatAmount: number;
+  lineTotalWithVAT: number;
+  unit?: string;
+  accountCode?: string;
+  notes?: string;
+}
+
+export interface CreateInvoiceLineDTO {
+  description: string;
+  productCode?: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  vatRate: number;
+  unit?: string;
+  accountCode?: string;
+  notes?: string;
+}
+
+// Payment Models
+export interface Payment {
+  id: number;
+  paymentNumber: string;
+  partnerId: number;
+  partnerName: string;
+  journalId: number;
+  journalName: string;
+  paymentDate: Date;
+  type: PaymentType;
+  status: PaymentStatus;
+  amount: number;
+  method: PaymentMethod;
+  bankReference?: string;
+  checkNumber?: string;
+  notes?: string;
+  postedDate?: Date;
+  paymentTranches: PaymentTranche[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreatePaymentDTO {
+  paymentNumber: string;
+  partnerId: number;
+  journalId: number;
+  paymentDate: Date;
+  type: PaymentType;
+  amount: number;
+  method: PaymentMethod;
+  bankReference?: string;
+  checkNumber?: string;
+  notes?: string;
+}
+
+export interface UpdatePaymentDTO {
+  paymentNumber: string;
+  partnerId: number;
+  journalId: number;
+  paymentDate: Date;
+  type: PaymentType;
+  amount: number;
+  method: PaymentMethod;
+  bankReference?: string;
+  checkNumber?: string;
+  notes?: string;
+}
+
 export interface PaymentTranche {
   id: number;
   paymentId: number;
@@ -268,45 +341,8 @@ export interface PaymentTranche {
   postedDate?: Date;
 }
 
-export enum TrancheStatus {
-  Draft = 1,
-  Validated = 2,
-  Posted = 3,
-  Cancelled = 4
-}
-
-export interface Payment extends BaseEntity {
-  paymentNumber: string;
-  partnerId: number;
-  partner: Partner;
-  journalId: number;
-  journal: Journal;
-  paymentDate: Date;
-  type: PaymentType;
-  status: PaymentStatus;
-  amount: number;
-  method: PaymentMethod;
-  bankReference?: string;
-  checkNumber?: string;
-  notes?: string;
-  postedDate?: Date;
-  paymentTranches: PaymentTranche[];
-}
-
-export interface CreatePaymentDTO {
-  partnerId: number;
-  journalId: number;
-  paymentDate: Date;
-  type: PaymentType;
-  amount: number;
-  method: PaymentMethod;
-  bankReference?: string;
-  checkNumber?: string;
-  notes?: string;
-  paymentTranches?: CreatePaymentTrancheDTO[];
-}
-
 export interface CreatePaymentTrancheDTO {
+  paymentId: number;
   invoiceId: number;
   paymentDate: Date;
   amount: number;
@@ -314,20 +350,32 @@ export interface CreatePaymentTrancheDTO {
   notes?: string;
 }
 
-export interface UpdatePaymentDTO {
+// Journal Entry Models
+export interface JournalEntry {
+  id: number;
+  reference: string;
+  journalId: number;
+  journalName: string;
+  accountId: number;
+  accountName: string;
   partnerId?: number;
-  journalId?: number;
-  paymentDate?: Date;
-  type?: PaymentType;
-  amount?: number;
-  method?: PaymentMethod;
-  bankReference?: string;
-  checkNumber?: string;
-  notes?: string;
+  partnerName?: string;
+  invoiceId?: number;
+  paymentId?: number;
+  entryDate: Date;
+  type: EntryType;
+  debit: number;
+  credit: number;
+  description?: string;
+  documentReference?: string;
+  isPosted: boolean;
+  postedDate?: Date;
+  createdBy?: string;
 }
 
 // VAT Models
-export interface VAT extends BaseEntity {
+export interface VAT {
+  id: number;
   name: string;
   rate: number;
   accountCode?: string;
@@ -341,81 +389,82 @@ export interface CreateVATDTO {
   name: string;
   rate: number;
   accountCode?: string;
+  isActive: boolean;
   description?: string;
   effectiveFrom?: Date;
   effectiveTo?: Date;
 }
 
 export interface UpdateVATDTO {
-  name?: string;
-  rate?: number;
+  name: string;
+  rate: number;
   accountCode?: string;
+  isActive: boolean;
   description?: string;
   effectiveFrom?: Date;
   effectiveTo?: Date;
-  isActive?: boolean;
+}
+
+// Reconciliation Models
+export interface Reconciliation {
+  id: number;
+  invoiceId: number;
+  paymentId: number;
+  paymentTrancheId: number;
+  reconciliationDate: Date;
+  amount: number;
+  status: ReconciliationStatus;
+  notes?: string;
+  postedDate?: Date;
 }
 
 // Search and Dashboard Models
 export interface FinancialSearchDTO {
   searchTerm?: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
+  accountType?: AccountType;
+  journalType?: JournalType;
+  partnerType?: PartnerType;
+  invoiceType?: InvoiceType;
+  invoiceStatus?: InvoiceStatus;
+  paymentType?: PaymentType;
+  paymentStatus?: PaymentStatus;
+  partnerId?: number;
   dateFrom?: Date;
   dateTo?: Date;
-  status?: string;
-  type?: string;
+  isActive?: boolean;
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortDescending: boolean;
 }
 
 export interface FinancialDashboardDTO {
+  totalRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  overdueInvoices: number;
   totalAccounts: number;
   totalJournals: number;
   totalPartners: number;
   totalInvoices: number;
   totalPayments: number;
-  totalRevenue: number;
-  totalExpenses: number;
-  netProfit: number;
-  accountBalances: AccountBalanceDTO[];
-  recentTransactions: RecentTransactionDTO[];
-  overdueInvoices: number;
   pendingPayments: number;
+  recentTransactions: RecentTransaction[];
+  accountBalances: AccountBalance[];
 }
 
-export interface AccountBalanceDTO {
+export interface RecentTransaction {
+  id: number;
+  description: string;
+  amount: number;
+  date: Date;
+  accountName: string;
+  partnerName?: string;
+}
+
+export interface AccountBalance {
   accountId: number;
   accountName: string;
   accountCode: string;
   balance: number;
-  type: AccountType;
 }
-
-export interface RecentTransactionDTO {
-  id: number;
-  type: string;
-  description: string;
-  amount: number;
-  date: Date;
-  reference?: string;
-}
-
-// API Response Models
-export interface FinancialApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
-  errors?: string[];
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  totalItems: number;
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-}
-

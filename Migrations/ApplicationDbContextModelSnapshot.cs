@@ -17,10 +17,10 @@ namespace App.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.4")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("App.Models.ActiviteEmploye", b =>
                 {
@@ -28,7 +28,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateActivite")
                         .HasColumnType("datetime2");
@@ -51,7 +51,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("ActiviteEmployes", (string)null);
+                    b.ToTable("ActiviteEmployes");
                 });
 
             modelBuilder.Entity("App.Models.AnalyseClient", b =>
@@ -60,7 +60,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -86,7 +86,7 @@ namespace App.Migrations
                     b.HasIndex("ClientId")
                         .IsUnique();
 
-                    b.ToTable("AnalyseClients", (string)null);
+                    b.ToTable("AnalyseClients");
                 });
 
             modelBuilder.Entity("App.Models.AuditLog", b =>
@@ -95,7 +95,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -127,7 +127,7 @@ namespace App.Migrations
 
                     b.HasIndex("UtilisateurId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("App.Models.Category", b =>
@@ -136,7 +136,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("CategorieParentId")
                         .HasColumnType("int");
@@ -172,7 +172,7 @@ namespace App.Migrations
 
                     b.HasIndex("CategorieParentId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("App.Models.Client", b =>
@@ -181,7 +181,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Adresse")
                         .IsRequired()
@@ -248,7 +248,7 @@ namespace App.Migrations
                     b.HasIndex("ICE")
                         .IsUnique();
 
-                    b.ToTable("Clients", (string)null);
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("App.Models.CommandeAchat", b =>
@@ -257,7 +257,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateCommande")
                         .HasColumnType("datetime2");
@@ -285,7 +285,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("CommandeAchats", (string)null);
+                    b.ToTable("CommandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.CommandeVente", b =>
@@ -294,7 +294,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -329,7 +329,7 @@ namespace App.Migrations
 
                     b.HasIndex("DevisId");
 
-                    b.ToTable("CommandeVentes", (string)null);
+                    b.ToTable("CommandeVentes");
                 });
 
             modelBuilder.Entity("App.Models.CompanySettings", b =>
@@ -338,7 +338,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Adresse")
                         .IsRequired()
@@ -399,7 +399,7 @@ namespace App.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("TauxTVA")
-                        .HasColumnType("decimal(5,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Telephone")
                         .IsRequired()
@@ -408,7 +408,7 @@ namespace App.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CompanySettings", (string)null);
+                    b.ToTable("CompanySettings");
                 });
 
             modelBuilder.Entity("App.Models.ContactClient", b =>
@@ -417,7 +417,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("ClientId")
                         .HasColumnType("int");
@@ -446,7 +446,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("ContactClients", (string)null);
+                    b.ToTable("ContactClients");
                 });
 
             modelBuilder.Entity("App.Models.ContactFournisseur", b =>
@@ -455,7 +455,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -480,7 +480,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("ContactFournisseurs", (string)null);
+                    b.ToTable("ContactFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.DemandeAchat", b =>
@@ -489,7 +489,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateDemande")
                         .HasColumnType("datetime2");
@@ -505,7 +505,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("DemandeAchats", (string)null);
+                    b.ToTable("DemandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.Department", b =>
@@ -514,7 +514,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreePar")
                         .IsRequired()
@@ -552,7 +552,7 @@ namespace App.Migrations
                         .IsUnique()
                         .HasFilter("[ManagerId] IS NOT NULL");
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("App.Models.Devis", b =>
@@ -561,7 +561,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -589,7 +589,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Devis", (string)null);
+                    b.ToTable("Devis");
                 });
 
             modelBuilder.Entity("App.Models.Employe", b =>
@@ -598,7 +598,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CIN")
                         .IsRequired()
@@ -616,7 +616,8 @@ namespace App.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Nom")
                         .IsRequired()
@@ -642,7 +643,8 @@ namespace App.Migrations
 
                     b.Property<string>("Telephone")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -651,7 +653,7 @@ namespace App.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Employes", (string)null);
+                    b.ToTable("Employes");
                 });
 
             modelBuilder.Entity("App.Models.FactureAchat", b =>
@@ -660,7 +662,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("int");
@@ -693,7 +695,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("FactureAchats", (string)null);
+                    b.ToTable("FactureAchats");
                 });
 
             modelBuilder.Entity("App.Models.FactureVente", b =>
@@ -702,7 +704,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -735,265 +737,659 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("FactureVentes", (string)null);
+                    b.ToTable("FactureVentes");
                 });
 
-            modelBuilder.Entity("App.Models.Financial.Budget", b =>
+            modelBuilder.Entity("App.Models.Financial.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("CreePar")
+                    b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateDebut")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateFin")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModification")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("ModifiePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
-                    b.Property<decimal>("MontantDepense")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
-                    b.Property<decimal>("MontantPrevu")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Nom")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("ParentAccountId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("Code")
+                        .IsUnique();
 
-                    b.ToTable("Budgets", (string)null);
+                    b.HasIndex("ParentAccountId");
+
+                    b.ToTable("FinancialAccounts", (string)null);
                 });
 
-            modelBuilder.Entity("App.Models.Financial.FinancialReport", b =>
+            modelBuilder.Entity("App.Models.Financial.Invoice", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Contenu")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateCreation")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateDebut")
+                    b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateFin")
+                    b.Property<DateTime>("InvoiceDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateGeneration")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModification")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("DepensesTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Profit")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("RevenusTotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Statut")
+                    b.Property<string>("InvoiceNumber")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal>("TauxCroissance")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JournalId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("PaidAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Titre")
-                        .IsRequired()
+                    b.Property<DateTime?>("PaidDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PostedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reference")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<decimal>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("VATAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("FinancialReports", (string)null);
+                    b.HasIndex("InvoiceNumber")
+                        .IsUnique();
+
+                    b.HasIndex("JournalId");
+
+                    b.HasIndex("PartnerId");
+
+                    b.ToTable("FinancialInvoices", (string)null);
                 });
 
-            modelBuilder.Entity("App.Models.Financial.Transaction", b =>
+            modelBuilder.Entity("App.Models.Financial.InvoiceLine", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("AccountCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateModification")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateTransaction")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("EmployeId")
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("InvoiceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FournisseurId")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("LineTotalWithVAT")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ProductCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("VATAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("VATRate")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.ToTable("FinancialInvoiceLines", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Journal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("MethodePaiement")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DefaultCreditAccountCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("DefaultDebitAccountCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("ModifiePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
-                    b.Property<decimal>("Montant")
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("FinancialJournals", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.JournalEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Credit")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("Debit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DocumentReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPosted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JournalId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PostedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Reference")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("AccountId");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("InvoiceId");
 
-                    b.HasIndex("EmployeId");
+                    b.HasIndex("JournalId");
 
-                    b.HasIndex("FournisseurId");
+                    b.HasIndex("PartnerId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("FinancialJournalEntries", (string)null);
                 });
 
-            modelBuilder.Entity("App.Models.Financial.TransactionCategory", b =>
+            modelBuilder.Entity("App.Models.Financial.Partner", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("DateCreation")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("DateModification")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiePar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Nom")
+                    b.Property<string>("Country")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ParentCategoryId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CreditLimit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CurrentBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ICE")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TaxNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal>("TotalCredit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalDebit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentCategoryId");
+                    b.HasIndex("ICE")
+                        .IsUnique()
+                        .HasFilter("[ICE] IS NOT NULL");
 
-                    b.ToTable("TransactionCategories", (string)null);
+                    b.ToTable("FinancialPartners", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BankReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CheckNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JournalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("PostedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JournalId");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("PaymentNumber")
+                        .IsUnique();
+
+                    b.ToTable("FinancialPayments", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.PaymentTranche", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PostedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("FinancialPaymentTranches", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Reconciliation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaymentTrancheId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PostedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ReconciliationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("PaymentTrancheId");
+
+                    b.ToTable("FinancialReconciliations", (string)null);
+                });
+
+            modelBuilder.Entity("App.Models.Financial.VAT", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("EffectiveFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EffectiveTo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("FinancialVATs", (string)null);
                 });
 
             modelBuilder.Entity("App.Models.Fournisseur", b =>
@@ -1002,7 +1398,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Adresse")
                         .IsRequired()
@@ -1055,7 +1451,7 @@ namespace App.Migrations
                     b.HasIndex("ICE")
                         .IsUnique();
 
-                    b.ToTable("Fournisseurs", (string)null);
+                    b.ToTable("Fournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Inventaire", b =>
@@ -1064,7 +1460,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateInventaire")
                         .HasColumnType("datetime2");
@@ -1086,7 +1482,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("Inventaires", (string)null);
+                    b.ToTable("Inventaires");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeAchat", b =>
@@ -1095,10 +1491,13 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("PrixUnitaire")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("PrixUnitaireHT")
                         .HasColumnType("decimal(18,2)");
@@ -1124,7 +1523,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneCommandeAchats", (string)null);
+                    b.ToTable("LigneCommandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeVente", b =>
@@ -1133,7 +1532,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("int");
@@ -1162,7 +1561,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneCommandeVentes", (string)null);
+                    b.ToTable("LigneCommandeVentes");
                 });
 
             modelBuilder.Entity("App.Models.LigneDemandeAchat", b =>
@@ -1171,7 +1570,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DemandeId")
                         .HasColumnType("int");
@@ -1192,7 +1591,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneDemandeAchats", (string)null);
+                    b.ToTable("LigneDemandeAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneDevis", b =>
@@ -1201,7 +1600,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("DevisId")
                         .HasColumnType("int");
@@ -1230,7 +1629,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneDevis", (string)null);
+                    b.ToTable("LigneDevis");
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureAchat", b =>
@@ -1239,7 +1638,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("FactureId")
                         .HasColumnType("int");
@@ -1268,7 +1667,7 @@ namespace App.Migrations
 
                     b.HasIndex("LigneCommandeId");
 
-                    b.ToTable("LigneFactureAchats", (string)null);
+                    b.ToTable("LigneFactureAchats");
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureVente", b =>
@@ -1277,7 +1676,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("FactureId")
                         .HasColumnType("int");
@@ -1304,7 +1703,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("LigneFactureVentes", (string)null);
+                    b.ToTable("LigneFactureVentes");
                 });
 
             modelBuilder.Entity("App.Models.LigneLivraison", b =>
@@ -1313,7 +1712,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("LivraisonId")
                         .HasColumnType("int");
@@ -1328,7 +1727,7 @@ namespace App.Migrations
 
                     b.HasIndex("LivraisonId");
 
-                    b.ToTable("LigneLivraisons", (string)null);
+                    b.ToTable("LigneLivraisons");
                 });
 
             modelBuilder.Entity("App.Models.LigneReception", b =>
@@ -1337,10 +1736,9 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("LigneCommandeId")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<string>("MotifRejet")
@@ -1369,7 +1767,7 @@ namespace App.Migrations
 
                     b.HasIndex("ReceptionId");
 
-                    b.ToTable("LigneReceptions", (string)null);
+                    b.ToTable("LigneReceptions");
                 });
 
             modelBuilder.Entity("App.Models.LigneRetourVente", b =>
@@ -1378,7 +1776,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ProduitId")
                         .HasColumnType("int");
@@ -1393,7 +1791,7 @@ namespace App.Migrations
 
                     b.HasIndex("RetourId");
 
-                    b.ToTable("LigneRetourVentes", (string)null);
+                    b.ToTable("LigneRetourVentes");
                 });
 
             modelBuilder.Entity("App.Models.Livraison", b =>
@@ -1402,7 +1800,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("int");
@@ -1426,7 +1824,7 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("Livraisons", (string)null);
+                    b.ToTable("Livraisons");
                 });
 
             modelBuilder.Entity("App.Models.MouvementStock", b =>
@@ -1435,11 +1833,12 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreePar")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("DateMouvement")
                         .HasColumnType("datetime2");
@@ -1466,7 +1865,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("MouvementStocks", (string)null);
+                    b.ToTable("MouvementStocks");
                 });
 
             modelBuilder.Entity("App.Models.PaiementClient", b =>
@@ -1475,7 +1874,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -1507,7 +1906,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("PaiementClients", (string)null);
+                    b.ToTable("PaiementClients");
                 });
 
             modelBuilder.Entity("App.Models.PaiementFournisseur", b =>
@@ -1516,7 +1915,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DatePaiement")
                         .HasColumnType("datetime2");
@@ -1548,7 +1947,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("PaiementFournisseurs", (string)null);
+                    b.ToTable("PaiementFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.PerformanceFournisseur", b =>
@@ -1557,7 +1956,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("FournisseurId")
                         .HasColumnType("int");
@@ -1576,7 +1975,7 @@ namespace App.Migrations
                     b.HasIndex("FournisseurId")
                         .IsUnique();
 
-                    b.ToTable("PerformanceFournisseurs", (string)null);
+                    b.ToTable("PerformanceFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Produit", b =>
@@ -1585,7 +1984,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Categorie")
                         .IsRequired()
@@ -1633,7 +2032,9 @@ namespace App.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TauxTVA")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(5,2)")
+                        .HasDefaultValue(19.00m);
 
                     b.Property<string>("Unite")
                         .IsRequired()
@@ -1646,7 +2047,7 @@ namespace App.Migrations
                     b.HasIndex("Reference")
                         .IsUnique();
 
-                    b.ToTable("Produits", (string)null);
+                    b.ToTable("Produits");
                 });
 
             modelBuilder.Entity("App.Models.Reception", b =>
@@ -1655,7 +2056,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommandeId")
                         .HasColumnType("int");
@@ -1671,7 +2072,7 @@ namespace App.Migrations
 
                     b.HasIndex("CommandeId");
 
-                    b.ToTable("Receptions", (string)null);
+                    b.ToTable("Receptions");
                 });
 
             modelBuilder.Entity("App.Models.RetourVente", b =>
@@ -1680,7 +2081,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -1705,7 +2106,7 @@ namespace App.Migrations
 
                     b.HasIndex("FactureId");
 
-                    b.ToTable("RetourVentes", (string)null);
+                    b.ToTable("RetourVentes");
                 });
 
             modelBuilder.Entity("App.Models.TransactionClient", b =>
@@ -1714,7 +2115,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -1737,7 +2138,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("TransactionClients", (string)null);
+                    b.ToTable("TransactionClients");
                 });
 
             modelBuilder.Entity("App.Models.TransactionFournisseur", b =>
@@ -1746,7 +2147,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateTransaction")
                         .HasColumnType("datetime2");
@@ -1765,7 +2166,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("TransactionFournisseurs", (string)null);
+                    b.ToTable("TransactionFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Utilisateur", b =>
@@ -1774,7 +2175,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("EmployeId")
                         .HasColumnType("int");
@@ -1802,7 +2203,7 @@ namespace App.Migrations
                     b.HasIndex("NomUtilisateur")
                         .IsUnique();
 
-                    b.ToTable("Utilisateurs", (string)null);
+                    b.ToTable("Utilisateurs");
                 });
 
             modelBuilder.Entity("App.Models.VariantProduit", b =>
@@ -1811,7 +2212,7 @@ namespace App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Couleur")
                         .IsRequired()
@@ -1835,7 +2236,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("VariantProduits", (string)null);
+                    b.ToTable("VariantProduits");
                 });
 
             modelBuilder.Entity("App.Models.ActiviteEmploye", b =>
@@ -1997,49 +2398,149 @@ namespace App.Migrations
                     b.Navigation("Commande");
                 });
 
-            modelBuilder.Entity("App.Models.Financial.Budget", b =>
+            modelBuilder.Entity("App.Models.Financial.Account", b =>
                 {
-                    b.HasOne("App.Models.Financial.TransactionCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId");
+                    b.HasOne("App.Models.Financial.Account", "ParentAccount")
+                        .WithMany("ChildAccounts")
+                        .HasForeignKey("ParentAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Category");
+                    b.Navigation("ParentAccount");
                 });
 
-            modelBuilder.Entity("App.Models.Financial.Transaction", b =>
+            modelBuilder.Entity("App.Models.Financial.Invoice", b =>
                 {
-                    b.HasOne("App.Models.Financial.TransactionCategory", "Category")
-                        .WithMany("Transactions")
-                        .HasForeignKey("CategoryId");
+                    b.HasOne("App.Models.Financial.Journal", "Journal")
+                        .WithMany("Invoices")
+                        .HasForeignKey("JournalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("App.Models.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId");
+                    b.HasOne("App.Models.Financial.Partner", "Partner")
+                        .WithMany("Invoices")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("App.Models.Employe", "Employe")
-                        .WithMany()
-                        .HasForeignKey("EmployeId");
+                    b.Navigation("Journal");
 
-                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
-                        .WithMany()
-                        .HasForeignKey("FournisseurId");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Client");
-
-                    b.Navigation("Employe");
-
-                    b.Navigation("Fournisseur");
+                    b.Navigation("Partner");
                 });
 
-            modelBuilder.Entity("App.Models.Financial.TransactionCategory", b =>
+            modelBuilder.Entity("App.Models.Financial.InvoiceLine", b =>
                 {
-                    b.HasOne("App.Models.Financial.TransactionCategory", "ParentCategory")
-                        .WithMany("SousCategories")
-                        .HasForeignKey("ParentCategoryId");
+                    b.HasOne("App.Models.Financial.Invoice", "Invoice")
+                        .WithMany("Lines")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("ParentCategory");
+                    b.Navigation("Invoice");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.JournalEntry", b =>
+                {
+                    b.HasOne("App.Models.Financial.Account", "Account")
+                        .WithMany("JournalEntries")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.Invoice", "Invoice")
+                        .WithMany("JournalEntries")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("App.Models.Financial.Journal", "Journal")
+                        .WithMany("JournalEntries")
+                        .HasForeignKey("JournalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.Partner", "Partner")
+                        .WithMany("JournalEntries")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("App.Models.Financial.Payment", "Payment")
+                        .WithMany("JournalEntries")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Journal");
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Payment", b =>
+                {
+                    b.HasOne("App.Models.Financial.Journal", "Journal")
+                        .WithMany("Payments")
+                        .HasForeignKey("JournalId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.Partner", "Partner")
+                        .WithMany("Payments")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Journal");
+
+                    b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.PaymentTranche", b =>
+                {
+                    b.HasOne("App.Models.Financial.Invoice", "Invoice")
+                        .WithMany("PaymentTranches")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.Payment", "Payment")
+                        .WithMany("PaymentTranches")
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Reconciliation", b =>
+                {
+                    b.HasOne("App.Models.Financial.Invoice", "Invoice")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("App.Models.Financial.PaymentTranche", "PaymentTranche")
+                        .WithMany()
+                        .HasForeignKey("PaymentTrancheId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
+
+                    b.Navigation("Payment");
+
+                    b.Navigation("PaymentTranche");
                 });
 
             modelBuilder.Entity("App.Models.Inventaire", b =>
@@ -2165,8 +2666,7 @@ namespace App.Migrations
                     b.HasOne("App.Models.LigneCommandeAchat", "LigneCommande")
                         .WithMany()
                         .HasForeignKey("LigneCommandeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("App.Models.Reception", "Reception")
                         .WithMany("Lignes")
@@ -2415,11 +2915,45 @@ namespace App.Migrations
                     b.Navigation("Retours");
                 });
 
-            modelBuilder.Entity("App.Models.Financial.TransactionCategory", b =>
+            modelBuilder.Entity("App.Models.Financial.Account", b =>
                 {
-                    b.Navigation("SousCategories");
+                    b.Navigation("ChildAccounts");
 
-                    b.Navigation("Transactions");
+                    b.Navigation("JournalEntries");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Invoice", b =>
+                {
+                    b.Navigation("JournalEntries");
+
+                    b.Navigation("Lines");
+
+                    b.Navigation("PaymentTranches");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Journal", b =>
+                {
+                    b.Navigation("Invoices");
+
+                    b.Navigation("JournalEntries");
+
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Partner", b =>
+                {
+                    b.Navigation("Invoices");
+
+                    b.Navigation("JournalEntries");
+
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("App.Models.Financial.Payment", b =>
+                {
+                    b.Navigation("JournalEntries");
+
+                    b.Navigation("PaymentTranches");
                 });
 
             modelBuilder.Entity("App.Models.Fournisseur", b =>

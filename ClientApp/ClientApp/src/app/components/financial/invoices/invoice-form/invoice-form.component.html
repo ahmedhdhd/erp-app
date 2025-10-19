@@ -1,0 +1,445 @@
+<div class="container-fluid">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-2">
+            <i class="fas fa-file-invoice"></i>
+            {{ isEditMode ? 'Modifier la Facture' : 'Nouvelle Facture' }}
+          </h2>
+          <p class="text-muted mb-0">
+            {{ isEditMode ? 'Modifiez les informations de la facture' : 'Créez une nouvelle facture' }}
+          </p>
+        </div>
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary" 
+            (click)="onCancel()"
+            [disabled]="saving">
+            <i class="fas fa-times"></i>
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement de la facture...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="row" *ngIf="errorMessage && !loading">
+    <div class="col-12">
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="isEditMode ? loadInvoice() : onReset()">
+          <i class="fas fa-redo"></i>
+          Réessayer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success State -->
+  <div class="row" *ngIf="successMessage">
+    <div class="col-12">
+      <div class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle"></i>
+        {{ successMessage }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Section -->
+  <div class="row" *ngIf="!loading">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Informations de la Facture
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+            <!-- Invoice Header Fields -->
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label required">Numéro de facture</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="invoiceNumber"
+                  placeholder="Ex: FAC2023001"
+                  [class.is-invalid]="isFieldInvalid('invoiceNumber')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('invoiceNumber')">
+                  {{ getFieldError('invoiceNumber') }}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label required">Partenaire</label>
+                <select 
+                  class="form-select" 
+                  formControlName="partnerId"
+                  [class.is-invalid]="isFieldInvalid('partnerId')">
+                  <option value="">Sélectionnez un partenaire</option>
+                  <!-- TODO: Populate with actual partners -->
+                  <option value="1">Partenaire 1</option>
+                  <option value="2">Partenaire 2</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('partnerId')">
+                  {{ getFieldError('partnerId') }}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label required">Journal</label>
+                <select 
+                  class="form-select" 
+                  formControlName="journalId"
+                  [class.is-invalid]="isFieldInvalid('journalId')">
+                  <option value="">Sélectionnez un journal</option>
+                  <!-- TODO: Populate with actual journals -->
+                  <option value="1">Journal Vente</option>
+                  <option value="2">Journal Achat</option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('journalId')">
+                  {{ getFieldError('journalId') }}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label required">Type de facture</label>
+                <select 
+                  class="form-select" 
+                  formControlName="type"
+                  [class.is-invalid]="isFieldInvalid('type')">
+                  <option *ngFor="let type of invoiceTypes" [value]="type.value">
+                    {{ type.label }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('type')">
+                  {{ getFieldError('type') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Fields -->
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label required">Date de facture</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  formControlName="invoiceDate"
+                  [class.is-invalid]="isFieldInvalid('invoiceDate')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('invoiceDate')">
+                  {{ getFieldError('invoiceDate') }}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Date d'échéance</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  formControlName="dueDate"
+                  [class.is-invalid]="isFieldInvalid('dueDate')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('dueDate')">
+                  {{ getFieldError('dueDate') }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Référence</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="reference"
+                  placeholder="Référence externe"
+                  [class.is-invalid]="isFieldInvalid('reference')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('reference')">
+                  {{ getFieldError('reference') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes Field -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea 
+                  class="form-control" 
+                  formControlName="notes"
+                  rows="2"
+                  placeholder="Notes supplémentaires sur la facture"
+                  [class.is-invalid]="isFieldInvalid('notes')"></textarea>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('notes')">
+                  {{ getFieldError('notes') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Line Items Section -->
+            <div class="row mb-3">
+              <div class="col-12">
+                <h5 class="mb-3">
+                  <i class="fas fa-list me-2"></i>
+                  Lignes de facture
+                </h5>
+                
+                <div formArrayName="lines">
+                  <div class="card mb-2" *ngFor="let line of lines.controls; let i = index" [formGroupName]="i">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-6 mb-2">
+                          <label class="form-label required">Description</label>
+                          <input 
+                            type="text" 
+                            class="form-control" 
+                            formControlName="description"
+                            placeholder="Description de l'article/service"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'description')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'description')">
+                            {{ getLineFieldError(i, 'description') }}
+                          </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                          <label class="form-label">Code produit</label>
+                          <input 
+                            type="text" 
+                            class="form-control" 
+                            formControlName="productCode"
+                            placeholder="Code produit"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'productCode')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'productCode')">
+                            {{ getLineFieldError(i, 'productCode') }}
+                          </div>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                          <label class="form-label">Compte</label>
+                          <input 
+                            type="text" 
+                            class="form-control" 
+                            formControlName="accountCode"
+                            placeholder="Code compte"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'accountCode')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'accountCode')">
+                            {{ getLineFieldError(i, 'accountCode') }}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-md-2 mb-2">
+                          <label class="form-label required">Quantité</label>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            formControlName="quantity"
+                            placeholder="Quantité"
+                            step="0.001"
+                            min="0.001"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'quantity')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'quantity')">
+                            {{ getLineFieldError(i, 'quantity') }}
+                          </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                          <label class="form-label required">Prix unitaire</label>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            formControlName="unitPrice"
+                            placeholder="Prix unitaire"
+                            step="0.001"
+                            min="0"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'unitPrice')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'unitPrice')">
+                            {{ getLineFieldError(i, 'unitPrice') }}
+                          </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                          <label class="form-label">Remise (%)</label>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            formControlName="discount"
+                            placeholder="Remise %"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'discount')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'discount')">
+                            {{ getLineFieldError(i, 'discount') }}
+                          </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                          <label class="form-label">TVA (%)</label>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            formControlName="vatRate"
+                            placeholder="TVA %"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'vatRate')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'vatRate')">
+                            {{ getLineFieldError(i, 'vatRate') }}
+                          </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                          <label class="form-label">Unité</label>
+                          <input 
+                            type="text" 
+                            class="form-control" 
+                            formControlName="unit"
+                            placeholder="Unité"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'unit')">
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'unit')">
+                            {{ getLineFieldError(i, 'unit') }}
+                          </div>
+                        </div>
+                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                          <div class="w-100">
+                            <div class="d-flex justify-content-between">
+                              <strong>Total ligne:</strong>
+                              <span>{{ formatCurrency(calculateLineTotalWithVAT(i)) }}</span>
+                            </div>
+                            <button 
+                              type="button" 
+                              class="btn btn-outline-danger btn-sm w-100 mt-1" 
+                              (click)="removeLine(i)"
+                              [disabled]="lines.length === 1">
+                              <i class="fas fa-trash"></i>
+                              Supprimer
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="col-12">
+                          <label class="form-label">Notes ligne</label>
+                          <textarea 
+                            class="form-control" 
+                            formControlName="notes"
+                            rows="1"
+                            placeholder="Notes supplémentaires pour cette ligne"
+                            [class.is-invalid]="isLineFieldInvalid(i, 'notes')"></textarea>
+                          <div class="invalid-feedback" *ngIf="isLineFieldInvalid(i, 'notes')">
+                            {{ getLineFieldError(i, 'notes') }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <button 
+                  type="button" 
+                  class="btn btn-outline-primary" 
+                  (click)="addLine()">
+                  <i class="fas fa-plus"></i>
+                  Ajouter une ligne
+                </button>
+              </div>
+            </div>
+
+            <!-- Totals Section -->
+            <div class="row mb-3">
+              <div class="col-md-6 offset-md-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Totaux</h5>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>Sous-total:</span>
+                      <strong>{{ formatCurrency(calculateSubtotal()) }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span>TVA:</span>
+                      <strong>{{ formatCurrency(calculateVATAmount()) }}</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <h6>Total:</h6>
+                      <h6>{{ formatCurrency(calculateTotal()) }}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="row">
+              <div class="col-12">
+                <hr>
+                <div class="d-flex justify-content-end gap-2">
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary" 
+                    (click)="onReset()"
+                    [disabled]="saving">
+                    <i class="fas fa-undo"></i>
+                    Réinitialiser
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-primary" 
+                    (click)="onCancel()"
+                    [disabled]="saving">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                  </button>
+                  <button 
+                    type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="invoiceForm.invalid || saving">
+                    <i class="fas fa-save" [class.fa-spin]="saving"></i>
+                    {{ saving ? 'Enregistrement...' : (isEditMode ? 'Mettre à jour' : 'Créer') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-question-circle me-2"></i>
+            Aide
+          </h5>
+        </div>
+        <div class="card-body">
+          <h6>Types de Factures</h6>
+          <ul class="list-unstyled small">
+            <li><strong>Vente:</strong> Facture envoyée à un client</li>
+            <li><strong>Achat:</strong> Facture reçue d'un fournisseur</li>
+            <li><strong>Avoir:</strong> Facture de réduction ou d'annulation</li>
+            <li><strong>Note de débit:</strong> Facture supplémentaire</li>
+          </ul>
+
+          <h6 class="mt-3">Conseils</h6>
+          <ul class="list-unstyled small">
+            <li>• Utilisez des numéros de facture uniques</li>
+            <li>• Définissez des dates d'échéance appropriées</li>
+            <li>• Appliquez les taux de TVA corrects</li>
+            <li>• Ajoutez des descriptions claires pour chaque ligne</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

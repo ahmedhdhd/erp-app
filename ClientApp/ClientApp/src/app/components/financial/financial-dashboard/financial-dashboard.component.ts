@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FinancialService } from '../../../services/financial.service';
-import { FinancialDashboardDTO, AccountBalanceDTO, RecentTransactionDTO } from '../../../models/financial.models';
+import { FinancialDashboardDTO, AccountBalance, RecentTransaction } from '../../../models/financial.models';
 
 @Component({
   selector: 'app-financial-dashboard',
@@ -27,11 +27,11 @@ export class FinancialDashboardComponent implements OnInit {
     this.errorMessage = null;
 
     this.financialService.getDashboard().subscribe({
-      next: (data) => {
+      next: (data: FinancialDashboardDTO) => {
         this.dashboard = data;
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading dashboard:', error);
         this.errorMessage = 'Erreur lors du chargement du tableau de bord financier';
         this.loading = false;

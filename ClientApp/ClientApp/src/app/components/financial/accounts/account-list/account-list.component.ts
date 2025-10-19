@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { FinancialService } from '../../../services/financial.service';
-import { Account, AccountType, FinancialSearchDTO } from '../../../models/financial.models';
+import { FinancialService } from '../../../../services/financial.service';
+import { Account, AccountType, FinancialSearchDTO } from '../../../../models/financial.models';
 
 @Component({
   selector: 'app-account-list',
@@ -22,6 +22,9 @@ export class AccountListComponent implements OnInit {
   pageSize = 10;
   totalItems = 0;
   totalPages = 0;
+
+  // Add Math property for template access
+  Math = Math;
 
   // Search form
   searchForm: FormGroup;
@@ -67,19 +70,19 @@ export class AccountListComponent implements OnInit {
       page: this.currentPage,
       pageSize: this.pageSize,
       sortBy: this.searchForm.get('sortBy')?.value,
-      sortDirection: this.searchForm.get('sortDirection')?.value as 'asc' | 'desc',
-      type: this.searchForm.get('type')?.value || undefined
+      sortDescending: this.searchForm.get('sortDirection')?.value === 'desc',
+      accountType: this.searchForm.get('type')?.value || undefined
     };
 
     this.financialService.getAccounts(searchDTO).subscribe({
-      next: (data) => {
+      next: (data: Account[]) => {
         this.accounts = data;
         this.filteredAccounts = [...data];
         this.totalItems = data.length;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading accounts:', error);
         this.errorMessage = 'Erreur lors du chargement des comptes';
         this.loading = false;
@@ -130,7 +133,7 @@ export class AccountListComponent implements OnInit {
         next: () => {
           this.loadAccounts();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error deleting account:', error);
           this.errorMessage = 'Erreur lors de la suppression du compte';
         }
