@@ -57,17 +57,6 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
-import { AccountListComponent } from './components/financial/accounts/account-list/account-list.component';
-import { AccountFormComponent } from './components/financial/accounts/account-form/account-form.component';
-import { FinancialDashboardComponent } from './components/financial/financial-dashboard/financial-dashboard.component';
-import { JournalListComponent } from './components/financial/journals/journal-list/journal-list.component';
-import { JournalFormComponent } from './components/financial/journals/journal-form/journal-form.component';
-import { PartnerListComponent } from './components/financial/partners/partner-list/partner-list.component';
-import { PartnerFormComponent } from './components/financial/partners/partner-form/partner-form.component';
-import { InvoiceListComponent } from './components/financial/invoices/invoice-list/invoice-list.component';
-import { InvoiceFormComponent } from './components/financial/invoices/invoice-form/invoice-form.component';
-import { PaymentListComponent } from './components/financial/payments/payment-list/payment-list.component';
-import { PaymentFormComponent } from './components/financial/payments/payment-form/payment-form.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -319,97 +308,6 @@ const routes: Routes = [
   },
 
 
-  // Financial Management routes
-  {
-    path: 'financial',
-    canActivate: [AuthGuard],
-    children: [
-      {
-        path: '',
-        component: FinancialDashboardComponent
-      },
-      {
-        path: 'dashboard',
-        redirectTo: ''
-      },
-      // Accounts
-      {
-        path: 'accounts',
-        component: AccountListComponent
-      },
-      {
-        path: 'accounts/new',
-        component: AccountFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      {
-        path: 'accounts/:id/edit',
-        component: AccountFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      // Journals
-      {
-        path: 'journals',
-        component: JournalListComponent
-      },
-      {
-        path: 'journals/new',
-        component: JournalFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      {
-        path: 'journals/:id/edit',
-        component: JournalFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      // Partners
-      {
-        path: 'partners',
-        component: PartnerListComponent
-      },
-      {
-        path: 'partners/new',
-        component: PartnerFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      {
-        path: 'partners/:id/edit',
-        component: PartnerFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      // Invoices
-      {
-        path: 'invoices',
-        component: InvoiceListComponent
-      },
-      {
-        path: 'invoices/new',
-        component: InvoiceFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      {
-        path: 'invoices/:id/edit',
-        component: InvoiceFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      // Payments
-      {
-        path: 'payments',
-        component: PaymentListComponent
-      },
-      {
-        path: 'payments/new',
-        component: PaymentFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      {
-        path: 'payments/:id/edit',
-        component: PaymentFormComponent,
-        data: { requiredRoles: ['Admin', 'Comptable'] }
-      },
-      // TODO: Add more financial routes as components are created
-    ]
-  },
 
   // Admin routes
   {
@@ -439,3 +337,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
+ 
