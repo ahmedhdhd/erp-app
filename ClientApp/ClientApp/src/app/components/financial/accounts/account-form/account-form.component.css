@@ -1,0 +1,241 @@
+/* Account Form Component Styles */
+
+.required::after {
+  content: " *";
+  color: var(--danger-color);
+}
+
+/* Form styling */
+.form-control,
+.form-select {
+  border-radius: var(--input-border-radius);
+  transition: var(--transition-base);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--danger-color);
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacer-1);
+  color: var(--danger-color);
+}
+
+/* Form text styling */
+.form-text {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  margin-top: var(--spacer-1);
+}
+
+/* Switch styling */
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.form-check-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Card styling */
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow-sm);
+}
+
+.card-header {
+  background-color: var(--gray-100);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Button styling */
+.btn {
+  border-radius: var(--btn-border-radius);
+  font-weight: var(--font-weight-medium);
+  transition: var(--transition-base);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.btn-outline-secondary {
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--white-color);
+}
+
+/* Loading spinner */
+.fa-spin {
+  animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Alert styling */
+.alert {
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--spacer-2);
+  font-size: var(--font-size-base);
+}
+
+.alert i {
+  margin-right: 0.5rem;
+}
+
+.alert-success {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: var(--success-color);
+  border-left: 4px solid var(--success-color);
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--danger-color);
+  border-left: 4px solid var(--danger-color);
+}
+
+/* Help section styling */
+.list-unstyled li {
+  margin-bottom: 0.5rem;
+}
+
+.list-unstyled li strong {
+  color: var(--gray-700);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .d-flex.gap-2 {
+    flex-direction: column;
+    gap: 0.5rem !important;
+  }
+  
+  .d-flex.gap-2 .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: 0.5rem;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h5 {
+    font-size: 1rem;
+  }
+}
+
+/* Form validation states */
+.form-control.ng-valid.ng-touched {
+  border-color: var(--success-color);
+}
+
+.form-control.ng-invalid.ng-touched {
+  border-color: var(--danger-color);
+}
+
+/* Loading state */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Text styling */
+.text-muted {
+  color: var(--gray-600) !important;
+}
+
+/* Gap utility */
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+/* Help section specific styling */
+.card .list-unstyled {
+  margin-bottom: 0;
+}
+
+.card .list-unstyled li {
+  padding-left: 0.5rem;
+  position: relative;
+}
+
+.card .list-unstyled li::before {
+  content: "•";
+  color: var(--primary-color);
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}

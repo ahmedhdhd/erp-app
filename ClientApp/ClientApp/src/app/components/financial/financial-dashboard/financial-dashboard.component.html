@@ -1,0 +1,269 @@
+<div class="container-fluid py-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-2">
+            <i class="fas fa-chart-line text-primary"></i>
+            Tableau de Bord Financier
+          </h2>
+          <p class="text-muted mb-0">
+            Vue d'ensemble de la situation financière
+          </p>
+        </div>
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-outline-primary" 
+            (click)="refreshDashboard()"
+            [disabled]="loading">
+            <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+            Actualiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement du tableau de bord...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="row" *ngIf="errorMessage && !loading">
+    <div class="col-12">
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ errorMessage }}
+        <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="loadDashboard()">
+          <i class="fas fa-redo"></i>
+          Réessayer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="row" *ngIf="dashboard && !loading">
+    <!-- Key Metrics Cards -->
+    <div class="col-12 mb-4">
+      <h4 class="mb-3"><i class="fas fa-tachometer-alt me-2"></i>Métriques Clés</h4>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-success text-white mb-3">
+            <i class="fas fa-arrow-up fa-2x"></i>
+          </div>
+          <h5 class="card-title">Chiffre d'Affaires</h5>
+          <h3 class="text-success mb-0">{{ formatCurrency(dashboard.totalRevenue) }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Expenses -->
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-danger text-white mb-3">
+            <i class="fas fa-arrow-down fa-2x"></i>
+          </div>
+          <h5 class="card-title">Charges</h5>
+          <h3 class="text-danger mb-0">{{ formatCurrency(dashboard.totalExpenses) }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Net Profit -->
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-info text-white mb-3">
+            <i class="fas fa-chart-line fa-2x"></i>
+          </div>
+          <h5 class="card-title">Bénéfice Net</h5>
+          <h3 [class]="dashboard.netProfit >= 0 ? 'text-success' : 'text-danger'" class="mb-0">
+            {{ formatCurrency(dashboard.netProfit) }}
+          </h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overdue Invoices -->
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-warning text-white mb-3">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+          </div>
+          <h5 class="card-title">Factures en Retard</h5>
+          <h3 class="text-warning mb-0">{{ dashboard.overdueInvoices }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Access Cards -->
+    <div class="col-12 mb-4">
+      <h4 class="mb-3"><i class="fas fa-rocket me-2"></i>Accès Rapide</h4>
+    </div>
+
+    <!-- Accounts Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToAccounts()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-primary text-white mb-3">
+            <i class="fas fa-chart-bar fa-2x"></i>
+          </div>
+          <h6 class="card-title">Comptes</h6>
+          <p class="card-text text-muted small">{{ dashboard.totalAccounts }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journals Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToJournals()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-info text-white mb-3">
+            <i class="fas fa-book fa-2x"></i>
+          </div>
+          <h6 class="card-title">Journaux</h6>
+          <p class="card-text text-muted small">{{ dashboard.totalJournals }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partners Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToPartners()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-success text-white mb-3">
+            <i class="fas fa-users fa-2x"></i>
+          </div>
+          <h6 class="card-title">Partenaires</h6>
+          <p class="card-text text-muted small">{{ dashboard.totalPartners }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoices Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToInvoices()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-warning text-white mb-3">
+            <i class="fas fa-file-invoice fa-2x"></i>
+          </div>
+          <h6 class="card-title">Factures</h6>
+          <p class="card-text text-muted small">{{ dashboard.totalInvoices }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payments Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100" (click)="navigateToPayments()" style="cursor: pointer;">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-secondary text-white mb-3">
+            <i class="fas fa-credit-card fa-2x"></i>
+          </div>
+          <h6 class="card-title">Paiements</h6>
+          <p class="card-text text-muted small">{{ dashboard.totalPayments }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Payments Card -->
+    <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+      <div class="card dashboard-card h-100">
+        <div class="card-body text-center">
+          <div class="dashboard-icon bg-danger text-white mb-3">
+            <i class="fas fa-clock fa-2x"></i>
+          </div>
+          <h6 class="card-title">En Attente</h6>
+          <p class="card-text text-muted small">{{ dashboard.pendingPayments }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Balances Section -->
+    <div class="col-12 mb-4">
+      <h4 class="mb-3"><i class="fas fa-balance-scale me-2"></i>Soldes des Comptes</h4>
+    </div>
+
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <div class="row" *ngIf="dashboard.accountBalances.length > 0">
+            <div class="col-md-6 col-lg-4 mb-3" *ngFor="let account of dashboard.accountBalances">
+              <div class="d-flex align-items-center p-3 border rounded">
+                <div class="me-3">
+                  <i [class]="getAccountTypeIcon(account.type) + ' ' + getAccountTypeColor(account.type) + ' fa-2x'"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ account.accountName }}</h6>
+                  <small class="text-muted">{{ account.accountCode }}</small>
+                  <div class="mt-1">
+                    <span [class]="account.balance >= 0 ? 'text-success' : 'text-danger'" class="fw-bold">
+                      {{ formatCurrency(account.balance) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center" *ngIf="dashboard.accountBalances.length === 0">
+            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+            <h5>Aucun compte trouvé</h5>
+            <p class="text-muted">Les soldes des comptes apparaîtront ici une fois configurés.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Transactions Section -->
+    <div class="col-12 mb-4">
+      <h4 class="mb-3"><i class="fas fa-history me-2"></i>Transactions Récentes</h4>
+    </div>
+
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row" *ngIf="dashboard.recentTransactions.length > 0">
+            <div class="col-md-6 col-lg-4 mb-3" *ngFor="let transaction of dashboard.recentTransactions">
+              <div class="d-flex align-items-center p-3 border rounded">
+                <div class="me-3">
+                  <i [class]="getTransactionIcon(transaction.type) + ' ' + getTransactionColor(transaction.type) + ' fa-2x'"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">{{ transaction.description }}</h6>
+                  <small class="text-muted">{{ formatDate(transaction.date) }}</small>
+                  <div class="mt-1">
+                    <span [class]="transaction.amount >= 0 ? 'text-success' : 'text-danger'" class="fw-bold">
+                      {{ formatCurrency(transaction.amount) }}
+                    </span>
+                    <small class="text-muted ms-2">{{ transaction.type }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center" *ngIf="dashboard.recentTransactions.length === 0">
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h5>Aucune transaction récente</h5>
+            <p class="text-muted">Les transactions récentes apparaîtront ici.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
