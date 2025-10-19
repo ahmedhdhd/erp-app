@@ -1,205 +1,414 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using App.Models.Financial;
 
 namespace App.Models.DTOs
 {
-    // ApiResponse class for financial module
-    public class FinancialApiResponse<T>
-    {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-        public T? Data { get; set; }
-        public int? TotalCount { get; set; }
-        public int? Page { get; set; }
-        public int? PageSize { get; set; }
-        public int? TotalPages { get; set; }
-        public bool? HasNextPage { get; set; }
-        public bool? HasPreviousPage { get; set; }
-        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        public List<string> Errors { get; set; } = new();
-    }
-
-    // Transaction DTOs
-    public class TransactionDTO
+    #region Account DTOs
+    public class AccountDTO
     {
         public int Id { get; set; }
-        public string Type { get; set; } = string.Empty;
-        public decimal Montant { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public AccountType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public int? ParentAccountId { get; set; }
+        public decimal Balance { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreateAccountDTO
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public AccountType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+        public int? ParentAccountId { get; set; }
+    }
+
+    public class UpdateAccountDTO
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public AccountType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public int? ParentAccountId { get; set; }
+    }
+    #endregion
+
+    #region Journal DTOs
+    public class JournalDTO
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public JournalType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public string? DefaultDebitAccountCode { get; set; }
+        public string? DefaultCreditAccountCode { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreateJournalDTO
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public JournalType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string? DefaultDebitAccountCode { get; set; }
+        public string? DefaultCreditAccountCode { get; set; }
+    }
+
+    public class UpdateJournalDTO
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public JournalType Type { get; set; }
+        public string? Description { get; set; }
+        public bool IsActive { get; set; }
+        public string? DefaultDebitAccountCode { get; set; }
+        public string? DefaultCreditAccountCode { get; set; }
+    }
+    #endregion
+
+    #region Partner DTOs
+    public class PartnerDTO
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Code { get; set; }
+        public PartnerType Type { get; set; }
+        public string? ICE { get; set; }
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? TaxNumber { get; set; }
+        public decimal CreditLimit { get; set; }
+        public decimal CurrentBalance { get; set; }
+        public decimal TotalDebit { get; set; }
+        public decimal TotalCredit { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreatePartnerDTO
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Code { get; set; }
+        public PartnerType Type { get; set; }
+        public string? ICE { get; set; }
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; } = "Tunisie";
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? TaxNumber { get; set; }
+        public decimal CreditLimit { get; set; } = 0;
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class UpdatePartnerDTO
+    {
+        public string Name { get; set; } = string.Empty;
+        public string? Code { get; set; }
+        public PartnerType Type { get; set; }
+        public string? ICE { get; set; }
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? PostalCode { get; set; }
+        public string? Country { get; set; }
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? TaxNumber { get; set; }
+        public decimal CreditLimit { get; set; }
+        public bool IsActive { get; set; }
+    }
+    #endregion
+
+    #region Invoice DTOs
+    public class InvoiceDTO
+    {
+        public int Id { get; set; }
+        public string InvoiceNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public string PartnerName { get; set; } = string.Empty;
+        public int JournalId { get; set; }
+        public string JournalName { get; set; } = string.Empty;
+        public DateTime InvoiceDate { get; set; }
+        public DateTime? DueDate { get; set; }
+        public InvoiceType Type { get; set; }
+        public InvoiceStatus Status { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal VATAmount { get; set; }
+        public decimal TotalAmount { get; set; }
+        public decimal PaidAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
+        public string? Notes { get; set; }
+        public string? Reference { get; set; }
+        public DateTime? PostedDate { get; set; }
+        public DateTime? PaidDate { get; set; }
+        public List<InvoiceLineDTO> Lines { get; set; } = new List<InvoiceLineDTO>();
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreateInvoiceDTO
+    {
+        public string InvoiceNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public int JournalId { get; set; }
+        public DateTime InvoiceDate { get; set; } = DateTime.Now;
+        public DateTime? DueDate { get; set; }
+        public InvoiceType Type { get; set; }
+        public string? Notes { get; set; }
+        public string? Reference { get; set; }
+        public List<CreateInvoiceLineDTO> Lines { get; set; } = new List<CreateInvoiceLineDTO>();
+    }
+
+    public class UpdateInvoiceDTO
+    {
+        public string InvoiceNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public int JournalId { get; set; }
+        public DateTime InvoiceDate { get; set; }
+        public DateTime? DueDate { get; set; }
+        public InvoiceType Type { get; set; }
+        public string? Notes { get; set; }
+        public string? Reference { get; set; }
+    }
+
+    public class InvoiceLineDTO
+    {
+        public int Id { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime DateTransaction { get; set; }
-        public int? ClientId { get; set; }
-        public string? ClientNom { get; set; }
-        public int? FournisseurId { get; set; }
-        public string? FournisseurNom { get; set; }
-        public int? EmployeId { get; set; }
-        public string? EmployeNom { get; set; }
-        public int? CategoryId { get; set; }
-        public string? CategoryNom { get; set; }
-        public string Statut { get; set; } = "En attente";
-        public string MethodePaiement { get; set; } = string.Empty;
+        public string? ProductCode { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal Discount { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal LineTotal { get; set; }
+        public decimal VATRate { get; set; }
+        public decimal VATAmount { get; set; }
+        public decimal LineTotalWithVAT { get; set; }
+        public string? Unit { get; set; }
+        public string? AccountCode { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class CreateInvoiceLineDTO
+    {
+        public string Description { get; set; } = string.Empty;
+        public string? ProductCode { get; set; }
+        public decimal Quantity { get; set; } = 1;
+        public decimal UnitPrice { get; set; } = 0;
+        public decimal Discount { get; set; } = 0;
+        public decimal VATRate { get; set; } = 0;
+        public string? Unit { get; set; } = "Unité";
+        public string? AccountCode { get; set; }
+        public string? Notes { get; set; }
+    }
+    #endregion
+
+    #region Payment DTOs
+    public class PaymentDTO
+    {
+        public int Id { get; set; }
+        public string PaymentNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public string PartnerName { get; set; } = string.Empty;
+        public int JournalId { get; set; }
+        public string JournalName { get; set; } = string.Empty;
+        public DateTime PaymentDate { get; set; }
+        public PaymentType Type { get; set; }
+        public PaymentStatus Status { get; set; }
+        public decimal Amount { get; set; }
+        public App.Models.Financial.PaymentMethod Method { get; set; }
+        public string? BankReference { get; set; }
+        public string? CheckNumber { get; set; }
+        public string? Notes { get; set; }
+        public DateTime? PostedDate { get; set; }
+        public List<PaymentTrancheDTO> PaymentTranches { get; set; } = new List<PaymentTrancheDTO>();
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    public class CreatePaymentDTO
+    {
+        public string PaymentNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public int JournalId { get; set; }
+        public DateTime PaymentDate { get; set; } = DateTime.Now;
+        public PaymentType Type { get; set; }
+        public decimal Amount { get; set; } = 0;
+        public App.Models.Financial.PaymentMethod Method { get; set; }
+        public string? BankReference { get; set; }
+        public string? CheckNumber { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class UpdatePaymentDTO
+    {
+        public string PaymentNumber { get; set; } = string.Empty;
+        public int PartnerId { get; set; }
+        public int JournalId { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public PaymentType Type { get; set; }
+        public decimal Amount { get; set; }
+        public App.Models.Financial.PaymentMethod Method { get; set; }
+        public string? BankReference { get; set; }
+        public string? CheckNumber { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    public class PaymentTrancheDTO
+    {
+        public int Id { get; set; }
+        public int PaymentId { get; set; }
+        public int InvoiceId { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public decimal Amount { get; set; }
+        public TrancheStatus Status { get; set; }
+        public string? Reference { get; set; }
+        public string? Notes { get; set; }
+        public DateTime? PostedDate { get; set; }
+    }
+
+    public class CreatePaymentTrancheDTO
+    {
+        public int PaymentId { get; set; }
+        public int InvoiceId { get; set; }
+        public DateTime PaymentDate { get; set; } = DateTime.Now;
+        public decimal Amount { get; set; } = 0;
+        public string? Reference { get; set; }
+        public string? Notes { get; set; }
+    }
+    #endregion
+
+    #region Journal Entry DTOs
+    public class JournalEntryDTO
+    {
+        public int Id { get; set; }
         public string Reference { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
-        public DateTime DateCreation { get; set; }
-        public DateTime DateModification { get; set; }
+        public int JournalId { get; set; }
+        public string JournalName { get; set; } = string.Empty;
+        public int AccountId { get; set; }
+        public string AccountName { get; set; } = string.Empty;
+        public int? PartnerId { get; set; }
+        public string? PartnerName { get; set; }
+        public int? InvoiceId { get; set; }
+        public int? PaymentId { get; set; }
+        public DateTime EntryDate { get; set; }
+        public EntryType Type { get; set; }
+        public decimal Debit { get; set; }
+        public decimal Credit { get; set; }
+        public string? Description { get; set; }
+        public string? DocumentReference { get; set; }
+        public bool IsPosted { get; set; }
+        public DateTime? PostedDate { get; set; }
+        public string? CreatedBy { get; set; }
     }
+    #endregion
 
-    public class CreateTransactionRequest
-    {
-        [Required]
-        public string Type { get; set; } = string.Empty;
-
-        [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Le montant doit être supérieur à zéro")]
-        public decimal Montant { get; set; }
-
-        [Required]
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public DateTime DateTransaction { get; set; }
-
-        public int? ClientId { get; set; }
-        public int? FournisseurId { get; set; }
-        public int? EmployeId { get; set; }
-        public int? CategoryId { get; set; }
-
-        public string Statut { get; set; } = "En attente";
-        public string MethodePaiement { get; set; } = string.Empty;
-        public string Reference { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
-    }
-
-    public class UpdateTransactionRequest : CreateTransactionRequest
+    #region VAT DTOs
+    public class VATDTO
     {
         public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public decimal Rate { get; set; }
+        public string? AccountCode { get; set; }
+        public bool IsActive { get; set; }
+        public string? Description { get; set; }
+        public DateTime? EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
     }
 
-    // Category DTOs
-    public class TransactionCategoryDTO
+    public class CreateVATDTO
+    {
+        public string Name { get; set; } = string.Empty;
+        public decimal Rate { get; set; }
+        public string? AccountCode { get; set; }
+        public bool IsActive { get; set; } = true;
+        public string? Description { get; set; }
+        public DateTime? EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
+    }
+
+    public class UpdateVATDTO
+    {
+        public string Name { get; set; } = string.Empty;
+        public decimal Rate { get; set; }
+        public string? AccountCode { get; set; }
+        public bool IsActive { get; set; }
+        public string? Description { get; set; }
+        public DateTime? EffectiveFrom { get; set; }
+        public DateTime? EffectiveTo { get; set; }
+    }
+    #endregion
+
+    #region Search and Dashboard DTOs
+    public class FinancialSearchDTO
+    {
+        public string? SearchTerm { get; set; }
+        public AccountType? AccountType { get; set; }
+        public JournalType? JournalType { get; set; }
+        public PartnerType? PartnerType { get; set; }
+        public InvoiceType? InvoiceType { get; set; }
+        public InvoiceStatus? InvoiceStatus { get; set; }
+        public PaymentType? PaymentType { get; set; }
+        public PaymentStatus? PaymentStatus { get; set; }
+        public int? PartnerId { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
+        public bool? IsActive { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public string? SortBy { get; set; }
+        public bool SortDescending { get; set; } = false;
+    }
+
+    public class FinancialDashboardDTO
+    {
+        public decimal TotalRevenue { get; set; }
+        public decimal TotalExpenses { get; set; }
+        public decimal NetProfit { get; set; }
+        public int OverdueInvoices { get; set; }
+        public int TotalAccounts { get; set; }
+        public int TotalJournals { get; set; }
+        public int TotalPartners { get; set; }
+        public int TotalInvoices { get; set; }
+        public int TotalPayments { get; set; }
+        public int PendingPayments { get; set; }
+        public List<RecentTransactionDTO> RecentTransactions { get; set; } = new List<RecentTransactionDTO>();
+        public List<AccountBalanceDTO> AccountBalances { get; set; } = new List<AccountBalanceDTO>();
+    }
+
+    public class RecentTransactionDTO
     {
         public int Id { get; set; }
-        public string Nom { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
-        public int? ParentCategoryId { get; set; }
-        public string? ParentCategoryNom { get; set; }
-        public DateTime DateCreation { get; set; }
-        public DateTime DateModification { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
+        public string AccountName { get; set; } = string.Empty;
+        public string? PartnerName { get; set; }
     }
 
-    public class CreateCategoryRequest
+    public class AccountBalanceDTO
     {
-        [Required]
-        public string Nom { get; set; } = string.Empty;
-
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public string Type { get; set; } = string.Empty; // Income, Expense
-
-        public int? ParentCategoryId { get; set; }
+        public int AccountId { get; set; }
+        public string AccountName { get; set; } = string.Empty;
+        public string AccountCode { get; set; } = string.Empty;
+        public decimal Balance { get; set; }
     }
-
-    public class UpdateCategoryRequest : CreateCategoryRequest
-    {
-        public int Id { get; set; }
-    }
-
-    // Budget DTOs
-    public class BudgetDTO
-    {
-        public int Id { get; set; }
-        public string Nom { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public int? CategoryId { get; set; }
-        public string? CategoryNom { get; set; }
-        public decimal MontantPrevu { get; set; }
-        public decimal MontantDepense { get; set; }
-        public DateTime DateDebut { get; set; }
-        public DateTime DateFin { get; set; }
-        public string Statut { get; set; } = "Actif";
-        public string Notes { get; set; } = string.Empty;
-        public DateTime DateCreation { get; set; }
-        public DateTime DateModification { get; set; }
-    }
-
-    public class CreateBudgetRequest
-    {
-        [Required]
-        public string Nom { get; set; } = string.Empty;
-
-        public string Description { get; set; } = string.Empty;
-
-        public int? CategoryId { get; set; }
-
-        [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Le montant prévu doit être supérieur à zéro")]
-        public decimal MontantPrevu { get; set; }
-
-        public decimal MontantDepense { get; set; } = 0;
-
-        [Required]
-        public DateTime DateDebut { get; set; }
-
-        [Required]
-        public DateTime DateFin { get; set; }
-
-        public string Statut { get; set; } = "Actif";
-        public string Notes { get; set; } = string.Empty;
-    }
-
-    public class UpdateBudgetRequest : CreateBudgetRequest
-    {
-        public int Id { get; set; }
-    }
-
-    // Report DTOs
-    public class FinancialReportDTO
-    {
-        public int Id { get; set; }
-        public string Titre { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime DateDebut { get; set; }
-        public DateTime DateFin { get; set; }
-        public DateTime DateGeneration { get; set; }
-        public decimal RevenusTotal { get; set; }
-        public decimal DepensesTotal { get; set; }
-        public decimal Profit { get; set; }
-        public decimal TauxCroissance { get; set; }
-        public string Contenu { get; set; } = string.Empty;
-        public string Type { get; set; } = "Mensuel";
-        public string Statut { get; set; } = "Genere";
-        public DateTime DateCreation { get; set; }
-        public DateTime DateModification { get; set; }
-    }
-
-    public class CreateFinancialReportRequest
-    {
-        [Required]
-        public string Titre { get; set; } = string.Empty;
-
-        public string Description { get; set; } = string.Empty;
-
-        [Required]
-        public DateTime DateDebut { get; set; }
-
-        [Required]
-        public DateTime DateFin { get; set; }
-
-        public decimal RevenusTotal { get; set; } = 0;
-        public decimal DepensesTotal { get; set; } = 0;
-        public decimal Profit { get; set; } = 0;
-        public decimal TauxCroissance { get; set; } = 0;
-
-        public string Contenu { get; set; } = string.Empty;
-
-        public string Type { get; set; } = "Mensuel";
-        public string Statut { get; set; } = "Genere";
-    }
-
-    public class UpdateFinancialReportRequest : CreateFinancialReportRequest
-    {
-        public int Id { get; set; }
-    }
+    #endregion
 }
+

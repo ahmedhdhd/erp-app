@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using App.Models.Financial;
 
 namespace App.Models;
 public class ApplicationDbContext : DbContext
@@ -435,6 +434,234 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Employe>().HasIndex(e => e.CIN).IsUnique();
         modelBuilder.Entity<Utilisateur>().HasIndex(u => u.NomUtilisateur).IsUnique();
         modelBuilder.Entity<Produit>().HasIndex(p => p.Reference).IsUnique();
+
+        // ========== Financial Module Configurations ==========
+        
+        // Account configurations
+        modelBuilder.Entity<App.Models.Financial.Account>(entity =>
+        {
+            entity.ToTable("FinancialAccounts");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Balance).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.ParentAccount)
+                .WithMany(e => e.ChildAccounts)
+                .HasForeignKey(e => e.ParentAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasIndex(e => e.Code).IsUnique();
+        });
+
+        // Journal configurations
+        modelBuilder.Entity<App.Models.Financial.Journal>(entity =>
+        {
+            entity.ToTable("FinancialJournals");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.DefaultDebitAccountCode).HasMaxLength(20);
+            entity.Property(e => e.DefaultCreditAccountCode).HasMaxLength(20);
+            
+            entity.HasIndex(e => e.Code).IsUnique();
+        });
+
+        // Partner configurations
+        modelBuilder.Entity<App.Models.Financial.Partner>(entity =>
+        {
+            entity.ToTable("FinancialPartners");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Code).HasMaxLength(50);
+            entity.Property(e => e.ICE).HasMaxLength(20);
+            entity.Property(e => e.Address).HasMaxLength(500);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.PostalCode).HasMaxLength(20);
+            entity.Property(e => e.Country).HasMaxLength(100);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.TaxNumber).HasMaxLength(20);
+            entity.Property(e => e.CreditLimit).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.CurrentBalance).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TotalDebit).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TotalCredit).HasColumnType("decimal(18,2)");
+            
+            entity.HasIndex(e => e.ICE).IsUnique();
+        });
+
+        // Invoice configurations
+        modelBuilder.Entity<App.Models.Financial.Invoice>(entity =>
+        {
+            entity.ToTable("FinancialInvoices");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.InvoiceNumber).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Reference).HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.VATAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PaidAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RemainingAmount).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Partner)
+                .WithMany(p => p.Invoices)
+                .HasForeignKey(e => e.PartnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Journal)
+                .WithMany(j => j.Invoices)
+                .HasForeignKey(e => e.JournalId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasIndex(e => e.InvoiceNumber).IsUnique();
+        });
+
+        // InvoiceLine configurations
+        modelBuilder.Entity<App.Models.Financial.InvoiceLine>(entity =>
+        {
+            entity.ToTable("FinancialInvoiceLines");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Description).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ProductCode).HasMaxLength(50);
+            entity.Property(e => e.Unit).HasMaxLength(20);
+            entity.Property(e => e.AccountCode).HasMaxLength(100);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Discount).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.LineTotal).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.VATRate).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.VATAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.LineTotalWithVAT).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Invoice)
+                .WithMany(i => i.Lines)
+                .HasForeignKey(e => e.InvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // JournalEntry configurations
+        modelBuilder.Entity<App.Models.Financial.JournalEntry>(entity =>
+        {
+            entity.ToTable("FinancialJournalEntries");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Reference).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.DocumentReference).HasMaxLength(100);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.Debit).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Credit).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Journal)
+                .WithMany(j => j.JournalEntries)
+                .HasForeignKey(e => e.JournalId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Account)
+                .WithMany(a => a.JournalEntries)
+                .HasForeignKey(e => e.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Partner)
+                .WithMany(p => p.JournalEntries)
+                .HasForeignKey(e => e.PartnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Invoice)
+                .WithMany(i => i.JournalEntries)
+                .HasForeignKey(e => e.InvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Payment)
+                .WithMany(p => p.JournalEntries)
+                .HasForeignKey(e => e.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Payment configurations
+        modelBuilder.Entity<App.Models.Financial.Payment>(entity =>
+        {
+            entity.ToTable("FinancialPayments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PaymentNumber).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.BankReference).HasMaxLength(100);
+            entity.Property(e => e.CheckNumber).HasMaxLength(50);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Partner)
+                .WithMany(p => p.Payments)
+                .HasForeignKey(e => e.PartnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Journal)
+                .WithMany(j => j.Payments)
+                .HasForeignKey(e => e.JournalId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasIndex(e => e.PaymentNumber).IsUnique();
+        });
+
+        // PaymentTranche configurations
+        modelBuilder.Entity<App.Models.Financial.PaymentTranche>(entity =>
+        {
+            entity.ToTable("FinancialPaymentTranches");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Reference).HasMaxLength(100);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Payment)
+                .WithMany(p => p.PaymentTranches)
+                .HasForeignKey(e => e.PaymentId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Invoice)
+                .WithMany(i => i.PaymentTranches)
+                .HasForeignKey(e => e.InvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // VAT configurations
+        modelBuilder.Entity<App.Models.Financial.VAT>(entity =>
+        {
+            entity.ToTable("FinancialVATs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.AccountCode).HasMaxLength(20);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Rate).HasColumnType("decimal(5,2)");
+            
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        // Reconciliation configurations
+        modelBuilder.Entity<App.Models.Financial.Reconciliation>(entity =>
+        {
+            entity.ToTable("FinancialReconciliations");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            
+            entity.HasOne(e => e.Invoice)
+                .WithMany()
+                .HasForeignKey(e => e.InvoiceId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Payment)
+                .WithMany()
+                .HasForeignKey(e => e.PaymentId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.PaymentTranche)
+                .WithMany()
+                .HasForeignKey(e => e.PaymentTrancheId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 
     // ========== 1. Gestion de la Relation Client (CRM) ==========
@@ -487,16 +714,23 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaiementClient> PaiementClients { get; set; }
     public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
 
-    // Add Financial module DbSets
-    public DbSet<Transaction> Transactions { get; set; }
-    public DbSet<TransactionCategory> TransactionCategories { get; set; }
-    public DbSet<Budget> Budgets { get; set; }
-    public DbSet<FinancialReport> FinancialReports { get; set; }
 
     // ========== 8. Administration Système ==========
     public DbSet<Utilisateur> Utilisateurs { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<CompanySettings> CompanySettings { get; set; }
+
+    // ========== 8. Financial Module ==========
+    public DbSet<App.Models.Financial.Account> Accounts { get; set; }
+    public DbSet<App.Models.Financial.Journal> Journals { get; set; }
+    public DbSet<App.Models.Financial.Partner> Partners { get; set; }
+    public DbSet<App.Models.Financial.Invoice> Invoices { get; set; }
+    public DbSet<App.Models.Financial.InvoiceLine> InvoiceLines { get; set; }
+    public DbSet<App.Models.Financial.JournalEntry> JournalEntries { get; set; }
+    public DbSet<App.Models.Financial.Payment> Payments { get; set; }
+    public DbSet<App.Models.Financial.PaymentTranche> PaymentTranches { get; set; }
+    public DbSet<App.Models.Financial.VAT> VATs { get; set; }
+    public DbSet<App.Models.Financial.Reconciliation> Reconciliations { get; set; }
 
     // ========== 9. Reporting (These are typically not DbSets as they're for reporting purposes) ==========
     // public DbSet<RapportVente> RapportVentes { get; set; }

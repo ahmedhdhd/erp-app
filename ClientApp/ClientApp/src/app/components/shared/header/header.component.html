@@ -119,20 +119,25 @@
         </li>
 
         <!-- Financial Management -->
-        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Comptable')">
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Vendeur') || hasRole('Acheteur') || hasRole('Finance')">
           <a class="nav-link dropdown-toggle" href="#" role="button" 
              id="financialDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-money-bill-wave"></i>
             Financial
           </a>
           <ul class="dropdown-menu" aria-labelledby="financialDropdown">
-            <li><a class="dropdown-item" routerLink="/financial"><i class="fas fa-tachometer-alt me-2"></i>Financial Dashboard</a></li>
+            <li><a class="dropdown-item" routerLink="/financial"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" routerLink="/financial/transactions"><i class="fas fa-exchange-alt me-2"></i>Transactions</a></li>
-            <li><a class="dropdown-item" routerLink="/financial/transactions/new" *ngIf="hasRole('Admin') || hasRole('Comptable')"><i class="fas fa-plus me-2"></i>New Transaction</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/accounts"><i class="fas fa-chart-bar me-2"></i>Chart of Accounts</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/journals"><i class="fas fa-book me-2"></i>Journals</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" routerLink="/financial/categories"><i class="fas fa-tags me-2"></i>Categories</a></li>
-            <li><a class="dropdown-item" routerLink="/financial/categories/new" *ngIf="hasRole('Admin') || hasRole('Comptable')"><i class="fas fa-plus me-2"></i>New Category</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/partners"><i class="fas fa-handshake me-2"></i>Partners</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/financial/invoices"><i class="fas fa-file-invoice me-2"></i>Invoices</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/payments"><i class="fas fa-credit-card me-2"></i>Payments</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/financial/entries"><i class="fas fa-book-open me-2"></i>Journal Entries</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/reconciliation"><i class="fas fa-sync-alt me-2"></i>Reconciliation</a></li>
           </ul>
         </li>
 

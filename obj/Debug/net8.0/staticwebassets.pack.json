@@ -181,8 +181,24 @@
       "PackagePath": "staticwebassets\\3rdpartylicenses.txt"
     },
     {
-      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\main.30744dc02b8aed16.js",
-      "PackagePath": "staticwebassets\\main.30744dc02b8aed16.js"
+      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\assets\\css\\component-styles.css",
+      "PackagePath": "staticwebassets\\assets\\css\\component-styles.css"
+    },
+    {
+      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\assets\\docs\\styling-guide.md",
+      "PackagePath": "staticwebassets\\assets\\docs\\styling-guide.md"
+    },
+    {
+      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\main.699ae34e412f93d5.js",
+      "PackagePath": "staticwebassets\\main.699ae34e412f93d5.js"
     },
     {
       "Id": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\polyfills.ae91e41ffb49937e.js",

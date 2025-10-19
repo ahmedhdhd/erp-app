@@ -64,16 +64,21 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
 import { StockMovementComponent } from './components/stock-management/stock-movement/stock-movement.component';
 
+// Financial Components
+import { FinancialDashboardComponent } from './components/financial/financial-dashboard/financial-dashboard.component';
+import { AccountListComponent } from './components/financial/accounts/account-list/account-list.component';
+import { AccountFormComponent } from './components/financial/accounts/account-form/account-form.component';
+import { JournalListComponent } from './components/financial/journals/journal-list/journal-list.component';
+import { JournalFormComponent } from './components/financial/journals/journal-form/journal-form.component';
+import { PartnerListComponent } from './components/financial/partners/partner-list/partner-list.component';
+import { PartnerFormComponent } from './components/financial/partners/partner-form/partner-form.component';
+import { InvoiceListComponent } from './components/financial/invoices/invoice-list/invoice-list.component';
+import { InvoiceFormComponent } from './components/financial/invoices/invoice-form/invoice-form.component';
+import { PaymentListComponent } from './components/financial/payments/payment-list/payment-list.component';
+import { PaymentFormComponent } from './components/financial/payments/payment-form/payment-form.component';
+
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
-
-// Financial Components
-import { FinancialDashboardComponent } from './components/financial/financial-dashboard.component';
-import { TransactionListComponent } from './components/financial/transaction-list.component';
-import { TransactionFormComponent } from './components/financial/transaction-form.component';
-import { CategoryListComponent } from './components/financial/category-list.component';
-import { CategoryFormComponent } from './components/financial/category-form.component';
-import { FinancialTestComponent } from './components/financial/financial-test.component';
 
 // Services and Guards
 import { AuthService } from './services/auth.service';
@@ -83,8 +88,8 @@ import { ClientService } from './services/client.service';
 import { ConfigService } from './services/config.service';
 import { PurchaseService } from './services/purchase.service';
 import { SalesService } from './services/sales.service';
-import { FinancialService } from './services/financial.service';
 import { InvoiceService } from './services/invoice.service';
+import { FinancialService } from './services/financial.service';
 import { AuthGuard, AdminGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -140,11 +145,16 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     CompanySettingsComponent,
     // Financial Components
     FinancialDashboardComponent,
-    TransactionListComponent,
-    TransactionFormComponent,
-    CategoryListComponent,
-    CategoryFormComponent,
-    FinancialTestComponent
+    AccountListComponent,
+    AccountFormComponent,
+    JournalListComponent,
+    JournalFormComponent,
+    PartnerListComponent,
+    PartnerFormComponent,
+    InvoiceListComponent,
+    InvoiceFormComponent,
+    PaymentListComponent,
+    PaymentFormComponent,
   ],
   imports: [
     BrowserModule,
@@ -163,8 +173,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     ConfigService,
     PurchaseService,
     SalesService,
-    FinancialService,
     InvoiceService,
+    FinancialService,
     AuthGuard,
     AdminGuard,
     GuestGuard,
