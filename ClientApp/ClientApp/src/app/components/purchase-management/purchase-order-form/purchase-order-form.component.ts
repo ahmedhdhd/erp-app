@@ -6,6 +6,8 @@ import { SupplierService } from '../../../services/supplier.service';
 import { ProductService } from '../../../services/product.service';
 import { AuthService } from '../../../services/auth.service';
 import { PurchaseOrderResponse, CreatePurchaseOrderRequest, UpdatePurchaseOrderRequest, PurchaseApiResponse } from '../../../models/purchase.models';
+import { FinancialService } from '../../../services/financial.service';
+import { ReglementResponse, CreateReglementRequest, UpdateReglementRequest, FinancialApiResponse } from '../../../models/financial.models';
 import { SupplierResponse, SupplierListResponse, SupplierApiResponse } from '../../../models/supplier.models';
 import { ProductResponse, ProductListResponse, ProductApiResponse } from '../../../models/product.models';
 
@@ -36,7 +38,8 @@ export class PurchaseOrderFormComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private financialService: FinancialService
   ) {
     this.purchaseOrderForm = this.createForm();
   }
@@ -197,6 +200,9 @@ export class PurchaseOrderFormComponent implements OnInit {
             
             this.lignes.push(lineGroup);
           });
+
+          // Load reglements for this purchase order
+          this.loadReglements();
         }
         this.loading = false;
       },
@@ -206,6 +212,104 @@ export class PurchaseOrderFormComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  // ========== Reglements UI ==========
+  reglements: ReglementResponse[] = [];
+  isAddingReglement = false;
+  newReglement: any = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+  editingReglementId: number | null = null;
+  editReglement: any = {};
+
+  loadReglements(): void {
+    if (!this.purchaseOrderId) return;
+    this.financialService.getReglementsByPurchaseOrder(this.purchaseOrderId).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse[]>) => {
+        if (res.success) this.reglements = res.data || [];
+      },
+      error: (e) => console.error('Error loading reglements', e)
+    });
+  }
+
+  openAddReglementModal(): void {
+    this.isAddingReglement = true;
+  }
+
+  saveNewReglement(): void {
+    if (!this.purchaseOrderId) return;
+    const payload: CreateReglementRequest = {
+      nature: this.newReglement.nature,
+      numero: this.newReglement.numero,
+      montant: parseFloat(this.newReglement.montant) || 0,
+      date: this.newReglement.date,
+      banque: this.newReglement.banque || null,
+      dateEcheance: this.newReglement.dateEcheance || null,
+      type: 'Fournisseur',
+      fournisseurId: this.purchaseOrderForm.get('fournisseurId')?.value || null,
+      commandeAchatId: this.purchaseOrderId
+    } as any;
+    this.financialService.createReglement(payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.isAddingReglement = false;
+          this.newReglement = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error creating reglement', e)
+    });
+  }
+
+  cancelAddReglement(): void {
+    this.isAddingReglement = false;
+  }
+
+  startEditReglement(r: ReglementResponse): void {
+    this.editingReglementId = r.id;
+    this.editReglement = { ...r, date: (r.date || '').substring(0,10), dateEcheance: r.dateEcheance ? r.dateEcheance.substring(0,10) : '' };
+  }
+
+  saveEditReglement(): void {
+    if (this.editingReglementId == null) return;
+    const payload: UpdateReglementRequest = {
+      id: this.editingReglementId,
+      nature: this.editReglement.nature,
+      numero: this.editReglement.numero,
+      montant: parseFloat(this.editReglement.montant) || 0,
+      date: this.editReglement.date,
+      banque: this.editReglement.banque || null,
+      dateEcheance: this.editReglement.dateEcheance || null,
+      type: 'Fournisseur',
+      fournisseurId: this.purchaseOrderForm.get('fournisseurId')?.value || null,
+      commandeAchatId: this.purchaseOrderId || null
+    } as any;
+    this.financialService.updateReglement(this.editingReglementId, payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.editingReglementId = null;
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error updating reglement', e)
+    });
+  }
+
+  cancelEditReglement(): void {
+    this.editingReglementId = null;
+  }
+
+  confirmDeleteReglement(r: ReglementResponse): void {
+    if (!confirm('Supprimer ce règlement ?')) return;
+    this.financialService.deleteReglement(r.id).subscribe({
+      next: (res: FinancialApiResponse<boolean>) => {
+        if (res.success) this.loadReglements();
+      },
+      error: (e) => console.error('Error deleting reglement', e)
+    });
+  }
+
+  reglementsTotal(): number {
+    return (this.reglements || []).reduce((sum, r) => sum + (r.montant || 0), 0);
   }
 
   // Product search methods

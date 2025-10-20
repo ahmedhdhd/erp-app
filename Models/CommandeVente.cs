@@ -19,5 +19,6 @@ namespace App.Models
         public List<LigneCommandeVente> Lignes { get; set; } = new List<LigneCommandeVente>();
         public List<Livraison> Livraisons { get; set; } = new List<Livraison>();
         public List<FactureVente> Factures { get; set; } = new List<FactureVente>();
+        public List<Reglement> Reglements { get; set; } = new List<Reglement>();
     }
 }

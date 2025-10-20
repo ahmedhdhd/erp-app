@@ -290,6 +290,90 @@
               </div>
             </div>
 
+<!-- Reglements Section (visible only in edit mode) -->
+<div class="form-section" *ngIf="isEditMode && orderId">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="section-title mb-0">
+      <i class="fas fa-money-check-alt me-2"></i>Règlements
+    </h6>
+    <button type="button" class="btn btn-success btn-sm" (click)="openAddReglementModal()">
+      <i class="fas fa-plus me-1"></i>Ajouter un règlement
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-sm">
+      <thead>
+        <tr>
+          <th>Nature</th>
+          <th>Numéro</th>
+          <th class="text-end">Montant</th>
+          <th>Date</th>
+          <th>Banque</th>
+          <th>Échéance</th>
+          <th style="width: 110px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Add mode row -->
+        <tr *ngIf="isAddingReglement">
+          <td><input class="form-control form-control-sm" [(ngModel)]="newReglement.nature" placeholder="Nature"></td>
+          <td><input class="form-control form-control-sm" [(ngModel)]="newReglement.numero" placeholder="Numéro"></td>
+          <td><input type="number" class="form-control form-control-sm text-end" [(ngModel)]="newReglement.montant" placeholder="0.00"></td>
+          <td><input type="date" class="form-control form-control-sm" [(ngModel)]="newReglement.date"></td>
+          <td><input class="form-control form-control-sm" [(ngModel)]="newReglement.banque" placeholder="Banque"></td>
+          <td><input type="date" class="form-control form-control-sm" [(ngModel)]="newReglement.dateEcheance"></td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-success" (click)="saveNewReglement()"><i class="fas fa-check"></i></button>
+              <button type="button" class="btn btn-outline-secondary" (click)="cancelAddReglement()"><i class="fas fa-times"></i></button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngFor="let r of reglements">
+          <!-- Edit mode -->
+          <ng-container *ngIf="editingReglementId === r.id; else viewRow">
+            <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.nature"></td>
+            <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.numero"></td>
+            <td><input type="number" class="form-control form-control-sm text-end" [(ngModel)]="editReglement.montant"></td>
+            <td><input type="date" class="form-control form-control-sm" [(ngModel)]="editReglement.date"></td>
+            <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.banque"></td>
+            <td><input type="date" class="form-control form-control-sm" [(ngModel)]="editReglement.dateEcheance"></td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-success" (click)="saveEditReglement()"><i class="fas fa-check"></i></button>
+                <button type="button" class="btn btn-outline-secondary" (click)="cancelEditReglement()"><i class="fas fa-times"></i></button>
+              </div>
+            </td>
+          </ng-container>
+          <!-- View mode -->
+          <ng-template #viewRow>
+            <td>{{ r.nature }}</td>
+            <td>{{ r.numero }}</td>
+            <td class="text-end">{{ r.montant | number:'1.2-2' }}</td>
+            <td>{{ r.date | date:'yyyy-MM-dd' }}</td>
+            <td>{{ r.banque || '-' }}</td>
+            <td>{{ r.dateEcheance ? (r.dateEcheance | date:'yyyy-MM-dd') : '-' }}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-primary" (click)="startEditReglement(r)"><i class="fas fa-edit"></i></button>
+                <button type="button" class="btn btn-outline-danger" (click)="confirmDeleteReglement(r)"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </ng-template>
+        </tr>
+        <tr *ngIf="!reglements || reglements.length === 0">
+          <td colspan="7" class="text-center text-muted">Aucun règlement</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="text-end mt-2" *ngIf="isEditMode && orderId">
+  <strong>Total Règlements: </strong>
+  <span>{{ reglementsTotal() | number:'1.2-2' }}</span>
+  </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
               <hr>

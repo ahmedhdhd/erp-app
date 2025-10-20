@@ -281,6 +281,57 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(p => p.FournisseurId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Reglement relationships
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Reglements)
+            .WithOne(r => r.Client)
+            .HasForeignKey(r => r.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Fournisseur>()
+            .HasMany(f => f.Reglements)
+            .WithOne(r => r.Fournisseur)
+            .HasForeignKey(r => r.FournisseurId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CommandeVente>()
+            .HasMany(cv => cv.Reglements)
+            .WithOne(r => r.CommandeVente)
+            .HasForeignKey(r => r.CommandeVenteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CommandeAchat>()
+            .HasMany(ca => ca.Reglements)
+            .WithOne(r => r.CommandeAchat)
+            .HasForeignKey(r => r.CommandeAchatId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Journal relationships
+        modelBuilder.Entity<Client>()
+            .HasMany(c => c.Journaux)
+            .WithOne(j => j.Client)
+            .HasForeignKey(j => j.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Fournisseur>()
+            .HasMany(f => f.Journaux)
+            .WithOne(j => j.Fournisseur)
+            .HasForeignKey(j => j.FournisseurId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Reglement>()
+            .HasOne<Journal>()
+            .WithOne(j => j.Reglement)
+            .HasForeignKey<Journal>(j => j.ReglementId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // AccountingEntry relationships
+        modelBuilder.Entity<Journal>()
+            .HasMany<AccountingEntry>()
+            .WithOne(a => a.Journal)
+            .HasForeignKey(a => a.JournalId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // Additional configurations for Purchase Management
         modelBuilder.Entity<DemandeAchat>()
             .HasOne(da => da.Employe)
@@ -483,9 +534,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<FactureAchat> FactureAchats { get; set; }
     public DbSet<LigneFactureAchat> LigneFactureAchats { get; set; }
 
-    // ========== 7. Gestion Financière ==========
-    public DbSet<PaiementClient> PaiementClients { get; set; }
-    public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
+        // ========== 7. Gestion Financière ==========
+        public DbSet<PaiementClient> PaiementClients { get; set; }
+        public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
+        public DbSet<Reglement> Reglements { get; set; }
+        public DbSet<Journal> Journaux { get; set; }
+        public DbSet<AccountingEntry> AccountingEntries { get; set; }
 
 
     // ========== 8. Administration Système ==========

@@ -8,6 +8,8 @@ import { AuthService } from '../../../services/auth.service';
 import { SalesOrderResponse, CreateSalesOrderRequest, UpdateSalesOrderRequest, SalesApiResponse } from '../../../models/sales.models';
 import { ClientResponse, ClientApiResponse, ClientListResponse } from '../../../models/client.models';
 import { ProductResponse, ProductApiResponse, ProductListResponse } from '../../../models/product.models';
+import { FinancialService } from '../../../services/financial.service';
+import { ReglementResponse, CreateReglementRequest, UpdateReglementRequest, FinancialApiResponse } from '../../../models/financial.models';
 
 @Component({
   selector: 'app-order-form',
@@ -52,7 +54,8 @@ export class OrderFormComponent implements OnInit {
     private authService: AuthService,
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private financialService: FinancialService
   ) {
     // Initialize form
     this.orderForm = this.fb.group({
@@ -394,6 +397,104 @@ calculateTTCPrice(lineGroup: FormGroup): void {
   calculateTotalWithVAT(): number {
     const total = this.calculateTotal();
     return total * 1.2; // 20% VAT
+  }
+
+  // ========== Reglements UI ==========
+  reglements: ReglementResponse[] = [];
+  isAddingReglement = false;
+  newReglement: any = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+  editingReglementId: number | null = null;
+  editReglement: any = {};
+
+  private loadReglements(): void {
+    if (!this.orderId) return;
+    this.financialService.getReglementsBySalesOrder(this.orderId).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse[]>) => {
+        if (res.success) this.reglements = res.data || [];
+      },
+      error: (e) => console.error('Error loading reglements', e)
+    });
+  }
+
+  openAddReglementModal(): void {
+    this.isAddingReglement = true;
+  }
+
+  saveNewReglement(): void {
+    if (!this.orderId) return;
+    const payload: CreateReglementRequest = {
+      nature: this.newReglement.nature,
+      numero: this.newReglement.numero,
+      montant: parseFloat(this.newReglement.montant) || 0,
+      date: this.newReglement.date,
+      banque: this.newReglement.banque || null,
+      dateEcheance: this.newReglement.dateEcheance || null,
+      type: 'Client',
+      clientId: this.orderForm.get('clientId')?.value || null,
+      commandeVenteId: this.orderId
+    } as any;
+    this.financialService.createReglement(payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.isAddingReglement = false;
+          this.newReglement = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error creating reglement', e)
+    });
+  }
+
+  cancelAddReglement(): void {
+    this.isAddingReglement = false;
+  }
+
+  startEditReglement(r: ReglementResponse): void {
+    this.editingReglementId = r.id;
+    this.editReglement = { ...r, date: (r.date || '').substring(0,10), dateEcheance: r.dateEcheance ? r.dateEcheance.substring(0,10) : '' };
+  }
+
+  saveEditReglement(): void {
+    if (this.editingReglementId == null) return;
+    const payload: UpdateReglementRequest = {
+      id: this.editingReglementId,
+      nature: this.editReglement.nature,
+      numero: this.editReglement.numero,
+      montant: parseFloat(this.editReglement.montant) || 0,
+      date: this.editReglement.date,
+      banque: this.editReglement.banque || null,
+      dateEcheance: this.editReglement.dateEcheance || null,
+      type: 'Client',
+      clientId: this.orderForm.get('clientId')?.value || null,
+      commandeVenteId: this.orderId || null
+    } as any;
+    this.financialService.updateReglement(this.editingReglementId, payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.editingReglementId = null;
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error updating reglement', e)
+    });
+  }
+
+  cancelEditReglement(): void {
+    this.editingReglementId = null;
+  }
+
+  confirmDeleteReglement(r: ReglementResponse): void {
+    if (!confirm('Supprimer ce règlement ?')) return;
+    this.financialService.deleteReglement(r.id).subscribe({
+      next: (res: FinancialApiResponse<boolean>) => {
+        if (res.success) this.loadReglements();
+      },
+      error: (e) => console.error('Error deleting reglement', e)
+    });
+  }
+
+  reglementsTotal(): number {
+    return (this.reglements || []).reduce((sum, r) => sum + (r.montant || 0), 0);
   }
 
   // Form validation

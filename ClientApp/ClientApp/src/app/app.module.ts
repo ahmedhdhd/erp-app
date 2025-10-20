@@ -67,6 +67,9 @@ import { StockMovementComponent } from './components/stock-management/stock-move
 
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
+import { JournalListComponent } from './components/financial/journal-list/journal-list.component';
+import { FinancialDashboardComponent } from './components/financial/dashboard/financial-dashboard.component';
+import { AccountingListComponent } from './components/financial/accounting/accounting-list.component';
 
 // Services and Guards
 import { AuthService } from './services/auth.service';
@@ -130,6 +133,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HeaderComponent,
     // Company Settings Components
     CompanySettingsComponent,
+    JournalListComponent,
+    FinancialDashboardComponent,
+    AccountingListComponent,
   ],
   imports: [
     BrowserModule,

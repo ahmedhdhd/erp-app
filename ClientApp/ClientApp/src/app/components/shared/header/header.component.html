@@ -22,6 +22,20 @@
           </a>
         </li>
 
+        <!-- Financial -->
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Comptable') || hasRole('Acheteur') || hasRole('Vendeur')">
+          <a class="nav-link dropdown-toggle" href="#" role="button"
+             id="financeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-coins"></i>
+            Finance
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="financeDropdown">
+            <li><a class="dropdown-item" routerLink="/financial/dashboard"><i class="fas fa-chart-line me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/journal"><i class="fas fa-book me-2"></i>Journal</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/accounting"><i class="fas fa-balance-scale me-2"></i>Accounting Entries</a></li>
+          </ul>
+        </li>
+
         <!-- Employee Management -->
         <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('RH') || hasRole('Manager')">
           <a class="nav-link dropdown-toggle" href="#" role="button" 

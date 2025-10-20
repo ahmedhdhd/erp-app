@@ -30,5 +30,7 @@ namespace App.Models
         public List<FactureVente> Factures { get; set; } = new List<FactureVente>();
         public List<RetourVente> Retours { get; set; } = new List<RetourVente>();
         public List<PaiementClient> Paiements { get; set; } = new List<PaiementClient>();
+        public List<Reglement> Reglements { get; set; } = new List<Reglement>();
+        public List<Journal> Journaux { get; set; } = new List<Journal>();
     }
 }

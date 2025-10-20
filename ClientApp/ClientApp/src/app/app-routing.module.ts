@@ -57,6 +57,9 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
+import { JournalListComponent } from './components/financial/journal-list/journal-list.component';
+import { FinancialDashboardComponent } from './components/financial/dashboard/financial-dashboard.component';
+import { AccountingListComponent } from './components/financial/accounting/accounting-list.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -283,6 +286,17 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     component: CategoryManagementComponent,
     data: { requiredRoles: ['Admin', 'RH', 'Inventaire'] }
+  },
+
+  // Financial routes
+  {
+    path: 'financial',
+    canActivate: [AuthGuard],
+    children: [
+      { path: 'journal', component: JournalListComponent },
+      { path: 'dashboard', component: FinancialDashboardComponent },
+      { path: 'accounting', component: AccountingListComponent }
+    ]
   },
 
   // Stock Management routes
