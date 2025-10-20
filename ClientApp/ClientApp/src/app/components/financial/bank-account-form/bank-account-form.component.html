@@ -1,0 +1,68 @@
+<div class="container mt-3">
+  <div class="row">
+    <div class="col-md-8">
+      <h3>{{ isEditMode ? 'Edit Bank Account' : 'Create Bank Account' }}</h3>
+      
+      <form [formGroup]="bankAccountForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="accountNumber" class="form-label">Account Number *</label>
+              <input type="text" class="form-control" id="accountNumber" formControlName="accountNumber"
+                     [class.is-invalid]="bankAccountForm.get('accountNumber')?.invalid && bankAccountForm.get('accountNumber')?.touched">
+              <div class="invalid-feedback" *ngIf="bankAccountForm.get('accountNumber')?.invalid && bankAccountForm.get('accountNumber')?.touched">
+                Account number is required and must be less than 50 characters.
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="currency" class="form-label">Currency *</label>
+              <select class="form-select" id="currency" formControlName="currency"
+                      [class.is-invalid]="bankAccountForm.get('currency')?.invalid && bankAccountForm.get('currency')?.touched">
+                <option *ngFor="let currency of currencies" [value]="currency.value">{{ currency.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="bankName" class="form-label">Bank Name *</label>
+              <input type="text" class="form-control" id="bankName" formControlName="bankName"
+                     [class.is-invalid]="bankAccountForm.get('bankName')?.invalid && bankAccountForm.get('bankName')?.touched">
+              <div class="invalid-feedback" *ngIf="bankAccountForm.get('bankName')?.invalid && bankAccountForm.get('bankName')?.touched">
+                Bank name is required and must be less than 100 characters.
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="accountName" class="form-label">Account Name *</label>
+              <input type="text" class="form-control" id="accountName" formControlName="accountName"
+                     [class.is-invalid]="bankAccountForm.get('accountName')?.invalid && bankAccountForm.get('accountName')?.touched">
+              <div class="invalid-feedback" *ngIf="bankAccountForm.get('accountName')?.invalid && bankAccountForm.get('accountName')?.touched">
+                Account name is required and must be less than 100 characters.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="bankAccountForm.invalid">
+            {{ isEditMode ? 'Update' : 'Create' }} Bank Account
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

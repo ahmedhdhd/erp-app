@@ -63,6 +63,15 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
 import { StockMovementComponent } from './components/stock-management/stock-movement/stock-movement.component';
+// Financial Components
+import { FinancialDashboardComponent } from './components/financial/financial-dashboard/financial-dashboard.component';
+import { AccountListComponent } from './components/financial/account-list/account-list.component';
+import { AccountFormComponent } from './components/financial/account-form/account-form.component';
+import { JournalEntryListComponent } from './components/financial/journal-entry-list/journal-entry-list.component';
+import { JournalEntryFormComponent } from './components/financial/journal-entry-form/journal-entry-form.component';
+import { BankAccountListComponent } from './components/financial/bank-account-list/bank-account-list.component';
+import { BankAccountFormComponent } from './components/financial/bank-account-form/bank-account-form.component';
+import { FinancialReportsComponent } from './components/financial/financial-reports/financial-reports.component';
 
 
 // Shared Components
@@ -77,6 +86,7 @@ import { ConfigService } from './services/config.service';
 import { PurchaseService } from './services/purchase.service';
 import { SalesService } from './services/sales.service';
 import { InvoiceService } from './services/invoice.service';
+import { FinancialService } from './services/financial.service';
 import { AuthGuard, AdminGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -130,6 +140,15 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HeaderComponent,
     // Company Settings Components
     CompanySettingsComponent,
+    // Financial Components
+    FinancialDashboardComponent,
+    AccountListComponent,
+    AccountFormComponent,
+    JournalEntryListComponent,
+    JournalEntryFormComponent,
+    BankAccountListComponent,
+    BankAccountFormComponent,
+    FinancialReportsComponent,
   ],
   imports: [
     BrowserModule,
@@ -149,6 +168,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PurchaseService,
     SalesService,
     InvoiceService,
+    FinancialService,
     AuthGuard,
     AdminGuard,
     GuestGuard,

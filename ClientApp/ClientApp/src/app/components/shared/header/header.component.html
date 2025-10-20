@@ -118,6 +118,27 @@
           </ul>
         </li>
 
+        <!-- Financial Management -->
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Finance')">
+          <a class="nav-link dropdown-toggle" href="#" role="button" 
+             id="financialDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-calculator"></i>
+            Finance
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="financialDropdown">
+            <li><a class="dropdown-item" routerLink="/financial"><i class="fas fa-tachometer-alt me-2"></i>Financial Dashboard</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/reports"><i class="fas fa-chart-pie me-2"></i>Financial Reports</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/financial/accounts"><i class="fas fa-list me-2"></i>Chart of Accounts</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/accounts/new" *ngIf="hasRole('Admin') || hasRole('Finance')"><i class="fas fa-plus me-2"></i>New Account</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/financial/journal-entries"><i class="fas fa-book me-2"></i>Journal Entries</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/journal-entries/new" *ngIf="hasRole('Admin') || hasRole('Finance')"><i class="fas fa-plus me-2"></i>New Journal Entry</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" routerLink="/financial/bank-accounts"><i class="fas fa-university me-2"></i>Bank Accounts</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/bank-accounts/new" *ngIf="hasRole('Admin') || hasRole('Finance')"><i class="fas fa-plus me-2"></i>New Bank Account</a></li>
+          </ul>
+        </li>
 
         <!-- Admin Section -->
         <li class="nav-item dropdown" *ngIf="isAdmin()">

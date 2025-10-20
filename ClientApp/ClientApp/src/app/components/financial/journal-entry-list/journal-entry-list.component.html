@@ -1,0 +1,49 @@
+<div class="container mt-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <h3>Journal Entries</h3>
+    <button class="btn btn-primary" (click)="onCreateNew()">
+      <i class="fas fa-plus"></i> New Journal Entry
+    </button>
+  </div>
+  <table class="table table-sm table-striped mt-2">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Reference</th>
+        <th>Description</th>
+        <th class="text-end">Amount</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let j of entries">
+        <td>{{ j.date | date: 'yyyy-MM-dd' }}</td>
+        <td>{{ j.reference }}</td>
+        <td>{{ j.description }}</td>
+        <td class="text-end">{{ j.totalAmount | number: '1.2-2' }}</td>
+        <td>
+          <span class="badge" 
+                [class.bg-secondary]="j.status === 'Draft'"
+                [class.bg-success]="j.status === 'Posted'"
+                [class.bg-warning]="j.status === 'Reversed'">
+            {{ j.status }}
+          </span>
+        </td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" (click)="onView(j.id)" title="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-outline-secondary" (click)="onEdit(j.id)" title="Edit" 
+                    [disabled]="j.status !== 'Draft'">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+

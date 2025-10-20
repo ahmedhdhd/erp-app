@@ -428,12 +428,44 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(r => r.FactureId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // ========== 7. Gestion Financière ==========
+        modelBuilder.Entity<Account>()
+            .HasOne(a => a.Parent)
+            .WithMany(a => a.Children)
+            .HasForeignKey(a => a.ParentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(j => j.CreatedByUser)
+            .WithMany()
+            .HasForeignKey(j => j.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(j => j.PostedByUser)
+            .WithMany()
+            .HasForeignKey(j => j.PostedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<JournalEntry>()
+            .HasMany(j => j.Lines)
+            .WithOne(l => l.JournalEntry)
+            .HasForeignKey(l => l.JournalEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<JournalEntryLine>()
+            .HasOne(l => l.Account)
+            .WithMany()
+            .HasForeignKey(l => l.AccountId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Configure indexes
         modelBuilder.Entity<Client>().HasIndex(c => c.ICE).IsUnique();
         modelBuilder.Entity<Fournisseur>().HasIndex(f => f.ICE).IsUnique();
         modelBuilder.Entity<Employe>().HasIndex(e => e.CIN).IsUnique();
         modelBuilder.Entity<Utilisateur>().HasIndex(u => u.NomUtilisateur).IsUnique();
         modelBuilder.Entity<Produit>().HasIndex(p => p.Reference).IsUnique();
+        modelBuilder.Entity<Account>().HasIndex(a => a.Code).IsUnique();
 
     }
 
@@ -486,6 +518,10 @@ public class ApplicationDbContext : DbContext
     // ========== 7. Gestion Financière ==========
     public DbSet<PaiementClient> PaiementClients { get; set; }
     public DbSet<PaiementFournisseur> PaiementFournisseurs { get; set; }
+    public DbSet<Account> Accounts { get; set; }
+    public DbSet<JournalEntry> JournalEntries { get; set; }
+    public DbSet<JournalEntryLine> JournalEntryLines { get; set; }
+    public DbSet<BankAccount> BankAccounts { get; set; }
 
 
     // ========== 8. Administration Système ==========
