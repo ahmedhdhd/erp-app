@@ -44,7 +44,6 @@ builder.Services.AddScoped<IFournisseurDAO, FournisseurDAO>();
 builder.Services.AddScoped<ICommandeAchatDAO, CommandeAchatDAO>();
 builder.Services.AddScoped<ICommandeVenteDAO, CommandeVenteDAO>();
 builder.Services.AddScoped<ICompanySettingsDAO, CompanySettingsDAO>();
-builder.Services.AddScoped<IFinancialDAO, FinancialDAO>();
 
 // Register Services
 builder.Services.AddScoped<AuthService>();
@@ -55,7 +54,6 @@ builder.Services.AddScoped<FournisseurService>();
 builder.Services.AddScoped<CommandeAchatService>();
 builder.Services.AddScoped<CommandeVenteService>();
 builder.Services.AddScoped<CompanySettingsService>();
-builder.Services.AddScoped<FinancialService>();
 
 // Logging
 builder.Services.AddLogging();

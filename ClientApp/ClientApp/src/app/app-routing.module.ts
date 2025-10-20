@@ -57,15 +57,6 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
-// Financial Components
-import { FinancialDashboardComponent } from './components/financial/financial-dashboard/financial-dashboard.component';
-import { AccountListComponent } from './components/financial/account-list/account-list.component';
-import { AccountFormComponent } from './components/financial/account-form/account-form.component';
-import { JournalEntryListComponent } from './components/financial/journal-entry-list/journal-entry-list.component';
-import { JournalEntryFormComponent } from './components/financial/journal-entry-form/journal-entry-form.component';
-import { BankAccountListComponent } from './components/financial/bank-account-list/bank-account-list.component';
-import { BankAccountFormComponent } from './components/financial/bank-account-form/bank-account-form.component';
-import { FinancialReportsComponent } from './components/financial/financial-reports/financial-reports.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -308,28 +299,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     component: StockMovementComponent,
     data: { requiredRoles: ['Admin', 'RH', 'Inventaire'] }
-  },
-
-  // Financial routes
-  {
-    path: 'financial',
-    canActivate: [AuthGuard],
-    children: [
-      { path: '', component: FinancialDashboardComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'reports', component: FinancialReportsComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      // Accounts
-      { path: 'accounts', component: AccountListComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'accounts/new', component: AccountFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'accounts/edit/:id', component: AccountFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      // Journal Entries
-      { path: 'journal-entries', component: JournalEntryListComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'journal-entries/new', component: JournalEntryFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'journal-entries/edit/:id', component: JournalEntryFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      // Bank Accounts
-      { path: 'bank-accounts', component: BankAccountListComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'bank-accounts/new', component: BankAccountFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } },
-      { path: 'bank-accounts/edit/:id', component: BankAccountFormComponent, data: { requiredRoles: ['Admin', 'Finance'] } }
-    ]
   },
 
   // Inventory Management (alias for stock)
