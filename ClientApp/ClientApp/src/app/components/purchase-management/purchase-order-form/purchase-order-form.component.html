@@ -279,31 +279,36 @@
                   <thead>
                     <tr>
                       <th>Nature</th>
+                      <th class="text-end">Montant (TND)</th>
                       <th>Numéro</th>
-                      <th class="text-end">Montant</th>
                       <th>Date</th>
                       <th>Banque</th>
-                      <th>Échéance</th>
-                      <th style="width: 110px">Actions</th>
+                      <th>Date Échéance</th>
+                      <th style="width: 80px">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     <!-- Add mode row -->
                     <tr *ngIf="isAddingReglement">
                       <td>
-                        <input class="form-control form-control-sm" [(ngModel)]="newReglement.nature" placeholder="Nature">
+                        <select class="form-control form-control-sm" [(ngModel)]="newReglement.nature">
+                          <option value="Espèce">Espèce</option>
+                          <option value="Chèque">Chèque</option>
+                          <option value="Virement">Virement</option>
+                          <option value="Traite">Traite</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="newReglement.montant" placeholder="0.00" step="0.01">
                       </td>
                       <td>
                         <input class="form-control form-control-sm" [(ngModel)]="newReglement.numero" placeholder="Numéro">
                       </td>
                       <td>
-                        <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="newReglement.montant" placeholder="0.00">
-                      </td>
-                      <td>
                         <input type="date" class="form-control form-control-sm" [(ngModel)]="newReglement.date">
                       </td>
                       <td>
-                        <input class="form-control form-control-sm" [(ngModel)]="newReglement.banque" placeholder="Banque">
+                        <input class="form-control form-control-sm" [(ngModel)]="newReglement.banque" placeholder="Banque (optionnel)">
                       </td>
                       <td>
                         <input type="date" class="form-control form-control-sm" [(ngModel)]="newReglement.dateEcheance">
@@ -318,9 +323,16 @@
                     <tr *ngFor="let r of reglements">
                       <!-- Edit mode -->
                       <ng-container *ngIf="editingReglementId === r.id; else viewRow">
-                        <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.nature"></td>
+                        <td>
+                          <select class="form-control form-control-sm" [(ngModel)]="editReglement.nature">
+                            <option value="Espèce">Espèce</option>
+                            <option value="Chèque">Chèque</option>
+                            <option value="Virement">Virement</option>
+                            <option value="Traite">Traite</option>
+                          </select>
+                        </td>
+                        <td><input type="number" class="form-control form-control-sm text-end" [(ngModel)]="editReglement.montant" step="0.01"></td>
                         <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.numero"></td>
-                        <td><input type="number" class="form-control form-control-sm text-end" [(ngModel)]="editReglement.montant"></td>
                         <td><input type="date" class="form-control form-control-sm" [(ngModel)]="editReglement.date"></td>
                         <td><input class="form-control form-control-sm" [(ngModel)]="editReglement.banque"></td>
                         <td><input type="date" class="form-control form-control-sm" [(ngModel)]="editReglement.dateEcheance"></td>
@@ -334,8 +346,8 @@
                       <!-- View mode -->
                       <ng-template #viewRow>
                         <td>{{ r.nature }}</td>
-                        <td>{{ r.numero }}</td>
                         <td class="text-end">{{ r.montant | number:'1.2-2' }}</td>
+                        <td>{{ r.numero }}</td>
                         <td>{{ r.date | date:'yyyy-MM-dd' }}</td>
                         <td>{{ r.banque || '-' }}</td>
                         <td>{{ r.dateEcheance ? (r.dateEcheance | date:'yyyy-MM-dd') : '-' }}</td>
@@ -354,8 +366,16 @@
                 </table>
               </div>
               <div class="text-end mt-2">
-                <strong>Total Règlements: </strong>
-                <span>{{ reglementsTotal() | number:'1.2-2' }}</span>
+                <div class="row">
+                  <div class="col-md-6">
+                    <strong>Total Règlements: </strong>
+                    <span class="text-success">{{ reglementsTotal() | number:'1.2-2' }} TND</span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Reste à payer: </strong>
+                    <span class="text-danger">{{ getRemainingAmount() | number:'1.2-2' }} TND</span>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -38,4 +38,25 @@ export interface FinancialApiResponse<T> {
   timestamp: string;
 }
 
+export interface JournalSearchRequest {
+  type?: string;
+  ownerId?: number;
+  startDate?: string;
+  endDate?: string;
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortDirection?: string;
+  fournisseurId?: number;
+  clientId?: number;
+}
+
+export interface JournalListResponse {
+  journaux: any[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 

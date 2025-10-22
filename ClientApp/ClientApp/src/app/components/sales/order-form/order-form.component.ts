@@ -497,6 +497,12 @@ calculateTTCPrice(lineGroup: FormGroup): void {
     return (this.reglements || []).reduce((sum, r) => sum + (r.montant || 0), 0);
   }
 
+  getRemainingAmount(): number {
+    const orderTotal = this.orderForm.get('montantTotal')?.value || 0;
+    const reglementsTotal = this.reglementsTotal();
+    return Math.max(0, orderTotal - reglementsTotal);
+  }
+
   // Form validation
   isFieldInvalid(fieldName: string): boolean {
     const field = this.orderForm.get(fieldName);

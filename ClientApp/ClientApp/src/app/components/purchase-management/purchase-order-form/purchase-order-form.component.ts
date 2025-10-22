@@ -312,6 +312,12 @@ export class PurchaseOrderFormComponent implements OnInit {
     return (this.reglements || []).reduce((sum, r) => sum + (r.montant || 0), 0);
   }
 
+  getRemainingAmount(): number {
+    const commandeTotal = this.purchaseOrderForm.get('montantTotal')?.value || 0;
+    const reglementsTotal = this.reglementsTotal();
+    return Math.max(0, commandeTotal - reglementsTotal);
+  }
+
   // Product search methods
   getProductDisplayName(productId: number | null): string {
     if (!productId) return '';

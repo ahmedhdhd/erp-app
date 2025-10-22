@@ -80,6 +80,7 @@ import { ConfigService } from './services/config.service';
 import { PurchaseService } from './services/purchase.service';
 import { SalesService } from './services/sales.service';
 import { InvoiceService } from './services/invoice.service';
+import { FinancialService } from './services/financial.service';
 import { AuthGuard, AdminGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
@@ -155,6 +156,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PurchaseService,
     SalesService,
     InvoiceService,
+    FinancialService,
     AuthGuard,
     AdminGuard,
     GuestGuard,

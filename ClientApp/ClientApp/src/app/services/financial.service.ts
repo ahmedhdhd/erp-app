@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ConfigService } from './config.service';
-import { CreateReglementRequest, UpdateReglementRequest, ReglementResponse, FinancialApiResponse } from '../models/financial.models';
+import { CreateReglementRequest, UpdateReglementRequest, ReglementResponse, FinancialApiResponse, JournalSearchRequest, JournalListResponse } from '../models/financial.models';
 
 @Injectable({ providedIn: 'root' })
 export class FinancialService {
@@ -30,6 +30,25 @@ export class FinancialService {
 
   deleteReglement(id: number): Observable<FinancialApiResponse<boolean>> {
     return this.http.delete<FinancialApiResponse<boolean>>(`${this.baseUrl}/reglement/${id}`);
+  }
+
+  // Journal endpoints
+  searchJournalEntries(filters: JournalSearchRequest): Observable<FinancialApiResponse<JournalListResponse>> {
+    return this.http.post<FinancialApiResponse<JournalListResponse>>(`${this.baseUrl}/journal/search`, filters);
+  }
+
+  getSupplierJournal(supplierId: number, startDate?: string, endDate?: string, page: number = 1, pageSize: number = 20): Observable<FinancialApiResponse<JournalListResponse>> {
+    let url = `${this.baseUrl}/journal/supplier/${supplierId}?page=${page}&pageSize=${pageSize}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+    return this.http.get<FinancialApiResponse<JournalListResponse>>(url);
+  }
+
+  getCustomerJournal(customerId: number, startDate?: string, endDate?: string, page: number = 1, pageSize: number = 20): Observable<FinancialApiResponse<JournalListResponse>> {
+    let url = `${this.baseUrl}/journal/customer/${customerId}?page=${page}&pageSize=${pageSize}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+    return this.http.get<FinancialApiResponse<JournalListResponse>>(url);
   }
 }
 
