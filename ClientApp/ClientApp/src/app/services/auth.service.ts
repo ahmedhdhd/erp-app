@@ -44,9 +44,14 @@ export class AuthService {
    * User login
    */
   login(loginRequest: LoginRequest): Observable<AuthResponse> {
+    console.log('Attempting login with request:', loginRequest);
+    console.log('API URL:', this.apiUrl);
+    console.log('Full login URL:', `${this.apiUrl}/login`);
+    
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginRequest)
       .pipe(
         tap(response => {
+          console.log('Login response:', response);
           if (response.success && response.token && response.userInfo) {
             this.setAuthData(response.token, response.userInfo, response.expiration);
           }
@@ -259,6 +264,15 @@ export class AuthService {
 
   private handleError = (error: HttpErrorResponse): Observable<never> => {
     let apiError: ApiError;
+
+    console.log('Auth Service Error Details:', {
+      error: error,
+      status: error.status,
+      message: error.message,
+      errorObject: error.error,
+      headers: error.headers,
+      url: error.url
+    });
 
     if (error.error instanceof ErrorEvent) {
       // Client-side error
