@@ -19,17 +19,18 @@ builder.Services.AddControllers();
 
 // Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), 
-           sqlServerOptionsAction: sqlOptions =>
-           {
-               sqlOptions.EnableRetryOnFailure(
-                   maxRetryCount: 5,
-                   maxRetryDelay: TimeSpan.FromSeconds(30),
-                   errorNumbersToAdd: null);
-           })
-           .LogTo(Console.WriteLine, LogLevel.Information)
-           .EnableSensitiveDataLogging()
-           .EnableDetailedErrors());
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        })
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors());
 
 // JWT Authentication & Authorization
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -61,7 +62,7 @@ builder.Services.AddScoped<ReglementService>();
 // Logging
 builder.Services.AddLogging();
 
-// CORS
+// CORS (optional since same domain, but safe)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("_myAllowSpecificOrigins", policy =>
@@ -98,14 +99,10 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            new string[] { }
         }
     });
 
-    // Ensure all APIs are documented
-    c.TagActionsBy(api => new[] { api.GroupName ?? api.RelativePath.Split('/')[0] });
-    c.OrderActionsBy((apiDesc) => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
-    
     // Optional: XML comments for Swagger docs
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -116,80 +113,31 @@ builder.Services.AddSwaggerGen(c =>
 // -------------------- App --------------------
 var app = builder.Build();
 
-// Swagger - Always enable for testing purposes
-// if (app.Environment.IsDevelopment())
-// {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-// }
+// -------------------- Middleware Order --------------------
 
-// HTTPS
+// ✅ 1. Serve Angular static files first
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// ✅ 2. HTTPS redirect
 app.UseHttpsRedirection();
 
-// CORS
+// ✅ 3. Swagger (keep enabled for tests)
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// ✅ 4. CORS (optional for same-origin, but harmless)
 app.UseCors("_myAllowSpecificOrigins");
 
-// Authentication & Authorization
+// ✅ 5. Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Controllers
+// ✅ 6. API controllers
 app.MapControllers();
 
-// Static files & SPA fallback
-app.UseStaticFiles();
+// ✅ 7. Fallback to Angular index.html for SPA routes
 app.MapFallbackToFile("index.html");
 
-// -------------------- Dev-only seeding --------------------
-// using (var scope = app.Services.CreateScope())
-// {
-//     var services = scope.ServiceProvider;
-//     try
-//     {
-//         var db = services.GetRequiredService<ApplicationDbContext>();
-//         if (!db.Utilisateurs.Any())
-//         {
-//             var defaultEmployee = db.Employes.FirstOrDefault() ?? new Employe
-//             {
-//                 Nom = "Admin",
-//                 Prenom = "Default",
-//                 CIN = Guid.NewGuid().ToString("N").Substring(0, 8),
-//                 Poste = "Admin",
-//                 Departement = "IT",
-//                 Email = "admin@example.com",
-//                 Telephone = "000000000",
-//                 SalaireBase = 0,
-//                 Prime = 0,
-//                 DateEmbauche = DateTime.UtcNow,
-//                 Statut = "Actif"
-//             };
-
-//             if (defaultEmployee.Id == 0)
-//             {
-//                 db.Employes.Add(defaultEmployee);
-//                 db.SaveChanges();
-//             }
-
-//             // password: Admin@123
-//             using var sha = System.Security.Cryptography.SHA256.Create();
-//             var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes("Admin@123")));
-
-//             db.Utilisateurs.Add(new Utilisateur
-//             {
-//                 NomUtilisateur = "admin",
-//                 MotDePasse = hash,
-//                 Role = "Admin",
-//                 EmployeId = defaultEmployee.Id,
-//                 EstActif = true
-//             });
-//             db.SaveChanges();
-//         }
-//     }
-//     catch (Exception ex)
-//     {
-//         var logger = services.GetRequiredService<ILogger<Program>>();
-//         logger.LogError(ex, "Erreur durant le seeding de l'admin par défaut");
-//     }
-// }
-
+// ✅ 8. Run the app
 app.Run();
