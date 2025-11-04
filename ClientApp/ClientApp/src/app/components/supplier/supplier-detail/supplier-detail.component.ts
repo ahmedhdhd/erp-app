@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SupplierService } from '../../../services/supplier.service';
 import { SupplierResponse } from '../../../models/supplier.models';
 
@@ -11,7 +11,11 @@ import { SupplierResponse } from '../../../models/supplier.models';
 export class SupplierDetailComponent implements OnInit {
   supplier?: SupplierResponse;
 
-  constructor(private route: ActivatedRoute, private supplierService: SupplierService) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
+    private supplierService: SupplierService
+  ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -21,6 +25,10 @@ export class SupplierDetailComponent implements OnInit {
       });
     }
   }
+
+  editSupplier(): void {
+    if (this.supplier) {
+      this.router.navigate(['/suppliers', this.supplier.id, 'edit']);
+    }
+  }
 }
-
-

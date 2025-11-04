@@ -31,6 +31,40 @@ export class PurchaseOrderFormComponent implements OnInit {
   showProductDropdownForIndex: number | null = null;
   filteredProducts: { [key: number]: ProductResponse[] } = {};
   
+  getLineTotalTTC(line: any): number {
+    const quantity = line.get('quantite')?.value || 0;
+    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
+    return quantity * prixTTC;
+  }
+
+  // Calculation methods for order summary
+  calculateSubtotal(): number {
+    let subtotal = 0;
+    for (let i = 0; i < this.lignes.length; i++) {
+      const line = this.lignes.at(i);
+      const quantity = line.get('quantite')?.value || 0;
+      const prixHT = line.get('prixUnitaireHT')?.value || 0;
+      subtotal += quantity * prixHT;
+    }
+    return subtotal;
+  }
+
+  calculateTotal(): number {
+    return this.calculateSubtotal();
+  }
+
+  calculateTotalWithVAT(): number {
+    const totalHT = this.calculateTotal();
+    return totalHT * 1.2; // 20% VAT
+  }
+
+  // ========== Reglements UI ==========
+  reglements: ReglementResponse[] = [];
+  isAddingReglement = false;
+  newReglement: any = { nature: 'Espèce', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+  editingReglementId: number | null = null;
+  editReglement: any = {};
+  
   constructor(
     private fb: FormBuilder,
     private purchaseService: PurchaseService,
@@ -93,7 +127,6 @@ export class PurchaseOrderFormComponent implements OnInit {
     return group;
   }
 
- 
   get lignes(): FormArray {
     return this.purchaseOrderForm.get('lignes') as FormArray;
   }
@@ -200,28 +233,102 @@ export class PurchaseOrderFormComponent implements OnInit {
             
             this.lignes.push(lineGroup);
           });
-
-          // Load reglements for this purchase order
+          
+          // Load reglements for the order
           this.loadReglements();
         }
         this.loading = false;
       },
       error: (err: any) => {
+        console.error('Error loading purchase order:', err);
         this.error = 'Error loading purchase order';
         this.loading = false;
-        console.error(err);
       }
     });
   }
 
-  // ========== Reglements UI ==========
-  reglements: ReglementResponse[] = [];
-  isAddingReglement = false;
-  newReglement: any = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
-  editingReglementId: number | null = null;
-  editReglement: any = {};
+  onSubmit(): void {
+    if (this.purchaseOrderForm.valid) {
+      this.loading = true;
+      this.error = null;
+      this.successMessage = null;
 
-  loadReglements(): void {
+      const formValue = this.purchaseOrderForm.value;
+      const currentUser = this.authService.getCurrentUser();
+      const userName = currentUser ? `${currentUser.prenomEmploye} ${currentUser.nomEmploye}` : 'Utilisateur inconnu';
+      
+      const request: CreatePurchaseOrderRequest | UpdatePurchaseOrderRequest = {
+        fournisseurId: formValue.fournisseurId,
+        dateLivraisonPrevue: new Date(formValue.dateLivraisonPrevue),
+        lignes: formValue.lignes.map((line: any) => ({
+          produitId: line.produitId,
+          quantite: line.quantite,
+          prixUnitaireHT: line.prixUnitaireHT,
+          tauxTVA: line.tauxTVA,
+          prixUnitaireTTC: line.prixUnitaireTTC
+        }))
+      };
+
+      // Only add demandeId if it's provided and not null
+      if (formValue.demandeId !== null && formValue.demandeId !== undefined && formValue.demandeId !== '') {
+        request.demandeId = formValue.demandeId;
+      }
+
+      if (this.isEditMode && this.purchaseOrderId) {
+        this.purchaseService.updatePurchaseOrder(this.purchaseOrderId, request as UpdatePurchaseOrderRequest).subscribe({
+          next: (response: PurchaseApiResponse<PurchaseOrderResponse>) => {
+            this.loading = false;
+            if (response.success) {
+              this.successMessage = 'Purchase order updated successfully';
+              // Reload reglements after saving
+              this.loadReglements();
+              setTimeout(() => {
+                this.router.navigate(['/purchase-orders']);
+              }, 2000);
+            } else {
+              this.error = response.message || 'Failed to update purchase order';
+            }
+          },
+          error: (err: any) => {
+            this.loading = false;
+            this.error = 'Error updating purchase order';
+            console.error(err);
+          }
+        });
+      } else {
+        this.purchaseService.createPurchaseOrder(request as CreatePurchaseOrderRequest).subscribe({
+          next: (response: PurchaseApiResponse<PurchaseOrderResponse>) => {
+            this.loading = false;
+            if (response.success) {
+              this.successMessage = 'Purchase order created successfully';
+              // Set the purchaseOrderId so we can add reglements
+              this.purchaseOrderId = response.data?.id || null;
+              this.isEditMode = true;
+              // Reload reglements after saving
+              this.loadReglements();
+              setTimeout(() => {
+                this.router.navigate(['/purchase-orders']);
+              }, 2000);
+            } else {
+              this.error = response.message || 'Failed to create purchase order';
+            }
+          },
+          error: (err: any) => {
+            this.loading = false;
+            this.error = 'Error creating purchase order';
+            console.error(err);
+          }
+        });
+      }
+    }
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/purchase-orders']);
+  }
+  
+  // ========== Reglements UI Methods ==========
+  private loadReglements(): void {
     if (!this.purchaseOrderId) return;
     this.financialService.getReglementsByPurchaseOrder(this.purchaseOrderId).subscribe({
       next: (res: FinancialApiResponse<ReglementResponse[]>) => {
@@ -252,7 +359,7 @@ export class PurchaseOrderFormComponent implements OnInit {
       next: (res: FinancialApiResponse<ReglementResponse>) => {
         if (res.success) {
           this.isAddingReglement = false;
-          this.newReglement = { nature: 'Espece', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+          this.newReglement = { nature: 'Espèce', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
           this.loadReglements();
         }
       },
@@ -313,41 +420,53 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   getRemainingAmount(): number {
-    const commandeTotal = this.purchaseOrderForm.get('montantTotal')?.value || 0;
+    const orderTotal = this.calculateTotalWithVAT();
     const reglementsTotal = this.reglementsTotal();
-    return Math.max(0, commandeTotal - reglementsTotal);
+    return Math.max(0, orderTotal - reglementsTotal);
   }
 
-  // Product search methods
-  getProductDisplayName(productId: number | null): string {
-    if (!productId) return '';
-    const product = this.products.find(p => p.id === productId);
+  // Add the missing methods
+  calculateTTCPrice(lineGroup: FormGroup): void {
+    const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
+    const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
+    const prixTTC = prixHT * (1 + tauxTVA / 100);
+    
+    console.log('Calculating TTC in purchase form:', { prixHT, tauxTVA, prixTTC });
+    
+    // Round to 3 decimal places to avoid floating point precision issues
+    const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
+    
+    lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
+  }
+
+  refreshFilteredProducts(): void {
+    if (this.showProductDropdownForIndex !== null) {
+      // If a dropdown is currently shown, refresh its content
+      this.showProductDropdown(this.showProductDropdownForIndex);
+    }
+  }
+
+  showProductDropdown(index: number): void {
+    this.showProductDropdownForIndex = index;
+    // Implementation would go here if needed
+  }
+
+  // Add the missing methods that are referenced in the template
+  getProductDisplayName(produitId: number): string {
+    if (!produitId) return '';
+    const product = this.products.find(p => p.id === produitId);
     return product ? `${product.reference} - ${product.designation}` : '';
-  }
-
-  // Get selected product IDs from all lines except the current one
-  getSelectedProductIds(excludeIndex: number): number[] {
-    const selectedIds: number[] = [];
-    this.lignes.controls.forEach((line, index) => {
-      if (index !== excludeIndex) {
-        const produitId = line.get('produitId')?.value;
-        if (produitId) {
-          selectedIds.push(produitId);
-        }
-      }
-    });
-    return selectedIds;
   }
 
   onProductSearch(event: any, index: number): void {
     const searchTerm = event.target.value.toLowerCase();
     const selectedProductIds = this.getSelectedProductIds(index);
     
-    if (searchTerm.length > 0) {
+    if (searchTerm) {
       this.filteredProducts[index] = this.products.filter(product => 
-        !selectedProductIds.includes(product.id) && // Exclude already selected products
+        !selectedProductIds.includes(product.id) &&
         (product.reference.toLowerCase().includes(searchTerm) || 
-        product.designation.toLowerCase().includes(searchTerm))
+         product.designation.toLowerCase().includes(searchTerm))
       );
     } else {
       // When no search term, show all products except already selected ones
@@ -358,18 +477,6 @@ export class PurchaseOrderFormComponent implements OnInit {
     this.showProductDropdownForIndex = index;
   }
 
-  showProductDropdown(index: number): void {
-    this.showProductDropdownForIndex = index;
-    const selectedProductIds = this.getSelectedProductIds(index);
-    
-    // Show all products except already selected ones
-    if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
-      this.filteredProducts[index] = this.products.filter(product => 
-        !selectedProductIds.includes(product.id)
-      );
-    }
-  }
-
   hideProductDropdown(index: number, event: any): void {
     // Delay hiding to allow click events to register
     setTimeout(() => {
@@ -378,155 +485,47 @@ export class PurchaseOrderFormComponent implements OnInit {
   }
 
   selectProduct(index: number, product: ProductResponse): void {
-  console.log('Selecting product:', product);
-  const lineGroup = this.lignes.at(index) as FormGroup;
-  
-  if (lineGroup) {
-    // Set all the product-related values
-    lineGroup.patchValue({
-      produitId: product.id,
-      prixUnitaireHT: product.prixAchatHT || 0,
-      tauxTVA: product.tauxTVA || 0
-    });
+    console.log('Selecting product:', product);
+    const lineGroup = this.lignes.at(index) as FormGroup;
     
-    // Calculate TTC price after setting the values
-    setTimeout(() => {
-      this.calculateTTCPrice(lineGroup);
-      console.log('Line group after selection:', lineGroup.value);
-    }, 0);
-  }
-  
-  // Hide the dropdown
-  this.showProductDropdownForIndex = null;
-  
-  // Clear the filtered products for this index
-  if (this.filteredProducts[index]) {
-    delete this.filteredProducts[index];
-  }
-  
-  // Refresh filtered products for other lines to exclude this newly selected product
-  this.refreshFilteredProducts();
-}
-
-// Refresh filtered products for all lines
-refreshFilteredProducts(): void {
-  if (this.showProductDropdownForIndex !== null) {
-    // If a dropdown is currently shown, refresh its content
-    this.showProductDropdown(this.showProductDropdownForIndex);
-  }
-}
-
-// Improved calculateTTCPrice method
-calculateTTCPrice(lineGroup: FormGroup): void {
-  const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
-  const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
-  const prixTTC = prixHT * (1 + tauxTVA / 100);
-  
-  console.log('Calculating TTC:', { prixHT, tauxTVA, prixTTC });
-  
-  // Round to 3 decimal places to avoid floating point precision issues
-  const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
-  
-  lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
-}
-
-  getLineTotalTTC(line: any): number {
-    const quantity = line.get('quantite')?.value || 0;
-    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
-    return quantity * prixTTC;
-  }
-
-  // Calculation methods for order summary
-  calculateSubtotal(): number {
-    let subtotal = 0;
-    for (let i = 0; i < this.lignes.length; i++) {
-      const line = this.lignes.at(i);
-      const quantity = line.get('quantite')?.value || 0;
-      const prixHT = line.get('prixUnitaireHT')?.value || 0;
-      subtotal += quantity * prixHT;
-    }
-    return subtotal;
-  }
-
-  calculateTotal(): number {
-    return this.calculateSubtotal();
-  }
-
-  calculateTotalWithVAT(): number {
-    const totalHT = this.calculateTotal();
-    return totalHT * 1.2; // 20% VAT
-  }
-
-  onSubmit(): void {
-    if (this.purchaseOrderForm.valid) {
-      this.loading = true;
-      this.error = null;
-      this.successMessage = null;
-
-      const formValue = this.purchaseOrderForm.value;
-      const currentUser = this.authService.getCurrentUser();
-      const userName = currentUser ? `${currentUser.prenomEmploye} ${currentUser.nomEmploye}` : 'Utilisateur inconnu';
+    if (lineGroup) {
+      // Set all the product-related values
+      lineGroup.patchValue({
+        produitId: product.id,
+        prixUnitaireHT: product.prixAchatHT || 0,
+        tauxTVA: product.tauxTVA || 0
+      });
       
-      const request: CreatePurchaseOrderRequest | UpdatePurchaseOrderRequest = {
-        fournisseurId: formValue.fournisseurId,
-        dateLivraisonPrevue: new Date(formValue.dateLivraisonPrevue),
-        lignes: formValue.lignes.map((line: any) => ({
-          produitId: line.produitId,
-          quantite: line.quantite,
-          prixUnitaireHT: line.prixUnitaireHT,
-          tauxTVA: line.tauxTVA,
-          prixUnitaireTTC: line.prixUnitaireTTC
-        }))
-      };
-
-      // Only add demandeId if it's provided and not null
-      if (formValue.demandeId !== null && formValue.demandeId !== undefined && formValue.demandeId !== '') {
-        request.demandeId = formValue.demandeId;
-      }
-
-      if (this.isEditMode && this.purchaseOrderId) {
-        this.purchaseService.updatePurchaseOrder(this.purchaseOrderId, request as UpdatePurchaseOrderRequest).subscribe({
-          next: (response: PurchaseApiResponse<PurchaseOrderResponse>) => {
-            this.loading = false;
-            if (response.success) {
-              this.successMessage = 'Purchase order updated successfully';
-              setTimeout(() => {
-                this.router.navigate(['/purchase-orders']);
-              }, 2000);
-            } else {
-              this.error = response.message || 'Failed to update purchase order';
-            }
-          },
-          error: (err: any) => {
-            this.loading = false;
-            this.error = 'Error updating purchase order';
-            console.error(err);
-          }
-        });
-      } else {
-        this.purchaseService.createPurchaseOrder(request as CreatePurchaseOrderRequest).subscribe({
-          next: (response: PurchaseApiResponse<PurchaseOrderResponse>) => {
-            this.loading = false;
-            if (response.success) {
-              this.successMessage = 'Purchase order created successfully';
-              setTimeout(() => {
-                this.router.navigate(['/purchase-orders']);
-              }, 2000);
-            } else {
-              this.error = response.message || 'Failed to create purchase order';
-            }
-          },
-          error: (err: any) => {
-            this.loading = false;
-            this.error = 'Error creating purchase order';
-            console.error(err);
-          }
-        });
-      }
+      // Calculate TTC price after setting the values
+      setTimeout(() => {
+        this.calculateTTCPrice(lineGroup);
+        console.log('Line group after selection:', lineGroup.value);
+      }, 0);
     }
+    
+    // Hide the dropdown
+    this.showProductDropdownForIndex = null;
+    
+    // Clear the filtered products for this index
+    if (this.filteredProducts[index]) {
+      delete this.filteredProducts[index];
+    }
+    
+    // Refresh filtered products for other lines to exclude this newly selected product
+    this.refreshFilteredProducts();
   }
 
-  onCancel(): void {
-    this.router.navigate(['/purchase-orders']);
+  // Helper method to get selected product IDs except for the current line
+  private getSelectedProductIds(excludeIndex: number): number[] {
+    const selectedIds: number[] = [];
+    this.lignes.controls.forEach((line, index) => {
+      if (index !== excludeIndex) {
+        const produitId = line.get('produitId')?.value;
+        if (produitId) {
+          selectedIds.push(produitId);
+        }
+      }
+    });
+    return selectedIds;
   }
 }

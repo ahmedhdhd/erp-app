@@ -60,6 +60,10 @@ import { CompanySettingsComponent } from './components/company-settings/company-
 import { JournalListComponent } from './components/financial/journal-list/journal-list.component';
 import { FinancialDashboardComponent } from './components/financial/dashboard/financial-dashboard.component';
 import { AccountingListComponent } from './components/financial/accounting/accounting-list.component';
+import { SupplierJournalComponent } from './components/financial/supplier-journal/supplier-journal.component';
+import { CustomerJournalComponent } from './components/financial/customer-journal/customer-journal.component';
+import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
+import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -294,6 +298,8 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'journal', component: JournalListComponent },
+      { path: 'supplier-journal', component: SupplierJournalComponent },
+      { path: 'customer-journal', component: CustomerJournalComponent },
       { path: 'dashboard', component: FinancialDashboardComponent },
       { path: 'accounting', component: AccountingListComponent }
     ]
@@ -321,7 +327,23 @@ const routes: Routes = [
     redirectTo: '/stock'
   },
 
-
+  // HR Management routes
+  {
+    path: 'hr',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'situation-familiale/:id',
+        component: SituationFamilialeComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      },
+      {
+        path: 'etat-de-paie',
+        component: EtatDePaieComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      }
+    ]
+  },
 
   // Admin routes
   {
@@ -351,4 +373,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
- 

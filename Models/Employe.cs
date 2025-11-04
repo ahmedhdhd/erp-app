@@ -17,6 +17,11 @@ namespace App.Models
         public decimal Prime { get; set; }
         public DateTime DateEmbauche { get; set; }
         public string Statut { get; set; } // Actif, Inactif, Suspendu
+        
+        // ========== HR - Payroll Relationships ==========
+        public SituationFamiliale SituationFamiliale { get; set; }
+        public List<EtatDePaie> EtatsDePaie { get; set; } = new List<EtatDePaie>();
+        
         public List<ActiviteEmploye> Activites { get; set; } = new List<ActiviteEmploye>();
         public List<DemandeAchat> DemandesAchat { get; set; } = new List<DemandeAchat>();
         public Utilisateur? Utilisateur { get; set; }

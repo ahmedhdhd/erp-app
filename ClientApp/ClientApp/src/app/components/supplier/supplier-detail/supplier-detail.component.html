@@ -1,48 +1,58 @@
-<div class="container-fluid" *ngIf="supplier">
-  <!-- Header -->
+<div class="container-fluid">
   <div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-      <div>
-        <h2 class="mb-2">
-          <i class="fas fa-truck"></i>
-          Détails Fournisseur
-        </h2>
-        <p class="text-muted mb-0">
-          <code>{{ supplier.ice }}</code>
-        </p>
-      </div>
-      <div class="btn-group" role="group">
-        <a class="btn btn-outline-secondary" [routerLink]="['/suppliers']">
-          <i class="fas fa-arrow-left"></i>
-          Retour
-        </a>
-        <a class="btn btn-warning" [routerLink]="['/suppliers', supplier.id, 'edit']">
-          <i class="fas fa-edit"></i>
-          Modifier
-        </a>
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-0">
+            <i class="fas fa-truck"></i>
+            Détails du Fournisseur
+          </h2>
+          <p class="text-muted mb-0">{{ supplier?.raisonSociale }}</p>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-primary" *ngIf="supplier" (click)="editSupplier()">
+            <i class="fas fa-edit"></i> Modifier
+          </button>
+          <button type="button" class="btn btn-outline-secondary" routerLink="/suppliers">
+            <i class="fas fa-arrow-left"></i> Retour
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Details Cards (employee-style) -->
   <div class="row">
     <div class="col-lg-8 mb-3">
-      <div class="card shadow-sm h-100">
+      <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0"><i class="fas fa-building me-2"></i>Informations Générales</h5>
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-md-6 mb-2"><strong>Raison sociale:</strong> {{ supplier.raisonSociale }}</div>
-            <div class="col-md-6 mb-2"><strong>Type:</strong> <span class="badge bg-secondary">{{ supplier.typeFournisseur }}</span></div>
-            <div class="col-md-6 mb-2"><strong>ICE:</strong> <code>{{ supplier.ice }}</code></div>
-            <div class="col-md-6 mb-2"><strong>Ville:</strong> {{ supplier.ville }}</div>
-            <div class="col-md-12 mb-2"><strong>Adresse:</strong> {{ supplier.adresse }}, {{ supplier.codePostal }}, {{ supplier.pays }}</div>
-            <div class="col-md-6 mb-2"><strong>Téléphone:</strong> {{ supplier.telephone }}</div>
-            <div class="col-md-6 mb-2"><strong>Email:</strong> {{ supplier.email }}</div>
-            <div class="col-md-6 mb-2"><strong>Cond. paiement:</strong> {{ supplier.conditionsPaiement }}</div>
-            <div class="col-md-6 mb-2"><strong>Délai moyen:</strong> {{ supplier.delaiLivraisonMoyen }} j</div>
-            <div class="col-md-6 mb-2"><strong>Note qualité:</strong> {{ supplier.noteQualite }}</div>
+            <div class="col-md-6 mb-3">
+              <strong>Raison sociale:</strong>
+              <div class="text-muted">{{ supplier?.raisonSociale }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Type:</strong>
+              <div class="text-muted">{{ supplier?.typeFournisseur }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>ICE:</strong>
+              <div class="text-muted">{{ supplier?.ice }}</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <strong>Pays:</strong>
+              <div class="text-muted">{{ supplier?.pays }}</div>
+            </div>
+            <div class="col-md-6 mb-2"><strong>Adresse:</strong> {{ supplier?.adresse }}</div>
+            <div class="col-md-6 mb-2"><strong>Ville:</strong> {{ supplier?.ville }}</div>
+            <div class="col-md-6 mb-2"><strong>Code postal:</strong> {{ supplier?.codePostal }}</div>
+            <div class="col-md-6 mb-2"><strong>Téléphone:</strong> {{ supplier?.telephone }}</div>
+            <div class="col-md-6 mb-2"><strong>Email:</strong> {{ supplier?.email }}</div>
+            <div class="col-md-6 mb-2"><strong>Cond. paiement:</strong> {{ supplier?.conditionsPaiement }}</div>
+            <div class="col-md-6 mb-2"><strong>Délai moyen:</strong> {{ supplier?.delaiLivraisonMoyen }} j</div>
+            <div class="col-md-6 mb-2"><strong>Note qualité:</strong> {{ supplier?.noteQualite }}</div>
           </div>
         </div>
       </div>
@@ -54,9 +64,9 @@
           <h5 class="mb-0"><i class="fas fa-address-book me-2"></i>Contacts</h5>
         </div>
         <div class="card-body">
-          <div *ngIf="supplier.contacts?.length; else noContacts">
+          <div *ngIf="supplier?.contacts?.length; else noContacts">
             <ul class="list-group list-group-flush">
-              <li class="list-group-item" *ngFor="let c of supplier.contacts">
+              <li class="list-group-item" *ngFor="let c of supplier?.contacts">
                 <strong>{{ c.nom }}</strong>
                 <div class="small text-muted">{{ c.poste }}</div>
                 <div class="small text-muted mt-1">
@@ -75,4 +85,13 @@
   </div>
 </div>
 
-
+<div class="container-fluid" *ngIf="!supplier">
+  <div class="row">
+    <div class="col-12 text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement des détails du fournisseur...</p>
+    </div>
+  </div>
+</div>

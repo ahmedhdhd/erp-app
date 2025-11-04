@@ -63,6 +63,10 @@ namespace App.Services
                 Date = entity.Date
             };
             _db.AccountingEntries.Add(entry);
+            
+            // Update CommandeAchat or CommandeVente if linked
+            await UpdateCommandeTotals(entity);
+
             await _db.SaveChangesAsync();
 
             return Success(MapToDTO(entity));
@@ -72,6 +76,9 @@ namespace App.Services
         {
             var entity = await _dao.GetByIdAsync(request.Id);
             if (entity == null) return Failure<ReglementDTO>("Règlement introuvable");
+
+            // Store old amount for adjustment
+            var oldMontant = entity.Montant;
 
             entity.Nature = request.Nature;
             entity.Numero = request.Numero;
@@ -107,15 +114,22 @@ namespace App.Services
                     entry.CompteDebit = entity.Type == "Client" ? "5111" : "4011";
                     entry.CompteCredit = entity.Nature == "Espece" ? "5311" : entity.Nature == "Virement" ? "5121" : "5119";
                     _db.AccountingEntries.Update(entry);
-                    await _db.SaveChangesAsync();
                 }
             }
+
+            // Update CommandeAchat or CommandeVente if linked
+            await UpdateCommandeTotals(entity);
+
+            await _db.SaveChangesAsync();
 
             return Success(MapToDTO(entity));
         }
 
         public async Task<ClientApiResponse<bool>> DeleteAsync(int id)
         {
+            var entity = await _dao.GetByIdAsync(id);
+            if (entity == null) return Failure<bool>("Règlement introuvable");
+
             // delete journal and accounting entries
             var journal = await _db.Journaux.FirstOrDefaultAsync(j => j.ReglementId == id);
             if (journal != null)
@@ -125,8 +139,65 @@ namespace App.Services
                 await _journalDAO.DeleteAsync(journal.Id);
             }
 
+            // Update CommandeAchat or CommandeVente if linked (subtract the amount)
+            if (entity.CommandeAchatId.HasValue)
+            {
+                var commande = await _db.CommandeAchats.FirstOrDefaultAsync(c => c.Id == entity.CommandeAchatId.Value);
+                if (commande != null)
+                {
+                    commande.MontantReglé -= entity.Montant;
+                    commande.ResteAPayer += entity.Montant;
+                    _db.CommandeAchats.Update(commande);
+                }
+            }
+            else if (entity.CommandeVenteId.HasValue)
+            {
+                var commande = await _db.CommandeVentes.FirstOrDefaultAsync(c => c.Id == entity.CommandeVenteId.Value);
+                if (commande != null)
+                {
+                    commande.MontantReglé -= entity.Montant;
+                    commande.ResteAPayer += entity.Montant;
+                    _db.CommandeVentes.Update(commande);
+                }
+            }
+
             var ok = await _dao.DeleteAsync(id);
+            await _db.SaveChangesAsync();
             return Success(ok);
+        }
+
+        private async Task UpdateCommandeTotals(Reglement reglement)
+        {
+            if (reglement.CommandeAchatId.HasValue)
+            {
+                var commande = await _db.CommandeAchats.FirstOrDefaultAsync(c => c.Id == reglement.CommandeAchatId.Value);
+                if (commande != null)
+                {
+                    // Calculate total payments for this commande
+                    var totalReglements = await _db.Reglements
+                        .Where(r => r.CommandeAchatId == commande.Id)
+                        .SumAsync(r => (decimal?)r.Montant) ?? 0;
+
+                    commande.MontantReglé = totalReglements;
+                    commande.ResteAPayer = commande.MontantTTC - totalReglements;
+                    _db.CommandeAchats.Update(commande);
+                }
+            }
+            else if (reglement.CommandeVenteId.HasValue)
+            {
+                var commande = await _db.CommandeVentes.FirstOrDefaultAsync(c => c.Id == reglement.CommandeVenteId.Value);
+                if (commande != null)
+                {
+                    // Calculate total payments for this commande
+                    var totalReglements = await _db.Reglements
+                        .Where(r => r.CommandeVenteId == commande.Id)
+                        .SumAsync(r => (decimal?)r.Montant) ?? 0;
+
+                    commande.MontantReglé = totalReglements;
+                    commande.ResteAPayer = commande.MontantTTC - totalReglements;
+                    _db.CommandeVentes.Update(commande);
+                }
+            }
         }
 
         private static string GenerateJournalReference()
@@ -164,5 +235,3 @@ namespace App.Services
         }
     }
 }
-
-

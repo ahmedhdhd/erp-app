@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "tdCufahKPxiGiJmf9QKXHhu+bnCCpBwZgBMbr++h5JA=",
+  "Hash": "+PEfgTPW+BG9Zjgi67cSlE6OigEkmTx244LoUgCEsNw=",
   "Source": "App",
   "BasePath": "_content/App",
   "Mode": "Default",
@@ -948,12 +948,12 @@
       "OriginalItemSpec": "wwwroot\\index.html"
     },
     {
-      "Identity": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\main.1fc9995f4a2751a5.js",
+      "Identity": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\main.1b490a7358499a98.js",
       "SourceId": "App",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\",
       "BasePath": "_content/App",
-      "RelativePath": "main.1fc9995f4a2751a5.js",
+      "RelativePath": "main.1b490a7358499a98.js",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -964,7 +964,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\main.1fc9995f4a2751a5.js"
+      "OriginalItemSpec": "wwwroot\\main.1b490a7358499a98.js"
     },
     {
       "Identity": "C:\\Users\\DELL\\Documents\\appstage\\erp-main\\wwwroot\\polyfills.ae91e41ffb49937e.js",

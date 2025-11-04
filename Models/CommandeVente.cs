@@ -14,6 +14,8 @@ namespace App.Models
         public string Statut { get; set; } // Brouillon, Confirmé, Expédié, Livré, Annulé
         public decimal MontantHT { get; set; }
         public decimal MontantTTC { get; set; }
+        public decimal MontantReglé { get; set; } // Total amount paid
+        public decimal ResteAPayer { get; set; } // Remaining amount to receive
         public string ModeLivraison { get; set; }
         public string ConditionsPaiement { get; set; }
         public List<LigneCommandeVente> Lignes { get; set; } = new List<LigneCommandeVente>();

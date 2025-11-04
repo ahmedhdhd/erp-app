@@ -12,12 +12,15 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------- Services --------------------
+// ============================================================
+// 🧩 1. Add Core Services
+// ============================================================
 
-// Controllers
 builder.Services.AddControllers();
 
-// Entity Framework
+// ------------------------------------------------------------
+// Database (Entity Framework)
+// ------------------------------------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -26,17 +29,26 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             sqlOptions.EnableRetryOnFailure(
                 maxRetryCount: 5,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-        })
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors());
+                errorNumbersToAdd: null
+            );
+            // Disable use of OUTPUT clause to avoid conflicts with database triggers
+            sqlOptions.UseCompatibilityLevel(130); // SQL Server 2016 compatibility level
+        }
+    )
+    .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+    .EnableDetailedErrors()
+);
 
+// ------------------------------------------------------------
 // JWT Authentication & Authorization
+// ------------------------------------------------------------
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddJwtAuthorization();
 
-// Register DAOs
+// ------------------------------------------------------------
+// Register Data Access Objects (DAOs)
+// ------------------------------------------------------------
 builder.Services.AddScoped<IAuthDAO, AuthDAO>();
 builder.Services.AddScoped<IEmployeeDAO, EmployeeDAO>();
 builder.Services.AddScoped<IClientDAO, ClientDAO>();
@@ -47,8 +59,11 @@ builder.Services.AddScoped<ICommandeVenteDAO, CommandeVenteDAO>();
 builder.Services.AddScoped<ICompanySettingsDAO, CompanySettingsDAO>();
 builder.Services.AddScoped<IReglementDAO, ReglementDAO>();
 builder.Services.AddScoped<IJournalDAO, JournalDAO>();
+builder.Services.AddScoped<IPayrollDAO, PayrollDAO>(); // Add this line
 
-// Register Services
+// ------------------------------------------------------------
+// Register Business Services
+// ------------------------------------------------------------
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ClientService>();
@@ -58,11 +73,16 @@ builder.Services.AddScoped<CommandeAchatService>();
 builder.Services.AddScoped<CommandeVenteService>();
 builder.Services.AddScoped<CompanySettingsService>();
 builder.Services.AddScoped<ReglementService>();
+builder.Services.AddScoped<PayrollService>(); // Add this line
 
+// ------------------------------------------------------------
 // Logging
+// ------------------------------------------------------------
 builder.Services.AddLogging();
 
-// CORS (optional since same domain, but safe)
+// ------------------------------------------------------------
+// CORS Configuration
+// ------------------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("_myAllowSpecificOrigins", policy =>
@@ -73,11 +93,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger
+// ------------------------------------------------------------
+// Swagger / OpenAPI Configuration
+// ------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // JWT support
+    // JWT support in Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -99,45 +121,54 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 
-    // Optional: XML comments for Swagger docs
+    // Group endpoints by controller or route
+    c.TagActionsBy(api => new[] { api.GroupName ?? api.RelativePath.Split('/')[0] });
+    c.OrderActionsBy(apiDesc => $"{apiDesc.ActionDescriptor.RouteValues["controller"]}_{apiDesc.HttpMethod}");
+
+    // Include XML documentation if available
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
         c.IncludeXmlComments(xmlPath);
 });
 
-// -------------------- App --------------------
+// ============================================================
+// 🚀 2. Build Application
+// ============================================================
+
 var app = builder.Build();
 
-// -------------------- Middleware Order --------------------
+// ============================================================
+// 🌐 3. Configure Middleware Pipeline
+// ============================================================
 
-// ✅ 1. Serve Angular static files first
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// ✅ 2. HTTPS redirect
-app.UseHttpsRedirection();
-
-// ✅ 3. Swagger (keep enabled for tests)
+// Swagger (enabled for all environments)
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// ✅ 4. CORS (optional for same-origin, but harmless)
+// Serve static Angular files (wwwroot)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// HTTPS redirection
+app.UseHttpsRedirection();
+
+// CORS
 app.UseCors("_myAllowSpecificOrigins");
 
-// ✅ 5. Authentication & Authorization
+// Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ 6. API controllers
+// Map Controllers
 app.MapControllers();
 
-// ✅ 7. Fallback to Angular index.html for SPA routes
+// SPA Fallback (Angular)
 app.MapFallbackToFile("index.html");
 
-// ✅ 8. Run the app
+// Run the application
 app.Run();

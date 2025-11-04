@@ -1,0 +1,116 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <h2>État de Paie</h2>
+      
+      <!-- Payroll Generation Form -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">Générer un État de Paie</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="mois" class="form-label">Mois</label>
+                <input type="month" class="form-control" id="mois" formControlName="mois">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="employeId" class="form-label">Employé</label>
+                <select class="form-select" id="employeId" formControlName="employeId" (change)="onEmployeeChange()">
+                  <option value="">Sélectionnez un employé</option>
+                  <option *ngFor="let employee of employees" [value]="employee.id">
+                    {{ employee.nom }} {{ employee.prenom }} - {{ employee.poste }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="nombreDeJours" class="form-label">Nombre de jours</label>
+                <input type="number" class="form-control" id="nombreDeJours" formControlName="nombreDeJours" min="0">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="salaireBase" class="form-label">Salaire de base</label>
+                <input type="number" class="form-control" id="salaireBase" formControlName="salaireBase" min="0" step="0.01">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="primePresence" class="form-label">Prime de présence</label>
+                <input type="number" class="form-control" id="primePresence" formControlName="primePresence" min="0" step="0.01">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="primeProduction" class="form-label">Prime de production</label>
+                <input type="number" class="form-control" id="primeProduction" formControlName="primeProduction" min="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="payrollForm.invalid">
+                Générer l'État de Paie
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Payroll List -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">États de Paie</h5>
+          <div>
+            <span class="me-3" *ngIf="selectedMonth">Pour le mois: {{ selectedMonth }}</span>
+            <button class="btn btn-outline-primary btn-sm" (click)="loadPayrolls()" [disabled]="!selectedMonth">
+              <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Nom</th>
+                  <th>Poste</th>
+                  <th>État Civil</th>
+                  <th>Jours</th>
+                  <th>Salaire Base</th>
+                  <th>Prime Présence</th>
+                  <th>Prime Production</th>
+                  <th>Salaire Brut</th>
+                  <th>CNSS</th>
+                  <th>Salaire Imposable</th>
+                  <th>IRPP</th>
+                  <th>CSS</th>
+                  <th>Salaire Net</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let payroll of payrolls">
+                  <td>{{ payroll.employe.nom }} {{ payroll.employe.prenom }}</td>
+                  <td>{{ payroll.employe.poste }}</td>
+                  <td>N/A</td>
+                  <td>{{ payroll.nombreDeJours }}</td>
+                  <td>{{ payroll.salaireBase | number:'1.2-2' }}</td>
+                  <td>{{ payroll.primePresence | number:'1.2-2' }}</td>
+                  <td>{{ payroll.primeProduction | number:'1.2-2' }}</td>
+                  <td>{{ payroll.salaireBrut | number:'1.2-2' }}</td>
+                  <td>{{ payroll.cnss | number:'1.2-2' }}</td>
+                  <td>{{ payroll.salaireImposable | number:'1.2-2' }}</td>
+                  <td>{{ payroll.irpp | number:'1.2-2' }}</td>
+                  <td>{{ payroll.css | number:'1.2-2' }}</td>
+                  <td>{{ payroll.salaireNet | number:'1.2-2' }}</td>
+                </tr>
+                <tr *ngIf="payrolls.length === 0">
+                  <td colspan="13" class="text-center">Aucun état de paie trouvé pour le mois sélectionné.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

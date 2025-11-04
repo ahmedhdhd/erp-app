@@ -270,6 +270,29 @@
             </button>
           </div>
           <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/situation-familiale', employee.id]" 
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-file-invoice-dollar me-2"></i>Situation Familiale
+            </a>
+          </div>
+          <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/etat-de-paie']" 
+              [queryParams]="{ employeId: employee.id }"
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-file-invoice me-2"></i>État de Paie
+            </a>
+          </div>
+          <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/historique-paie']"
+              [queryParams]="{ employeId: employee.id }"
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-history me-2"></i>Historique de Paie
+            </a>
+          </div>
+          <div class="quick-action-item">
             <button 
               class="btn btn-outline-info w-100 mb-2" 
               (click)="onPrint()">
