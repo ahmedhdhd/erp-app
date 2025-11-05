@@ -257,10 +257,10 @@ const routes: Routes = [
     children: [
       { path: '', component: PurchaseOrderListComponent },
       { path: 'new', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
       { path: ':id', component: PurchaseOrderDetailComponent },
       { path: ':id/edit', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
       { path: ':id/receive', component: GoodsReceiptComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
-      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
       { path: 'test-api', component: TestApiComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } }
     ]
   },

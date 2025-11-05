@@ -219,8 +219,14 @@ export class GoodsReceiptListComponent implements OnInit {
     this.loadUnreceivedOrders();
   }
 
-  receiveGoods(orderId: number): void {
-    this.router.navigate(['/purchase-orders', orderId, 'receive']);
+  receiveGoods(orderId: number | undefined): void {
+    // Validate that orderId is a valid number before navigation
+    if (orderId && !isNaN(orderId) && orderId > 0) {
+      this.router.navigate(['/purchase-orders', orderId, 'receive']);
+    } else {
+      console.error('Invalid order ID:', orderId);
+      this.error = 'Invalid order ID. Cannot navigate to goods receipt.';
+    }
   }
 
   getStatusClass(status: string): string {
@@ -283,5 +289,9 @@ export class GoodsReceiptListComponent implements OnInit {
   getTotalPages(): number {
     const pages = Math.ceil(this.totalCount / this.pageSize) || 1;
     return pages;
+  }
+
+  isValidOrderId(id: number | undefined): boolean {
+    return id !== undefined && id !== null && !isNaN(id) && id > 0;
   }
 }
