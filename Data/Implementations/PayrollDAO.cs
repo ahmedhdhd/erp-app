@@ -23,6 +23,12 @@ namespace App.Data.Implementations
             return await _db.SituationsFamiliales
                 .FirstOrDefaultAsync(sf => sf.EmployeId == employeId);
         }
+        
+        public async Task<SituationFamiliale> GetSituationFamilialeByIdAsync(int id)
+        {
+            return await _db.SituationsFamiliales
+                .FirstOrDefaultAsync(sf => sf.Id == id);
+        }
 
         public async Task<SituationFamiliale> CreateSituationFamilialeAsync(SituationFamiliale entity)
         {
@@ -47,6 +53,14 @@ namespace App.Data.Implementations
             _db.SituationsFamiliales.Remove(entity);
             await _db.SaveChangesAsync();
             return true;
+        }
+        
+        public async Task<IEnumerable<Employe>> GetAllEmployeesWithSituationFamilialeAsync()
+        {
+            return await _db.Employes
+                .Include(e => e.SituationFamiliale)
+                .Where(e => e.SituationFamiliale != null)
+                .ToListAsync();
         }
 
         // EtatDePaie methods
@@ -104,6 +118,13 @@ namespace App.Data.Implementations
             return await _db.EtatsDePaie
                 .Include(ep => ep.Employe)
                 .FirstOrDefaultAsync(ep => ep.Id == id);
+        }
+
+        public async Task<EtatDePaie> GetEtatDePaieByEmployeeAndMonthAsync(int employeId, string mois)
+        {
+            return await _db.EtatsDePaie
+                .Include(ep => ep.Employe)
+                .FirstOrDefaultAsync(ep => ep.EmployeId == employeId && ep.Mois == mois);
         }
 
         public async Task<IEnumerable<EtatDePaie>> GetEtatsDePaieByEmployeIdAsync(int employeId)

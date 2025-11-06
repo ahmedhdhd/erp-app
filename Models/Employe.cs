@@ -13,8 +13,6 @@ namespace App.Models
         public string Departement { get; set; }
         public string Email { get; set; } = string.Empty;
         public string Telephone { get; set; } = string.Empty;
-        public decimal SalaireBase { get; set; }
-        public decimal Prime { get; set; }
         public DateTime DateEmbauche { get; set; }
         public string Statut { get; set; } // Actif, Inactif, Suspendu
         

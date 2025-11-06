@@ -1,16 +1,18 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-12">
-      <h2>Situation Familiale</h2>
+      <h2>Employee Payroll Information</h2>
       
       <form [formGroup]="situationForm" (ngSubmit)="onSubmit()">
         <div class="card">
           <div class="card-body">
+            <!-- Family Information Section -->
+            <h4>Family Information</h4>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="etatCivil" class="form-label">État Civil</label>
+                <label for="etatCivil" class="form-label">Marital Status</label>
                 <select class="form-select" id="etatCivil" formControlName="etatCivil">
-                  <option value="">Sélectionnez un état civil</option>
+                  <option value="">Select marital status</option>
                   <option *ngFor="let option of etatCivilOptions" [value]="option.value">
                     {{ option.label }}
                   </option>
@@ -23,7 +25,7 @@
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="chefDeFamille" formControlName="chefDeFamille">
                   <label class="form-check-label" for="chefDeFamille">
-                    Chef de famille
+                    Head of Household
                   </label>
                 </div>
               </div>
@@ -31,28 +33,28 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="nombreEnfants" class="form-label">Nombre d'enfants</label>
+                <label for="nombreEnfants" class="form-label">Number of Children</label>
                 <input type="number" class="form-control" id="nombreEnfants" formControlName="nombreEnfants" min="0">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="enfantsEtudiants" class="form-label">Enfants étudiants</label>
+                <label for="enfantsEtudiants" class="form-label">Student Children</label>
                 <input type="number" class="form-control" id="enfantsEtudiants" formControlName="enfantsEtudiants" min="0">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="enfantsHandicapes" class="form-label">Enfants handicapés</label>
+                <label for="enfantsHandicapes" class="form-label">Disabled Children</label>
                 <input type="number" class="form-control" id="enfantsHandicapes" formControlName="enfantsHandicapes" min="0">
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="parentsACharge" class="form-label">Parents à charge</label>
+                <label for="parentsACharge" class="form-label">Dependent Parents</label>
                 <input type="number" class="form-control" id="parentsACharge" formControlName="parentsACharge" min="0">
               </div>
             </div>
@@ -62,18 +64,44 @@
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="conjointACharge" formControlName="conjointACharge">
                   <label class="form-check-label" for="conjointACharge">
-                    Conjoint à charge
+                    Dependent Spouse
                   </label>
                 </div>
               </div>
             </div>
 
+            <!-- Salary Information Section -->
+            <h4 class="mt-4">Salary Information</h4>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="salaireBase" class="form-label">Base Salary (DT)</label>
+                <input type="number" class="form-control" id="salaireBase" formControlName="salaireBase" min="0" step="0.001">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="primePresence" class="form-label">Attendance Bonus (DT)</label>
+                <input type="number" class="form-control" id="primePresence" formControlName="primePresence" min="0" step="0.001">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="primeProduction" class="form-label">Production Bonus (DT)</label>
+                <input type="number" class="form-control" id="primeProduction" formControlName="primeProduction" min="0" step="0.001">
+              </div>
+            </div>
+
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-primary" [disabled]="situationForm.invalid">
-                {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+                {{ isEditing ? 'Update' : 'Save' }}
               </button>
               <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="isEditing">
-                Réinitialiser
+                Reset
+              </button>
+              <button type="button" class="btn btn-info" (click)="refreshData()">
+                Refresh
               </button>
             </div>
           </div>

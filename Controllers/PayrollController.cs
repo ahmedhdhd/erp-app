@@ -82,6 +82,23 @@ namespace App.Controllers
             return Ok(result);
         }
 
+        [HttpPost("etatdepaie/generate-all")]
+        public async Task<ActionResult<ClientApiResponse<List<EtatDePaieDTO>>>> GeneratePayrollForAllEmployees([FromQuery] string mois)
+        {
+            if (string.IsNullOrEmpty(mois))
+            {
+                return BadRequest(new ClientApiResponse<List<EtatDePaieDTO>> 
+                { 
+                    Success = false, 
+                    Message = "Month parameter is required" 
+                });
+            }
+
+            var result = await _payrollService.GeneratePayrollForAllEmployeesAsync(mois);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
+
         [HttpPut("etatdepaie/{id}")]
         public async Task<ActionResult<ClientApiResponse<EtatDePaieDTO>>> UpdateEtatDePaie(int id, UpdateEtatDePaieRequest request)
         {

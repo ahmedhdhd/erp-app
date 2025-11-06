@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { Employee } from '../../../models/employee.models';
+import { Employee, UpdateEmployeeRequest } from '../../../models/employee.models';
 import { EmployeeService } from '../../../services/employee.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -110,10 +110,10 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  onStatusChange(newStatus: string): void {
-    if (!this.employee || !this.employeeId || !this.canUpdateStatus()) return;
+  private updateEmployeeStatus(newStatus: string): void {
+    if (!this.employee || !this.employeeId) return;
     
-    const updateRequest = {
+    const updateRequest: UpdateEmployeeRequest = {
       id: this.employee.id,
       nom: this.employee.nom,
       prenom: this.employee.prenom,
@@ -122,8 +122,6 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
       departement: this.employee.departement,
       email: this.employee.email,
       telephone: this.employee.telephone,
-      salaireBase: this.employee.salaireBase,
-      prime: this.employee.prime,
       dateEmbauche: this.employee.dateEmbauche,
       statut: newStatus
     };
@@ -141,6 +139,11 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
           console.error('Error updating status:', error);
         }
       });
+  }
+
+  onStatusChange(newStatus: string): void {
+    if (!this.employee || !this.employeeId || !this.canUpdateStatus()) return;
+    this.updateEmployeeStatus(newStatus);
   }
 
   getStatusBadgeClass(status: string): string {

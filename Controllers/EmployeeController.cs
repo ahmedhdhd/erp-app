@@ -135,10 +135,10 @@ namespace App.Controllers
 			if (!result.Success || result.Data == null) return BadRequest("Aucune donnée à exporter");
 
 			var sb = new StringBuilder();
-			sb.AppendLine("Id;Nom;Prenom;CIN;Poste;Departement;Email;Telephone;SalaireTotal;Statut;DateEmbauche");
+			sb.AppendLine("Id;Nom;Prenom;CIN;Poste;Departement;Email;Telephone;Statut;DateEmbauche");
 			foreach (var e in result.Data.Employees)
 			{
-				sb.AppendLine($"{e.Id};{e.Nom};{e.Prenom};{e.CIN};{e.Poste};{e.Departement};{e.Email};{e.Telephone};{e.SalaireTotal};{e.Statut};{e.DateEmbauche:yyyy-MM-dd}");
+				sb.AppendLine($"{e.Id};{e.Nom};{e.Prenom};{e.CIN};{e.Poste};{e.Departement};{e.Email};{e.Telephone};{e.Statut};{e.DateEmbauche:yyyy-MM-dd}");
 			}
 
 			return File(System.Text.Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "employees.csv");

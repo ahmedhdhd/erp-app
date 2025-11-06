@@ -1,40 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-
-interface Employee {
-  id: number;
-  nom: string;
-  prenom: string;
-  cin: string;
-  poste: string;
-  departement: string;
-  email: string;
-  telephone: string;
-  salaireBase: number;
-  prime: number;
-  dateEmbauche: string;
-  statut: string;
-}
-
-interface EtatDePaie {
-  id: number;
-  employeId: number;
-  employe: Employee;
-  mois: string;
-  nombreDeJours: number;
-  salaireBase: number;
-  primePresence: number;
-  primeProduction: number;
-  salaireBrut: number;
-  cnss: number;
-  salaireImposable: number;
-  irpp: number;
-  css: number;
-  salaireNet: number;
-  dateCreation: string;
-}
+import { EmployeeService } from '../../../services/employee.service';
+import { PayrollService } from '../../../services/payroll.service';
+import { Employee } from '../../../models/employee.models';
+import { EtatDePaie } from '../../../services/payroll.service';
 
 @Component({
   selector: 'app-etat-de-paie',
@@ -42,101 +11,97 @@ interface EtatDePaie {
   styleUrls: ['./etat-de-paie.component.css']
 })
 export class EtatDePaieComponent implements OnInit {
-  payrollForm: FormGroup;
   employees: Employee[] = [];
   payrolls: EtatDePaie[] = [];
-  selectedEmployeeId: number | null = null;
   selectedMonth: string = '';
+  isGenerating: boolean = false;
 
   constructor(
-    private fb: FormBuilder,
     private route: ActivatedRoute,
-    private http: HttpClient
+    private employeeService: EmployeeService,
+    private payrollService: PayrollService
   ) {
-    this.payrollForm = this.fb.group({
-      employeId: ['', Validators.required],
-      mois: ['', Validators.required],
-      nombreDeJours: [0, [Validators.required, Validators.min(0)]],
-      salaireBase: [0, [Validators.required, Validators.min(0)]],
-      primePresence: [0, [Validators.min(0)]],
-      primeProduction: [0, [Validators.min(0)]]
-    });
+    // Set default month to current month
+    const today = new Date();
+    this.selectedMonth = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
   }
 
   ngOnInit(): void {
     this.loadEmployees();
-    // Set default month to current month
-    const today = new Date();
-    this.selectedMonth = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}`;
-    this.payrollForm.patchValue({ mois: this.selectedMonth });
+    this.loadPayrolls();
   }
 
   loadEmployees(): void {
-    this.http.get<Employee[]>('/api/employees')
-      .subscribe({
-        next: (data) => {
-          this.employees = data;
-        },
-        error: (error) => {
-          alert('Erreur lors du chargement des employés');
+    this.employeeService.getAllEmployees().subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.employees = response.data.employees;
+        } else {
+          alert('Erreur lors du chargement des employés: ' + response.message);
         }
-      });
+      },
+      error: (error: any) => {
+        alert('Erreur lors du chargement des employés');
+        console.error(error);
+      }
+    });
   }
 
   loadPayrolls(): void {
     if (this.selectedMonth) {
-      this.http.get<EtatDePaie[]>(`/api/payroll/etatdepaie/search?mois=${this.selectedMonth}`)
-        .subscribe({
-          next: (data) => {
-            this.payrolls = data;
-          },
-          error: (error) => {
-            alert('Erreur lors du chargement des états de paie');
+      this.payrollService.searchEtatsDePaie({ mois: this.selectedMonth }).subscribe({
+        next: (response: any) => {
+          // Remove duplicates based on employee ID and keep the most recent one
+          const uniquePayrolls = response.etatsDePaie
+            .filter((payroll: EtatDePaie, index: number, self: EtatDePaie[]) => 
+              index === self.findIndex((p: EtatDePaie) => p.employeId === payroll.employeId)
+            );
+          
+          this.payrolls = uniquePayrolls;
+          
+          // If no payrolls found and not already generating, automatically generate them
+          if (this.payrolls.length === 0 && !this.isGenerating) {
+            this.generatePayrollForAllEmployees();
           }
-        });
+        },
+        error: (error: any) => {
+          alert('Erreur lors du chargement des états de paie');
+          console.error(error);
+        }
+      });
     }
   }
 
-  onSubmit(): void {
-    if (this.payrollForm.valid) {
-      const formData = this.payrollForm.value;
-
-      this.http.post('/api/payroll/etatdepaie', formData)
-        .subscribe({
-          next: (response: any) => {
-            alert('État de paie généré avec succès');
-            // Reload the payroll list
-            this.loadPayrolls();
-            // Reset form
-            this.payrollForm.reset({
-              nombreDeJours: 0,
-              primePresence: 0,
-              primeProduction: 0,
-              mois: this.selectedMonth
-            });
-          },
-          error: (error) => {
-            alert('Erreur lors de la génération de l\'état de paie');
-          }
-        });
+  generatePayrollForAllEmployees(): void {
+    if (this.selectedMonth && !this.isGenerating) {
+      this.isGenerating = true;
+      this.payrollService.generatePayrollForAllEmployees(this.selectedMonth).subscribe({
+        next: (response: any) => {
+          alert('États de paie générés automatiquement');
+          // Reload the payroll data
+          this.loadPayrolls();
+          this.isGenerating = false;
+        },
+        error: (error: any) => {
+          alert('Erreur lors de la génération automatique des états de paie');
+          console.error(error);
+          this.isGenerating = false;
+        }
+      });
     }
   }
 
-  onEmployeeChange(): void {
-    const employeId = this.payrollForm.get('employeId')?.value;
-    if (employeId) {
-      // Load employee details to pre-fill form
-      const employee = this.employees.find(e => e.id === employeId);
-      if (employee) {
-        this.payrollForm.patchValue({
-          salaireBase: employee.salaireBase
-        });
-      }
-    }
+  onMonthChange(): void {
+    this.isGenerating = false;
+    this.loadPayrolls();
   }
 
   generatePayrollSlip(payroll: EtatDePaie): void {
     // In a real application, this would generate a PDF
-    alert(`Fiche de paie pour ${payroll.employe.nom} ${payroll.employe.prenom} générée`);
+    if (payroll.employe) {
+      alert(`Fiche de paie pour ${payroll.employe.nom} ${payroll.employe.prenom} générée`);
+    } else {
+      alert(`Fiche de paie générée pour l'employé ID: ${payroll.employeId}`);
+    }
   }
 }

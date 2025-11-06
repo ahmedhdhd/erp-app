@@ -27,7 +27,7 @@ namespace App.Services
                 return new ClientApiResponse<SituationFamilialeDTO> 
                 { 
                     Success = false, 
-                    Message = "Situation familiale introuvable" 
+                    Message = "Payroll information not found" 
                 };
                 
             return new ClientApiResponse<SituationFamilialeDTO> 
@@ -46,7 +46,7 @@ namespace App.Services
                 return new ClientApiResponse<SituationFamilialeDTO> 
                 { 
                     Success = false, 
-                    Message = "Employé introuvable" 
+                    Message = "Employee not found" 
                 };
 
             var entity = new SituationFamiliale
@@ -59,6 +59,10 @@ namespace App.Services
                 EnfantsHandicapes = request.EnfantsHandicapes,
                 ParentsACharge = request.ParentsACharge,
                 ConjointACharge = request.ConjointACharge,
+                // Salary information
+                SalaireBase = request.SalaireBase,
+                PrimePresence = request.PrimePresence,
+                PrimeProduction = request.PrimeProduction,
                 DateDerniereMaj = DateTime.Now
             };
 
@@ -67,20 +71,22 @@ namespace App.Services
             { 
                 Success = true, 
                 Data = MapToDTO(created),
-                Message = "Situation familiale créée avec succès"
+                Message = "Payroll information created successfully"
             };
         }
 
         public async Task<ClientApiResponse<SituationFamilialeDTO>> UpdateSituationFamilialeAsync(int id, UpdateSituationFamilialeRequest request)
         {
-            var existing = await _dao.GetSituationFamilialeByEmployeIdAsync(request.EmployeId);
-            if (existing == null || existing.Id != id)
+            // Get the existing record by ID (not by EmployeId)
+            var existing = await _dao.GetSituationFamilialeByIdAsync(id);
+            if (existing == null)
                 return new ClientApiResponse<SituationFamilialeDTO> 
                 { 
                     Success = false, 
-                    Message = "Situation familiale introuvable" 
+                    Message = "Payroll information not found" 
                 };
 
+            // Update the properties
             existing.EtatCivil = request.EtatCivil;
             existing.ChefDeFamille = request.ChefDeFamille;
             existing.NombreEnfants = request.NombreEnfants;
@@ -88,13 +94,19 @@ namespace App.Services
             existing.EnfantsHandicapes = request.EnfantsHandicapes;
             existing.ParentsACharge = request.ParentsACharge;
             existing.ConjointACharge = request.ConjointACharge;
+            // Salary information
+            existing.SalaireBase = request.SalaireBase;
+            existing.PrimePresence = request.PrimePresence;
+            existing.PrimeProduction = request.PrimeProduction;
+            // Update the last modified date
+            existing.DateDerniereMaj = DateTime.Now;
 
             var updated = await _dao.UpdateSituationFamilialeAsync(existing);
             return new ClientApiResponse<SituationFamilialeDTO> 
             { 
                 Success = true, 
                 Data = MapToDTO(updated),
-                Message = "Situation familiale mise à jour avec succès"
+                Message = "Payroll information updated successfully"
             };
         }
 
@@ -157,7 +169,7 @@ namespace App.Services
                 return new ClientApiResponse<EtatDePaieDTO> 
                 { 
                     Success = false, 
-                    Message = "État de paie introuvable" 
+                    Message = "Payroll statement not found" 
                 };
                 
             return new ClientApiResponse<EtatDePaieDTO> 
@@ -189,21 +201,28 @@ namespace App.Services
                 return new ClientApiResponse<EtatDePaieDTO> 
                 { 
                     Success = false, 
-                    Message = "Employé introuvable" 
+                    Message = "Employee not found" 
                 };
 
-            // Get family situation for deductions
+            // Get family situation for deductions and salary information
             var situationFamiliale = await _dao.GetSituationFamilialeByEmployeIdAsync(request.EmployeId);
+            if (situationFamiliale == null)
+                return new ClientApiResponse<EtatDePaieDTO> 
+                { 
+                    Success = false, 
+                    Message = "Payroll information not found for this employee" 
+                };
             
-            // Calculate payroll
+            // Calculate payroll using salary information from situationFamiliale
             var entity = new EtatDePaie
             {
                 EmployeId = request.EmployeId,
                 Mois = request.Mois,
                 NombreDeJours = request.NombreDeJours,
-                SalaireBase = request.SalaireBase,
-                PrimePresence = request.PrimePresence,
-                PrimeProduction = request.PrimeProduction
+                // Use salary information from situationFamiliale
+                SalaireBase = situationFamiliale.SalaireBase,
+                PrimePresence = situationFamiliale.PrimePresence,
+                PrimeProduction = situationFamiliale.PrimeProduction
             };
 
             // Perform calculations
@@ -214,7 +233,7 @@ namespace App.Services
             { 
                 Success = true, 
                 Data = MapToDTO(created),
-                Message = "État de paie créé avec succès"
+                Message = "Payroll statement created successfully"
             };
         }
 
@@ -225,19 +244,26 @@ namespace App.Services
                 return new ClientApiResponse<EtatDePaieDTO> 
                 { 
                     Success = false, 
-                    Message = "État de paie introuvable" 
+                    Message = "Payroll statement not found" 
                 };
 
-            // Get family situation for deductions
+            // Get family situation for deductions and salary information
             var situationFamiliale = await _dao.GetSituationFamilialeByEmployeIdAsync(request.EmployeId);
+            if (situationFamiliale == null)
+                return new ClientApiResponse<EtatDePaieDTO> 
+                { 
+                    Success = false, 
+                    Message = "Payroll information not found for this employee" 
+                };
             
             // Update values
             existing.EmployeId = request.EmployeId;
             existing.Mois = request.Mois;
             existing.NombreDeJours = request.NombreDeJours;
-            existing.SalaireBase = request.SalaireBase;
-            existing.PrimePresence = request.PrimePresence;
-            existing.PrimeProduction = request.PrimeProduction;
+            // Use salary information from situationFamiliale
+            existing.SalaireBase = situationFamiliale.SalaireBase;
+            existing.PrimePresence = situationFamiliale.PrimePresence;
+            existing.PrimeProduction = situationFamiliale.PrimeProduction;
 
             // Perform calculations
             CalculatePayroll(existing, situationFamiliale);
@@ -247,7 +273,78 @@ namespace App.Services
             { 
                 Success = true, 
                 Data = MapToDTO(updated),
-                Message = "État de paie mis à jour avec succès"
+                Message = "Payroll statement updated successfully"
+            };
+        }
+
+        // New method to generate payroll for all employees with situation familiale data
+        public async Task<ClientApiResponse<List<EtatDePaieDTO>>> GeneratePayrollForAllEmployeesAsync(string mois)
+        {
+            var generatedPayrolls = new List<EtatDePaieDTO>();
+            var errors = new List<string>();
+
+            // Get all employees with situation familiale data
+            var employeesWithSituation = await _dao.GetAllEmployeesWithSituationFamilialeAsync();
+            
+            foreach (var employee in employeesWithSituation)
+            {
+                try
+                {
+                    // Check if payroll already exists for this employee and month
+                    var existingPayroll = await _dao.GetEtatDePaieByEmployeeAndMonthAsync(employee.Id, mois);
+                    if (existingPayroll != null)
+                    {
+                        // Add existing payroll to the list and skip generation
+                        generatedPayrolls.Add(MapToDTO(existingPayroll));
+                        continue;
+                    }
+
+                    // Create payroll request
+                    var request = new CreateEtatDePaieRequest
+                    {
+                        EmployeId = employee.Id,
+                        Mois = mois,
+                        NombreDeJours = 30 // Default to 30 days
+                    };
+
+                    // Create the payroll record
+                    var result = await CreateEtatDePaieAsync(request);
+                    if (result.Success && result.Data != null)
+                    {
+                        generatedPayrolls.Add(result.Data);
+                    }
+                    else
+                    {
+                        errors.Add($"Failed to generate payroll for employee {employee.Id}: {result.Message}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"Exception while generating payroll for employee {employee.Id}: {ex.Message}");
+                }
+            }
+
+            // Remove duplicates based on employee ID and keep the most recent one
+            var distinctPayrolls = generatedPayrolls
+                .GroupBy(p => p.EmployeId)
+                .Select(g => g.OrderByDescending(p => p.DateCreation).First())
+                .ToList();
+
+            if (errors.Count > 0)
+            {
+                return new ClientApiResponse<List<EtatDePaieDTO>>
+                {
+                    Success = false,
+                    Data = distinctPayrolls,
+                    Message = "Some payrolls failed to generate: " + string.Join("; ", errors)
+                };
+            }
+
+            return new ClientApiResponse<List<EtatDePaieDTO>>
+            {
+                Success = true,
+                Data = distinctPayrolls,
+                Message = $"Successfully generated {distinctPayrolls.Count} payroll records"
             };
         }
 
@@ -302,7 +399,9 @@ namespace App.Services
         private decimal CalculateIRPP(decimal taxableIncome)
         {
             // Simplified Tunisian tax brackets (you may need to adjust based on current regulations)
-            if (taxableIncome <= 5000)
+            if (taxableIncome <= 0)
+                return 0;
+            else if (taxableIncome <= 5000)
                 return 0;
             else if (taxableIncome <= 10000)
                 return Math.Round((taxableIncome - 5000) * 0.15m, 3);
@@ -328,13 +427,17 @@ namespace App.Services
                 EnfantsHandicapes = sf.EnfantsHandicapes,
                 ParentsACharge = sf.ParentsACharge,
                 ConjointACharge = sf.ConjointACharge,
+                // Salary information
+                SalaireBase = sf.SalaireBase,
+                PrimePresence = sf.PrimePresence,
+                PrimeProduction = sf.PrimeProduction,
                 DateDerniereMaj = sf.DateDerniereMaj
             };
         }
 
-        private static EtatDePaieDTO MapToDTO(EtatDePaie ep)
+        private EtatDePaieDTO MapToDTO(EtatDePaie ep)
         {
-            return new EtatDePaieDTO
+            var dto = new EtatDePaieDTO
             {
                 Id = ep.Id,
                 EmployeId = ep.EmployeId,
@@ -348,8 +451,6 @@ namespace App.Services
                     Departement = ep.Employe.Departement,
                     Email = ep.Employe.Email,
                     Telephone = ep.Employe.Telephone,
-                    SalaireBase = ep.Employe.SalaireBase,
-                    Prime = ep.Employe.Prime,
                     DateEmbauche = ep.Employe.DateEmbauche,
                     Statut = ep.Employe.Statut
                 } : null,
@@ -366,6 +467,20 @@ namespace App.Services
                 SalaireNet = ep.SalaireNet,
                 DateCreation = ep.DateCreation
             };
+
+            // Add family situation information if available
+            if (ep.EmployeId > 0)
+            {
+                var familySituation = _dao.GetSituationFamilialeByEmployeIdAsync(ep.EmployeId).Result;
+                if (familySituation != null)
+                {
+                    dto.EtatCivil = familySituation.EtatCivil;
+                    dto.ChefDeFamille = familySituation.ChefDeFamille;
+                    dto.NombreEnfants = familySituation.NombreEnfants;
+                }
+            }
+
+            return dto;
         }
     }
 }

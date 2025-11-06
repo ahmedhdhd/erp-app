@@ -15,6 +15,10 @@ namespace App.Models.DTOs
         public int EnfantsHandicapes { get; set; }
         public int ParentsACharge { get; set; }
         public bool ConjointACharge { get; set; }
+        // Salary information
+        public decimal SalaireBase { get; set; }
+        public decimal PrimePresence { get; set; }
+        public decimal PrimeProduction { get; set; }
         public DateTime DateDerniereMaj { get; set; }
     }
 
@@ -28,6 +32,10 @@ namespace App.Models.DTOs
         public int EnfantsHandicapes { get; set; }
         public int ParentsACharge { get; set; }
         public bool ConjointACharge { get; set; }
+        // Salary information
+        public decimal SalaireBase { get; set; }
+        public decimal PrimePresence { get; set; }
+        public decimal PrimeProduction { get; set; }
     }
 
     public class UpdateSituationFamilialeRequest : CreateSituationFamilialeRequest
@@ -53,6 +61,11 @@ namespace App.Models.DTOs
         public decimal CSS { get; set; }
         public decimal SalaireNet { get; set; }
         public DateTime DateCreation { get; set; }
+        
+        // Family situation information for display
+        public string EtatCivil { get; set; }
+        public bool ChefDeFamille { get; set; }
+        public int NombreEnfants { get; set; }
     }
 
     public class CreateEtatDePaieRequest

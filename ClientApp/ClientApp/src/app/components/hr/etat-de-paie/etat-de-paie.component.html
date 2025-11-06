@@ -3,56 +3,18 @@
     <div class="col-12">
       <h2>État de Paie</h2>
       
-      <!-- Payroll Generation Form -->
+      <!-- Month Selection -->
       <div class="card mb-4">
         <div class="card-header">
-          <h5 class="mb-0">Générer un État de Paie</h5>
+          <h5 class="mb-0">Sélection du Mois</h5>
         </div>
         <div class="card-body">
-          <form [formGroup]="payrollForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="mois" class="form-label">Mois</label>
-                <input type="month" class="form-control" id="mois" formControlName="mois">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="employeId" class="form-label">Employé</label>
-                <select class="form-select" id="employeId" formControlName="employeId" (change)="onEmployeeChange()">
-                  <option value="">Sélectionnez un employé</option>
-                  <option *ngFor="let employee of employees" [value]="employee.id">
-                    {{ employee.nom }} {{ employee.prenom }} - {{ employee.poste }}
-                  </option>
-                </select>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="nombreDeJours" class="form-label">Nombre de jours</label>
-                <input type="number" class="form-control" id="nombreDeJours" formControlName="nombreDeJours" min="0">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="salaireBase" class="form-label">Salaire de base</label>
-                <input type="number" class="form-control" id="salaireBase" formControlName="salaireBase" min="0" step="0.01">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="primePresence" class="form-label">Prime de présence</label>
-                <input type="number" class="form-control" id="primePresence" formControlName="primePresence" min="0" step="0.01">
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="primeProduction" class="form-label">Prime de production</label>
-                <input type="number" class="form-control" id="primeProduction" formControlName="primeProduction" min="0" step="0.01">
-              </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="mois" class="form-label">Mois</label>
+              <input type="month" class="form-control" id="mois" [(ngModel)]="selectedMonth" (change)="onMonthChange()">
             </div>
-
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary" [disabled]="payrollForm.invalid">
-                Générer l'État de Paie
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
 
@@ -89,9 +51,9 @@
               </thead>
               <tbody>
                 <tr *ngFor="let payroll of payrolls">
-                  <td>{{ payroll.employe.nom }} {{ payroll.employe.prenom }}</td>
-                  <td>{{ payroll.employe.poste }}</td>
-                  <td>N/A</td>
+                  <td>{{ payroll.employe?.nom }} {{ payroll.employe?.prenom }}</td>
+                  <td>{{ payroll.employe?.poste }}</td>
+                  <td>{{ payroll.etatCivil || 'N/A' }}</td>
                   <td>{{ payroll.nombreDeJours }}</td>
                   <td>{{ payroll.salaireBase | number:'1.2-2' }}</td>
                   <td>{{ payroll.primePresence | number:'1.2-2' }}</td>
@@ -107,6 +69,7 @@
                   <td colspan="13" class="text-center">Aucun état de paie trouvé pour le mois sélectionné.</td>
                 </tr>
               </tbody>
+
             </table>
           </div>
         </div>

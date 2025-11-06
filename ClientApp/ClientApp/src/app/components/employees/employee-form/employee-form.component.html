@@ -34,23 +34,23 @@
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">
-            <i class="fas fa-user-edit me-2"></i>
-            Employee Information
+            <i class="fas fa-user me-2"></i>Employee Information
           </h5>
         </div>
         <div class="card-body">
           <!-- Alert Messages -->
-          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>{{ errorMessage }}
-            <button type="button" class="btn-close" (click)="clearMessages()"></button>
-          </div>
-
           <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+            <i class="fas fa-check-circle me-2"></i>
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="clearMessages()"></button>
+          </div>
+          
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
             <button type="button" class="btn-close" (click)="clearMessages()"></button>
           </div>
 
-          <!-- Form -->
           <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" novalidate>
             <!-- Personal Information Section -->
             <div class="form-section">
@@ -60,21 +60,6 @@
               
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="prenom" class="form-label required">First Name</label>
-                  <input
-                    type="text"
-                    id="prenom"
-                    class="form-control"
-                    [class.is-invalid]="isFieldInvalid('prenom')"
-                    formControlName="prenom"
-                    placeholder="Enter first name"
-                    maxlength="50">
-                  <div *ngIf="isFieldInvalid('prenom')" class="invalid-feedback">
-                    {{ getFieldErrorMessage('prenom') }}
-                  </div>
-                </div>
-
-                <div class="col-md-6 mb-3">
                   <label for="nom" class="form-label required">Last Name</label>
                   <input
                     type="text"
@@ -82,14 +67,27 @@
                     class="form-control"
                     [class.is-invalid]="isFieldInvalid('nom')"
                     formControlName="nom"
-                    placeholder="Enter last name"
-                    maxlength="50">
+                    placeholder="Enter last name">
                   <div *ngIf="isFieldInvalid('nom')" class="invalid-feedback">
                     {{ getFieldErrorMessage('nom') }}
                   </div>
                 </div>
+                
+                <div class="col-md-6 mb-3">
+                  <label for="prenom" class="form-label required">First Name</label>
+                  <input
+                    type="text"
+                    id="prenom"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('prenom')"
+                    formControlName="prenom"
+                    placeholder="Enter first name">
+                  <div *ngIf="isFieldInvalid('prenom')" class="invalid-feedback">
+                    {{ getFieldErrorMessage('prenom') }}
+                  </div>
+                </div>
               </div>
-
+              
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="email" class="form-label required">Email</label>
@@ -104,7 +102,7 @@
                     {{ getFieldErrorMessage('email') }}
                   </div>
                 </div>
-
+                
                 <div class="col-md-6 mb-3">
                   <label for="telephone" class="form-label required">Phone Number</label>
                   <input
@@ -119,27 +117,29 @@
                   </div>
                 </div>
               </div>
-
-              <div class="mb-3">
-                <label for="cin" class="form-label required">CIN</label>
-                <input
-                  type="text"
-                  id="cin"
-                  class="form-control"
-                  [class.is-invalid]="isFieldInvalid('cin') || cinError"
-                  [class.is-valid]="!isFieldInvalid('cin') && !cinError && employeeForm.get('cin')?.value"
-                  formControlName="cin"
-                  placeholder="Enter CIN number"
-                  maxlength="20">
-                <div *ngIf="isCinChecking" class="form-text text-info">
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Checking CIN availability...
-                </div>
-                <div *ngIf="cinError" class="invalid-feedback">
-                  {{ cinError }}
-                </div>
-                <div *ngIf="!isFieldInvalid('cin') && !cinError && employeeForm.get('cin')?.value && !isCinChecking" class="valid-feedback">
-                  <i class="fas fa-check-circle me-1"></i>This CIN is available
+              
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="cin" class="form-label required">CIN</label>
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      id="cin"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('cin')"
+                      formControlName="cin"
+                      placeholder="Enter CIN">
+                    <div *ngIf="isCinChecking" class="input-group-text">
+                      <span class="spinner-border spinner-border-sm"></span>
+                    </div>
+                  </div>
+                  <div *ngIf="isFieldInvalid('cin')" class="invalid-feedback">
+                    {{ getFieldErrorMessage('cin') }}
+                  </div>
+                  <div *ngIf="cinError" class="invalid-feedback">
+                    {{ cinError }}
+                  </div>
+                  <small class="form-text text-muted">Carte d'Identité Nationale (National ID)</small>
                 </div>
               </div>
             </div>
@@ -183,47 +183,7 @@
               </div>
 
               <div class="row">
-                <div class="col-md-4 mb-3">
-                  <label for="salaireBase" class="form-label required">Base Salary</label>
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input
-                      type="number"
-                      id="salaireBase"
-                      class="form-control"
-                      [class.is-invalid]="isFieldInvalid('salaireBase')"
-                      formControlName="salaireBase"
-                      placeholder="0.00"
-                      min="0"
-                      max="999999.99"
-                      step="0.01">
-                  </div>
-                  <div *ngIf="isFieldInvalid('salaireBase')" class="invalid-feedback">
-                    {{ getFieldErrorMessage('salaireBase') }}
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                  <label for="prime" class="form-label">Prime</label>
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input
-                      type="number"
-                      id="prime"
-                      class="form-control"
-                      [class.is-invalid]="isFieldInvalid('prime')"
-                      formControlName="prime"
-                      placeholder="0.00"
-                      min="0"
-                      max="999999.99"
-                      step="0.01">
-                  </div>
-                  <div *ngIf="isFieldInvalid('prime')" class="invalid-feedback">
-                    {{ getFieldErrorMessage('prime') }}
-                  </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                   <label for="dateEmbauche" class="form-label required">Hire Date</label>
                   <input
                     type="date"
@@ -235,9 +195,7 @@
                     {{ getFieldErrorMessage('dateEmbauche') }}
                   </div>
                 </div>
-              </div>
 
-              <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="statut" class="form-label required">Status</label>
                   <select

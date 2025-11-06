@@ -26,6 +26,13 @@ namespace App.Models
         
         public bool ConjointACharge { get; set; }
         
+        // Salary information for payroll calculations
+        public decimal SalaireBase { get; set; }
+        
+        public decimal PrimePresence { get; set; }
+        
+        public decimal PrimeProduction { get; set; }
+        
         public DateTime DateDerniereMaj { get; set; }
     }
 }

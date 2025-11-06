@@ -14,9 +14,6 @@ namespace App.Models.DTOs
 		public string Departement { get; set; }
 		public string Email { get; set; }
 		public string Telephone { get; set; }
-		public decimal SalaireBase { get; set; }
-		public decimal Prime { get; set; }
-		public decimal SalaireTotal { get; set; }
 		public DateTime DateEmbauche { get; set; }
 		public string Statut { get; set; }
 		public bool HasUserAccount { get; set; }
@@ -34,8 +31,6 @@ namespace App.Models.DTOs
 		public string Departement { get; set; }
 		public string Email { get; set; }
 		public string Telephone { get; set; }
-		public decimal SalaireBase { get; set; }
-		public decimal Prime { get; set; }
 		public DateTime DateEmbauche { get; set; }
 		public string Statut { get; set; }
 	}
@@ -53,12 +48,10 @@ namespace App.Models.DTOs
 		public string? Statut { get; set; }
 		public DateTime? DateEmbaucheFrom { get; set; }
 		public DateTime? DateEmbaucheTo { get; set; }
-		public decimal? SalaireMin { get; set; }
-		public decimal? SalaireMax { get; set; }
-		public int Page { get; set; }
-		public int PageSize { get; set; }
-		public string SortBy { get; set; }
-		public string SortDirection { get; set; }
+		public int Page { get; set; } = 1;
+		public int PageSize { get; set; } = 50;
+		public string SortBy { get; set; } = "Nom";
+		public string SortDirection { get; set; } = "Asc";
 	}
 
 	public class EmployeeListResponse
@@ -82,7 +75,6 @@ namespace App.Models.DTOs
 	{
 		public string Name { get; set; }
 		public int EmployeeCount { get; set; }
-		public decimal AverageSalary { get; set; }
 	}
 
 	public class EmployeeStatsResponse
@@ -92,7 +84,6 @@ namespace App.Models.DTOs
 		public int InactiveEmployees { get; set; }
 		public Dictionary<string, int> EmployeesByDepartment { get; set; } = new();
 		public Dictionary<string, int> EmployeesByStatus { get; set; } = new();
-		public decimal AverageSalary { get; set; }
 		public int NewEmployeesThisMonth { get; set; }
 		public int NewEmployeesThisYear { get; set; }
 	}
@@ -105,5 +96,3 @@ namespace App.Models.DTOs
 		public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 	}
 }
-
-

@@ -75,8 +75,6 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       statut: [''],
       dateEmbaucheFrom: [''],
       dateEmbaucheTo: [''],
-      salaireMin: [''],
-      salaireMax: [''],
       sortBy: ['nom'],
       sortDirection: ['asc']
     });
@@ -195,8 +193,6 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       statut: '',
       dateEmbaucheFrom: '',
       dateEmbaucheTo: '',
-      salaireMin: '',
-      salaireMax: '',
       sortBy: 'nom',
       sortDirection: 'asc'
     });
@@ -278,154 +274,147 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       alert('Vous n\'avez pas les permissions nécessaires pour supprimer un employé.\nSeuls les administrateurs peuvent supprimer des employés.');
       return;
     }
-
-    // Create nomComplet if it doesn't exist
-    const employeeName = employee.nomComplet || `${employee.prenom} ${employee.nom}`;
     
-    const confirmMessage = `Êtes-vous sûr de vouloir supprimer l'employé ${employeeName} ?\n\n` +
-      `⚠️ Cette action changera le statut de l'employé à "Inactif".\n` +
-      `${employee.hasUserAccount ? '⚠️ ATTENTION: Cet employé a un compte utilisateur associé!' : '✓ Aucun compte utilisateur associé.'}`;
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer l'employé "${employee.prenom} ${employee.nom}" ?\nCette action est irréversible.`;
     
     if (confirm(confirmMessage)) {
-      this.isLoading = true;
-      
       this.employeeService.deleteEmployee(employee.id)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            this.isLoading = false;
-            
             if (response.success) {
-              alert(`✅ Employé désactivé avec succès!\n${response.message || 'Le statut a été changé à "Inactif"'}`);
-              this.loadEmployees(); // Refresh the list
+              // Reload the employee list
+              this.loadEmployees();
             } else {
-              alert(`❌ Échec de la désactivation:\n${response.message || 'Erreur inconnue du serveur'}`);
+              alert('Erreur lors de la suppression de l\'employé : ' + response.message);
             }
           },
           error: (error) => {
-            this.isLoading = false;
-            
-            let errorMessage = 'Erreur lors de la désactivation';
-            let debugInfo = '';
-            
-            if (error.status === 0) {
-              errorMessage = 'Impossible de contacter le serveur. Vérifiez que l\'API est démarrée.';
-              debugInfo = 'Status 0 - API inaccessible';
-            } else if (error.status === 401) {
-              errorMessage = 'Non autorisé - Votre session a expiré. Veuillez vous reconnecter.';
-              debugInfo = 'Status 401 - Unauthorized';
-            } else if (error.status === 403) {
-              errorMessage = 'Accès refusé - Seuls les administrateurs peuvent supprimer des employés.';
-              debugInfo = 'Status 403 - Forbidden';
-            } else if (error.status === 404) {
-              errorMessage = 'Employé non trouvé ou déjà supprimé.';
-              debugInfo = 'Status 404 - Not Found';
-            } else if (error.status === 400) {
-              errorMessage = error.error?.message || 'Requête invalide';
-              debugInfo = 'Status 400 - Bad Request';
-            } else if (error.status === 500) {
-              errorMessage = 'Erreur serveur interne. Contactez l\'administrateur.';
-              debugInfo = 'Status 500 - Internal Server Error';
-            } else if (error.error?.message) {
-              errorMessage = error.error.message;
-              debugInfo = `Status ${error.status} - Custom error`;
-            } else if (error.message) {
-              errorMessage = error.message;
-              debugInfo = `Status ${error.status} - HTTP error`;
-            }
-            
-            alert(`❌ Erreur lors de la désactivation:\n${errorMessage}\n\n🔧 Info technique: ${debugInfo}`);
+            console.error('Error deleting employee:', error);
+            alert('Erreur lors de la suppression de l\'employé. Veuillez réessayer.');
           }
         });
     }
   }
 
   updateEmployeeStatus(employee: Employee, newStatus: string): void {
+    // Permission check
+    const canUpdate = this.canEditEmployee();
+    if (!canUpdate) {
+      alert('Vous n\'avez pas les permissions nécessaires pour modifier le statut d\'un employé.');
+      return;
+    }
+    
     this.employeeService.updateEmployeeStatus(employee.id, newStatus)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response.success) {
-            employee.statut = newStatus;
+            // Update the employee status in the list
+            const index = this.employees.findIndex(e => e.id === employee.id);
+            if (index !== -1) {
+              this.employees[index] = { ...this.employees[index], statut: newStatus };
+              this.filteredEmployees = [...this.employees];
+            }
           } else {
-            alert('Erreur lors de la mise à jour: ' + response.message);
+            alert('Erreur lors de la mise à jour du statut : ' + response.message);
           }
         },
         error: (error) => {
-          alert('Erreur lors de la mise à jour: ' + error.message);
+          console.error('Error updating employee status:', error);
+          alert('Erreur lors de la mise à jour du statut. Veuillez réessayer.');
         }
       });
   }
 
-  // ========== BULK OPERATIONS ==========
-
+  // ========== SELECTION ==========
+  
+  toggleSelectEmployee(id: number): void {
+    const index = this.selectedEmployees.indexOf(id);
+    if (index === -1) {
+      this.selectedEmployees.push(id);
+    } else {
+      this.selectedEmployees.splice(index, 1);
+    }
+    this.selectAll = this.selectedEmployees.length === this.employees.length && this.employees.length > 0;
+  }
+  
   toggleSelectAll(): void {
     this.selectAll = !this.selectAll;
     if (this.selectAll) {
-      this.selectedEmployees = this.employees.map(emp => emp.id);
+      this.selectedEmployees = this.employees.map(e => e.id);
     } else {
       this.selectedEmployees = [];
     }
   }
-
-  toggleSelectEmployee(employeeId: number): void {
-    const index = this.selectedEmployees.indexOf(employeeId);
-    if (index > -1) {
-      this.selectedEmployees.splice(index, 1);
-    } else {
-      this.selectedEmployees.push(employeeId);
+  
+  isEmployeeSelected(id: number): boolean {
+    return this.selectedEmployees.includes(id);
+  }
+  
+  // ========== BULK ACTIONS ==========
+  
+  bulkDelete(): void {
+    if (this.selectedEmployees.length === 0) {
+      alert('Veuillez sélectionner au moins un employé à supprimer.');
+      return;
     }
-    this.selectAll = this.selectedEmployees.length === this.employees.length;
-  }
-
-  isEmployeeSelected(employeeId: number): boolean {
-    return this.selectedEmployees.includes(employeeId);
-  }
-
-  // ========== EXPORT ==========
-
-  exportToCsv(): void {
-    const searchRequest: EmployeeSearchRequest = {
-      ...this.searchForm.value,
-      page: 1,
-      pageSize: 10000 // Export all matching records
-    };
-
-    this.employeeService.exportToCsv(searchRequest)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (blob) => {
-          const filename = `employees_${new Date().toISOString().split('T')[0]}.csv`;
-          this.employeeService.downloadCsv(blob, filename);
-        },
-        error: (error) => {
-          alert('Erreur lors de l\'export: ' + error.message);
-        }
+    
+    const canDelete = this.canDeleteEmployee();
+    if (!canDelete) {
+      alert('Vous n\'avez pas les permissions nécessaires pour supprimer des employés.\nSeuls les administrateurs peuvent supprimer des employés.');
+      return;
+    }
+    
+    const confirmMessage = `Êtes-vous sûr de vouloir supprimer ${this.selectedEmployees.length} employé(s) ?\nCette action est irréversible.`;
+    
+    if (confirm(confirmMessage)) {
+      // Delete each selected employee
+      let deleteCount = 0;
+      let errorCount = 0;
+      
+      this.selectedEmployees.forEach(id => {
+        this.employeeService.deleteEmployee(id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response) => {
+              deleteCount++;
+              if (deleteCount + errorCount === this.selectedEmployees.length) {
+                // All requests completed
+                if (errorCount === 0) {
+                  alert(`${deleteCount} employé(s) supprimé(s) avec succès.`);
+                } else {
+                  alert(`${deleteCount} employé(s) supprimé(s) avec succès, ${errorCount} échec(s).`);
+                }
+                // Reload the employee list
+                this.loadEmployees();
+                this.selectedEmployees = [];
+                this.selectAll = false;
+              }
+            },
+            error: (error) => {
+              errorCount++;
+              console.error('Error deleting employee:', error);
+              if (deleteCount + errorCount === this.selectedEmployees.length) {
+                // All requests completed
+                alert(`${deleteCount} employé(s) supprimé(s) avec succès, ${errorCount} échec(s).`);
+                // Reload the employee list
+                this.loadEmployees();
+                this.selectedEmployees = [];
+                this.selectAll = false;
+              }
+            }
+          });
       });
+    }
   }
-
-  // ========== UTILITY METHODS ==========
-
-  formatSalary(amount: number): string {
-    return this.employeeService.formatSalary(amount);
-  }
-
-  formatDate(date: Date | string): string {
-    return this.employeeService.formatDate(date);
-  }
-
-  getStatusBadgeClass(status: string): string {
-    return this.employeeService.getStatusBadgeClass(status);
-  }
-
-  canCreateEmployee(): boolean {
-    return this.authService.hasRole('Admin') || this.authService.hasRole('RH');
-  }
-
+  
+  // ========== PERMISSIONS ==========
+  
   canEditEmployee(): boolean {
     return this.authService.hasRole('Admin') || this.authService.hasRole('RH');
   }
-
+  
   canDeleteEmployee(): boolean {
     const isAuthenticated = this.authService.isAuthenticated();
     const isAdmin = this.authService.isAdmin();
@@ -446,8 +435,32 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     
     return result;
   }
-
+  
   canViewStatistics(): boolean {
     return this.authService.hasRole('Admin') || this.authService.hasRole('RH');
+  }
+  
+  // ========== HELPER METHODS ==========
+  
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
+  }
+  
+  getStatusBadgeClass(status: string): string {
+    const statusClasses: { [key: string]: string } = {
+      'Actif': 'bg-success',
+      'Inactif': 'bg-secondary',
+      'En congé': 'bg-warning',
+      'Suspendu': 'bg-danger',
+      'Licencié': 'bg-dark'
+    };
+    return statusClasses[status] || 'bg-secondary';
   }
 }
