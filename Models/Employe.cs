@@ -19,6 +19,7 @@ namespace App.Models
         // ========== HR - Payroll Relationships ==========
         public SituationFamiliale SituationFamiliale { get; set; }
         public List<EtatDePaie> EtatsDePaie { get; set; } = new List<EtatDePaie>();
+        public List<Attendance> Attendances { get; set; } = new List<Attendance>();
         
         public List<ActiviteEmploye> Activites { get; set; } = new List<ActiviteEmploye>();
         public List<DemandeAchat> DemandesAchat { get; set; } = new List<DemandeAchat>();

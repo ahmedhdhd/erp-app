@@ -64,6 +64,7 @@ import { SupplierJournalComponent } from './components/financial/supplier-journa
 import { CustomerJournalComponent } from './components/financial/customer-journal/customer-journal.component';
 import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
 import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
+import { AttendanceComponent } from './components/hr/attendance/attendance.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -340,6 +341,11 @@ const routes: Routes = [
       {
         path: 'etat-de-paie',
         component: EtatDePaieComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      },
+      {
+        path: 'attendance',
+        component: AttendanceComponent,
         data: { requiredRoles: ['Admin', 'HR'] }
       }
     ]

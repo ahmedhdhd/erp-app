@@ -25,7 +25,8 @@ namespace App.Models
         public DbSet<Department> Departments { get; set; }
         public DbSet<SituationFamiliale> SituationsFamiliales { get; set; }
         public DbSet<EtatDePaie> EtatsDePaie { get; set; }
-        
+        public DbSet<Attendance> Attendances { get; set; }
+
         // ========== 4. Gestion des Produits et Stocks ==========
         public DbSet<Category> Categories { get; set; }
         public DbSet<Produit> Produits { get; set; }
@@ -173,6 +174,12 @@ namespace App.Models
                 .WithOne()
                 .HasForeignKey<Department>(d => d.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employe>()
+                .HasMany(e => e.Attendances)
+                .WithOne(a => a.Employe)
+                .HasForeignKey(a => a.EmployeId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // ========== 4. Gestion des Produits et Stocks ==========
             modelBuilder.Entity<Category>()

@@ -75,6 +75,9 @@ import { CustomerJournalComponent } from './components/financial/customer-journa
 // HR Components
 import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
 import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
+import { AttendanceComponent } from './components/hr/attendance/attendance.component';
+import { AttendanceService } from './services/attendance.service';
+
 import { PurchaseService } from './services/purchase.service';
 import { ConfigService } from './services/config.service';
 import { ProductService } from './services/product.service';
@@ -145,6 +148,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     // HR Components
     SituationFamilialeComponent,
     EtatDePaieComponent,
+    AttendanceComponent,
   ],
   imports: [
     BrowserModule,
@@ -165,6 +169,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     SalesService,
     InvoiceService,
     FinancialService,
+    AttendanceService,
     AuthGuard,
     AdminGuard,
     GuestGuard,

@@ -59,7 +59,8 @@ builder.Services.AddScoped<ICommandeVenteDAO, CommandeVenteDAO>();
 builder.Services.AddScoped<ICompanySettingsDAO, CompanySettingsDAO>();
 builder.Services.AddScoped<IReglementDAO, ReglementDAO>();
 builder.Services.AddScoped<IJournalDAO, JournalDAO>();
-builder.Services.AddScoped<IPayrollDAO, PayrollDAO>(); // Add this line
+builder.Services.AddScoped<IPayrollDAO, PayrollDAO>();
+builder.Services.AddScoped<IAttendanceDAO, AttendanceDAO>(); // Add this line
 
 // ------------------------------------------------------------
 // Register Business Services
@@ -73,7 +74,8 @@ builder.Services.AddScoped<CommandeAchatService>();
 builder.Services.AddScoped<CommandeVenteService>();
 builder.Services.AddScoped<CompanySettingsService>();
 builder.Services.AddScoped<ReglementService>();
-builder.Services.AddScoped<PayrollService>(); // Add this line
+builder.Services.AddScoped<PayrollService>();
+builder.Services.AddScoped<AttendanceService>(); // Add this line
 
 // ------------------------------------------------------------
 // Logging
