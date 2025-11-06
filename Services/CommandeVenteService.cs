@@ -192,17 +192,7 @@ namespace App.Services
 				var produit = await _productDAO.GetByIdAsync(ligne.ProduitId);
 				if (produit != null)
 				{
-					// Decrease stock quantity by the ordered quantity (products are being sold)
-					produit.StockActuel -= ligne.Quantite;
-					
-					// Ensure stock doesn't go below zero
-					if (produit.StockActuel < 0)
-						produit.StockActuel = 0;
-					
-					// Save the updated product
-					await _productDAO.UpdateAsync(produit);
-					
-					// Create stock movement record
+					// Create stock movement record (CreateStockAdjustmentAsync will handle the stock adjustment)
 					var stockMovement = new MouvementStock
 					{
 						ProduitId = produit.Id,
@@ -218,7 +208,7 @@ namespace App.Services
 				}
 			}
 
-			// Save stock movements
+			// Save stock movements (this will also adjust product stock)
 			foreach (var movement in stockMovements)
 			{
 				await _productDAO.CreateStockAdjustmentAsync(movement);

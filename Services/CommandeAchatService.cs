@@ -181,56 +181,11 @@ namespace App.Services
 				if (commande.Statut != "Brouillon")
 					return Failure<CommandeAchatDTO>("Seule une commande en brouillon peut être soumise");
 
-				// Update product quantities when submitting the order - decrease stock as we're ordering products
-				var updatedProducts = new List<Produit>();
-				foreach (var ligne in commande.Lignes)
-				{
-					// Get a fresh copy of the product to avoid concurrency issues
-					var produit = await _productDAO.GetByIdAsync(ligne.ProduitId);
-					if (produit != null)
-					{
-						var oldStock = produit.StockActuel;
-						// Decrease stock quantity by the ordered quantity (reserve stock for purchase)
-						
-						
-						produit.StockActuel -= ligne.Quantite;
-						
-						// Ensure stock doesn't go below zero
-						if (produit.StockActuel < 0)
-							produit.StockActuel = 0;
-						
-						// Save the updated product
-						// Debug.WriteLine($"Updating product {produit.Id} stock from {oldStock} to {produit.StockActuel}");
-						try
-						{
-							await _productDAO.UpdateAsync(produit);
-							updatedProducts.Add(produit);
-							// Debug.WriteLine($"Product {produit.Id} successfully updated with stock: {produit.StockActuel}");
-							
-							// Verify the update was successful
-							var verifyProduct = await _productDAO.GetByIdAsync(ligne.ProduitId);
-							// Debug.WriteLine($"Verified product {verifyProduct.Id} stock is now {verifyProduct.StockActuel}");
-						}
-						catch (Exception ex)
-						{
-							// Debug.WriteLine($"Failed to update product {produit.Id}: {ex}");
-							return Failure<CommandeAchatDTO>($"Erreur lors de la mise à jour du produit {produit.Id}: {ex.Message}");
-						}
-					}
-					else
-					{
-						// Debug.WriteLine($"Product {ligne.ProduitId} not found");
-					}
-				}
+				// Note: Stock should NOT be adjusted when submitting a purchase order
+				// Stock will be adjusted only when goods are received (in ReceiveAsync method)
 
 				commande.Statut = "Envoyée";
 				var updated = await _dao.UpdateAsync(commande);
-				
-				// Log the updated products
-				foreach (var produit in updatedProducts)
-				{
-					// Debug.WriteLine($"Product {produit.Id} final stock: {produit.StockActuel}");
-				}
 				
 				return Success(MapToDTO(updated));
 			}
@@ -326,7 +281,6 @@ namespace App.Services
 
 					ligneReceptions.Add(ligneReception);
 
-					// Note: Product quantities are already updated when the order is submitted
 					// When receiving goods, we increase stock with the received quantities
 					if (ligneRequest.QuantiteRecue > 0)
 					{
@@ -334,43 +288,19 @@ namespace App.Services
 						var produit = await _productDAO.GetByIdAsync(ligneCommande.ProduitId);
 						if (produit != null)
 						{
-							var oldStock = produit.StockActuel;
-							// Increase stock quantity with received items
-							produit.StockActuel += ligneRequest.QuantiteRecue;
+							// Create stock movement record (CreateStockAdjustmentAsync will handle the stock adjustment)
+							var stockMovement = new MouvementStock
+							{
+								ProduitId = produit.Id,
+								DateMouvement = DateTime.UtcNow,
+								Type = "Achat", // Use the enum value
+								Quantite = ligneRequest.QuantiteRecue, // Positive for incoming stock
+								ReferenceDocument = $"Facture Achat n° : {commande.Id}",
+								Emplacement = "Entrepôt principal",
+								CreePar = userName // Use the actual user name
+							};
 							
-							// Debug.WriteLine($"Increasing stock for product {produit.Id}: {oldStock} -> {produit.StockActuel}");
-
-							// Save the updated product
-							// Debug.WriteLine($"Saving product {produit.Id} with new stock: {produit.StockActuel}");
-							try
-							{
-								await _productDAO.UpdateAsync(produit);
-								
-								// Debug.WriteLine($"Product {produit.Id} successfully updated with stock: {produit.StockActuel}");
-								
-								// Verify the update was successful
-								var verifyProduct = await _productDAO.GetByIdAsync(ligneCommande.ProduitId);
-								// Debug.WriteLine($"Verified product {verifyProduct.Id} stock is now {verifyProduct.StockActuel}");
-								
-								// Create stock movement record
-								var stockMovement = new MouvementStock
-								{
-									ProduitId = produit.Id,
-									DateMouvement = DateTime.UtcNow,
-									Type = "Achat", // Use the enum value
-									Quantite = ligneRequest.QuantiteRecue,
-									ReferenceDocument = $"Facture Achat n° : {commande.Id}",
-									Emplacement = "Entrepôt principal",
-									CreePar = userName // Use the actual user name
-								};
-								
-								stockMovements.Add(stockMovement);
-							}
-							catch (Exception ex)
-							{
-								// Debug.WriteLine($"Failed to update product {produit.Id}: {ex}");
-								return Failure<ReceptionDTO>($"Erreur lors de la mise à jour du produit {produit.Id}: {ex.Message}");
-							}
+							stockMovements.Add(stockMovement);
 						}
 						else
 						{
