@@ -89,6 +89,7 @@ import { FinancialService } from './services/financial.service';
 import { InvoiceService } from './services/invoice.service';
 import { AdminGuard, AuthGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
 
 @NgModule({
   declarations: [
@@ -122,6 +123,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     SupplierDetailComponent,
     SupplierStatisticsComponent,
     // Purchase Management Components
+    PurchaseManagementComponent,
     PurchaseOrderListComponent,
     PurchaseOrderFormComponent,
     PurchaseOrderDetailComponent,

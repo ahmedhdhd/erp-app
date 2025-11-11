@@ -123,7 +123,8 @@
             <i class="fas fa-shopping-cart"></i>
             Purchases
           </a>
-          <ul class="dropdown-menu" aria-labelledby="purchasesDropdown">
+          <ul class="dropdown-menu" aria-labelledby="purchasesDropdown"><li><a class="dropdown-item" routerLink="/purchases"><i class="fas fa-tachometer-alt me-2"></i>Purchases Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" routerLink="/purchase-orders"><i class="fas fa-list me-2"></i>Purchase Orders</a></li>
             <li><a class="dropdown-item" routerLink="/purchase-orders/new" *ngIf="hasRole('Admin') || hasRole('Acheteur')"><i class="fas fa-plus me-2"></i>New Purchase Order</a></li>
             <li><hr class="dropdown-divider"></li>

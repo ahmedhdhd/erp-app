@@ -65,6 +65,7 @@ import { CustomerJournalComponent } from './components/financial/customer-journa
 import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
 import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
 import { AttendanceComponent } from './components/hr/attendance/attendance.component';
+import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -256,6 +257,7 @@ const routes: Routes = [
     path: 'purchase-orders',
     canActivate: [AuthGuard],
     children: [
+      {path: 'purchases', component:PurchaseManagementComponent},
       { path: '', component: PurchaseOrderListComponent },
       { path: 'new', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
       { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
