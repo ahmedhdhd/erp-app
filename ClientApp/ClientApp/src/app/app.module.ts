@@ -76,6 +76,7 @@ import { CustomerJournalComponent } from './components/financial/customer-journa
 import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
 import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
 import { AttendanceComponent } from './components/hr/attendance/attendance.component';
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
 import { AttendanceService } from './services/attendance.service';
 
 import { PurchaseService } from './services/purchase.service';
@@ -87,6 +88,7 @@ import { EmployeeService } from './services/employee.service';
 import { SalesService } from './services/sales.service';
 import { FinancialService } from './services/financial.service';
 import { InvoiceService } from './services/invoice.service';
+import { RecommendationService } from './services/recommendation.service';
 import { AdminGuard, AuthGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
@@ -151,6 +153,7 @@ import { PurchaseManagementComponent } from './components/purchase-management/pu
     SituationFamilialeComponent,
     EtatDePaieComponent,
     AttendanceComponent,
+    RecommendationsComponent,
   ],
   imports: [
     BrowserModule,
@@ -172,6 +175,7 @@ import { PurchaseManagementComponent } from './components/purchase-management/pu
     InvoiceService,
     FinancialService,
     AttendanceService,
+    RecommendationService,
     AuthGuard,
     AdminGuard,
     GuestGuard,

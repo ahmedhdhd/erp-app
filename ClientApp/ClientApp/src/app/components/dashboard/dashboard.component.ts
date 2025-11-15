@@ -50,4 +50,8 @@ export class DashboardComponent implements OnInit {
   navigateToSuppliers(): void {
     this.router.navigate(['/suppliers']);
   }
+  
+  navigateToRecommendations(): void {
+    this.router.navigate(['/recommendations']);
+  }
 }

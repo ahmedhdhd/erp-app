@@ -67,6 +67,9 @@ import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.c
 import { AttendanceComponent } from './components/hr/attendance/attendance.component';
 import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
 
+// Standalone Components
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
+
 const routes: Routes = [
   // Default route - redirect based on authentication
   {
@@ -367,6 +370,13 @@ const routes: Routes = [
         component: CompanySettingsComponent
       }
     ]
+  },
+
+  // Recommendations route
+  {
+    path: 'recommendations',
+    component: RecommendationsComponent,
+    canActivate: [AuthGuard]
   },
 
   // Catch all route - redirect to login

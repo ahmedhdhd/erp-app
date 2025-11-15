@@ -76,6 +76,7 @@ builder.Services.AddScoped<CompanySettingsService>();
 builder.Services.AddScoped<ReglementService>();
 builder.Services.AddScoped<PayrollService>();
 builder.Services.AddScoped<AttendanceService>(); // Add this line
+builder.Services.AddScoped<RecommendationService>();
 
 // ------------------------------------------------------------
 // Logging
@@ -168,6 +169,10 @@ app.UseAuthorization();
 
 // Map Controllers
 app.MapControllers();
+app.MapControllerRoute(
+    name: "recommendations",
+    pattern: "api/recommendations/{action=GetRecommendations}",
+    defaults: new { controller = "Recommendations" });
 
 // SPA Fallback (Angular)
 app.MapFallbackToFile("index.html");

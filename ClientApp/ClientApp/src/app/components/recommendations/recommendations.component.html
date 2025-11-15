@@ -1,0 +1,45 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Product Recommendations</h2>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!error && infoMessage" class="alert alert-info">
+    {{ infoMessage }}
+  </div>
+
+  <div *ngIf="loading && recommendations.length === 0" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12" *ngIf="!loading && recommendations.length === 0 && !error">
+      <div class="alert alert-light border">
+        No recommendations available yet. Try adding more sales or product activity to help the system learn.
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let product of recommendations">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.designation }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ product.reference }}</h6>
+          <p class="card-text">
+            <strong>Category:</strong> {{ product.categorie }}<br>
+            <strong>Price:</strong> {{ product.prixVente | number:'1.2-2' }} TND<br>
+            <strong>Stock:</strong> {{ product.stockActuel }}<br>
+            <strong>Margin:</strong> {{ product.pourcentageMarge | number:'1.2-2' }}%
+          </p>
+        </div>
+        <div class="card-footer">
+          <small class="text-muted">Recommended for promotion</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

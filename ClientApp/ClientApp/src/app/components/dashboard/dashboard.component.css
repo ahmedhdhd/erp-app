@@ -57,6 +57,23 @@
   transform: scale(1.1);
 }
 
+/* Custom color classes */
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+.btn-purple {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: white;
+}
+
+.btn-purple:hover {
+  background-color: #5a32a3;
+  border-color: #5a32a3;
+  color: white;
+}
+
 /* Alert Styles */
 .alert-info {
   border-radius: 8px;
