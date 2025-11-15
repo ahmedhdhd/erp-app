@@ -1,19 +1,11 @@
-# ERP
+# ERP 
 
 ## Description
 ERP Tunisie is a comprehensive Enterprise Resource Planning application designed for Tunisian businesses. The system provides end-to-end business management capabilities with a focus on employee data management, product inventory, customer relationship management, and sales operations. 
 
 The application uses a Web API built with ASP.NET Core to store and retrieve data from a SQL Server database, with an Angular frontend interface for user interaction.
 
-### Current Development Status
-The application is currently 50% complete with 5 core modules fully implemented:
-- Authentication & User Management
-- Employee Management (HR)
-- Product & Inventory Management
-- Customer Relationship Management (CRM)
-- Sales Management
 
-6 additional modules are planned for future development including Supplier Relationship Management, Purchase Management, Financial Management, Reporting & Analytics, System Administration, and Base Infrastructure enhancements.
 
 ## Technologies Used
 - **Backend**: ASP.NET Core 8.0
