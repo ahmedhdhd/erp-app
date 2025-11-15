@@ -1,4 +1,4 @@
-# ERP Tunisie
+# ERP
 
 ## Description
 ERP Tunisie is a comprehensive Enterprise Resource Planning application designed for Tunisian businesses. The system provides end-to-end business management capabilities with a focus on employee data management, product inventory, customer relationship management, and sales operations. 
