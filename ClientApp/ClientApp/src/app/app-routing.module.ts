@@ -57,6 +57,18 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 
 // Company Settings Components
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
+import { JournalListComponent } from './components/financial/journal-list/journal-list.component';
+import { FinancialDashboardComponent } from './components/financial/dashboard/financial-dashboard.component';
+import { AccountingListComponent } from './components/financial/accounting/accounting-list.component';
+import { SupplierJournalComponent } from './components/financial/supplier-journal/supplier-journal.component';
+import { CustomerJournalComponent } from './components/financial/customer-journal/customer-journal.component';
+import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
+import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
+import { AttendanceComponent } from './components/hr/attendance/attendance.component';
+import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
+
+// Standalone Components
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
 
 const routes: Routes = [
   // Default route - redirect based on authentication
@@ -248,12 +260,13 @@ const routes: Routes = [
     path: 'purchase-orders',
     canActivate: [AuthGuard],
     children: [
+      {path: 'purchases', component:PurchaseManagementComponent},
       { path: '', component: PurchaseOrderListComponent },
       { path: 'new', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
+      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
       { path: ':id', component: PurchaseOrderDetailComponent },
       { path: ':id/edit', component: PurchaseOrderFormComponent, data: { requiredRoles: ['Admin', 'Acheteur'] } },
       { path: ':id/receive', component: GoodsReceiptComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
-      { path: 'to-receive', component: GoodsReceiptListComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } },
       { path: 'test-api', component: TestApiComponent, data: { requiredRoles: ['Admin', 'Acheteur', 'StockManager'] } }
     ]
   },
@@ -285,6 +298,19 @@ const routes: Routes = [
     data: { requiredRoles: ['Admin', 'RH', 'Inventaire'] }
   },
 
+  // Financial routes
+  {
+    path: 'financial',
+    canActivate: [AuthGuard],
+    children: [
+      { path: 'journal', component: JournalListComponent },
+      { path: 'supplier-journal', component: SupplierJournalComponent },
+      { path: 'customer-journal', component: CustomerJournalComponent },
+      { path: 'dashboard', component: FinancialDashboardComponent },
+      { path: 'accounting', component: AccountingListComponent }
+    ]
+  },
+
   // Stock Management routes
   {
     path: 'stock',
@@ -307,7 +333,28 @@ const routes: Routes = [
     redirectTo: '/stock'
   },
 
-
+  // HR Management routes
+  {
+    path: 'hr',
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'situation-familiale/:id',
+        component: SituationFamilialeComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      },
+      {
+        path: 'etat-de-paie',
+        component: EtatDePaieComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      },
+      {
+        path: 'attendance',
+        component: AttendanceComponent,
+        data: { requiredRoles: ['Admin', 'HR'] }
+      }
+    ]
+  },
 
   // Admin routes
   {
@@ -325,6 +372,13 @@ const routes: Routes = [
     ]
   },
 
+  // Recommendations route
+  {
+    path: 'recommendations',
+    component: RecommendationsComponent,
+    canActivate: [AuthGuard]
+  },
+
   // Catch all route - redirect to login
   {
     path: '**',
@@ -337,4 +391,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
- 

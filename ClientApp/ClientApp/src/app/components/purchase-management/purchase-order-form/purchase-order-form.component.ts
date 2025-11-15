@@ -6,6 +6,8 @@ import { SupplierService } from '../../../services/supplier.service';
 import { ProductService } from '../../../services/product.service';
 import { AuthService } from '../../../services/auth.service';
 import { PurchaseOrderResponse, CreatePurchaseOrderRequest, UpdatePurchaseOrderRequest, PurchaseApiResponse } from '../../../models/purchase.models';
+import { FinancialService } from '../../../services/financial.service';
+import { ReglementResponse, CreateReglementRequest, UpdateReglementRequest, FinancialApiResponse } from '../../../models/financial.models';
 import { SupplierResponse, SupplierListResponse, SupplierApiResponse } from '../../../models/supplier.models';
 import { ProductResponse, ProductListResponse, ProductApiResponse } from '../../../models/product.models';
 
@@ -29,6 +31,40 @@ export class PurchaseOrderFormComponent implements OnInit {
   showProductDropdownForIndex: number | null = null;
   filteredProducts: { [key: number]: ProductResponse[] } = {};
   
+  getLineTotalTTC(line: any): number {
+    const quantity = line.get('quantite')?.value || 0;
+    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
+    return quantity * prixTTC;
+  }
+
+  // Calculation methods for order summary
+  calculateSubtotal(): number {
+    let subtotal = 0;
+    for (let i = 0; i < this.lignes.length; i++) {
+      const line = this.lignes.at(i);
+      const quantity = line.get('quantite')?.value || 0;
+      const prixHT = line.get('prixUnitaireHT')?.value || 0;
+      subtotal += quantity * prixHT;
+    }
+    return subtotal;
+  }
+
+  calculateTotal(): number {
+    return this.calculateSubtotal();
+  }
+
+  calculateTotalWithVAT(): number {
+    const totalHT = this.calculateTotal();
+    return totalHT * 1.2; // 20% VAT
+  }
+
+  // ========== Reglements UI ==========
+  reglements: ReglementResponse[] = [];
+  isAddingReglement = false;
+  newReglement: any = { nature: 'Espèce', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+  editingReglementId: number | null = null;
+  editReglement: any = {};
+  
   constructor(
     private fb: FormBuilder,
     private purchaseService: PurchaseService,
@@ -36,7 +72,8 @@ export class PurchaseOrderFormComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private financialService: FinancialService
   ) {
     this.purchaseOrderForm = this.createForm();
   }
@@ -90,7 +127,6 @@ export class PurchaseOrderFormComponent implements OnInit {
     return group;
   }
 
- 
   get lignes(): FormArray {
     return this.purchaseOrderForm.get('lignes') as FormArray;
   }
@@ -197,154 +233,18 @@ export class PurchaseOrderFormComponent implements OnInit {
             
             this.lignes.push(lineGroup);
           });
+          
+          // Load reglements for the order
+          this.loadReglements();
         }
         this.loading = false;
       },
       error: (err: any) => {
+        console.error('Error loading purchase order:', err);
         this.error = 'Error loading purchase order';
         this.loading = false;
-        console.error(err);
       }
     });
-  }
-
-  // Product search methods
-  getProductDisplayName(productId: number | null): string {
-    if (!productId) return '';
-    const product = this.products.find(p => p.id === productId);
-    return product ? `${product.reference} - ${product.designation}` : '';
-  }
-
-  // Get selected product IDs from all lines except the current one
-  getSelectedProductIds(excludeIndex: number): number[] {
-    const selectedIds: number[] = [];
-    this.lignes.controls.forEach((line, index) => {
-      if (index !== excludeIndex) {
-        const produitId = line.get('produitId')?.value;
-        if (produitId) {
-          selectedIds.push(produitId);
-        }
-      }
-    });
-    return selectedIds;
-  }
-
-  onProductSearch(event: any, index: number): void {
-    const searchTerm = event.target.value.toLowerCase();
-    const selectedProductIds = this.getSelectedProductIds(index);
-    
-    if (searchTerm.length > 0) {
-      this.filteredProducts[index] = this.products.filter(product => 
-        !selectedProductIds.includes(product.id) && // Exclude already selected products
-        (product.reference.toLowerCase().includes(searchTerm) || 
-        product.designation.toLowerCase().includes(searchTerm))
-      );
-    } else {
-      // When no search term, show all products except already selected ones
-      this.filteredProducts[index] = this.products.filter(product => 
-        !selectedProductIds.includes(product.id)
-      );
-    }
-    this.showProductDropdownForIndex = index;
-  }
-
-  showProductDropdown(index: number): void {
-    this.showProductDropdownForIndex = index;
-    const selectedProductIds = this.getSelectedProductIds(index);
-    
-    // Show all products except already selected ones
-    if (!this.filteredProducts[index] || this.filteredProducts[index].length === 0) {
-      this.filteredProducts[index] = this.products.filter(product => 
-        !selectedProductIds.includes(product.id)
-      );
-    }
-  }
-
-  hideProductDropdown(index: number, event: any): void {
-    // Delay hiding to allow click events to register
-    setTimeout(() => {
-      this.showProductDropdownForIndex = null;
-    }, 200);
-  }
-
-  selectProduct(index: number, product: ProductResponse): void {
-  console.log('Selecting product:', product);
-  const lineGroup = this.lignes.at(index) as FormGroup;
-  
-  if (lineGroup) {
-    // Set all the product-related values
-    lineGroup.patchValue({
-      produitId: product.id,
-      prixUnitaireHT: product.prixAchatHT || 0,
-      tauxTVA: product.tauxTVA || 0
-    });
-    
-    // Calculate TTC price after setting the values
-    setTimeout(() => {
-      this.calculateTTCPrice(lineGroup);
-      console.log('Line group after selection:', lineGroup.value);
-    }, 0);
-  }
-  
-  // Hide the dropdown
-  this.showProductDropdownForIndex = null;
-  
-  // Clear the filtered products for this index
-  if (this.filteredProducts[index]) {
-    delete this.filteredProducts[index];
-  }
-  
-  // Refresh filtered products for other lines to exclude this newly selected product
-  this.refreshFilteredProducts();
-}
-
-// Refresh filtered products for all lines
-refreshFilteredProducts(): void {
-  if (this.showProductDropdownForIndex !== null) {
-    // If a dropdown is currently shown, refresh its content
-    this.showProductDropdown(this.showProductDropdownForIndex);
-  }
-}
-
-// Improved calculateTTCPrice method
-calculateTTCPrice(lineGroup: FormGroup): void {
-  const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
-  const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
-  const prixTTC = prixHT * (1 + tauxTVA / 100);
-  
-  console.log('Calculating TTC:', { prixHT, tauxTVA, prixTTC });
-  
-  // Round to 3 decimal places to avoid floating point precision issues
-  const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
-  
-  lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
-}
-
-  getLineTotalTTC(line: any): number {
-    const quantity = line.get('quantite')?.value || 0;
-    const prixTTC = line.get('prixUnitaireTTC')?.value || 0;
-    return quantity * prixTTC;
-  }
-
-  // Calculation methods for order summary
-  calculateSubtotal(): number {
-    let subtotal = 0;
-    for (let i = 0; i < this.lignes.length; i++) {
-      const line = this.lignes.at(i);
-      const quantity = line.get('quantite')?.value || 0;
-      const prixHT = line.get('prixUnitaireHT')?.value || 0;
-      subtotal += quantity * prixHT;
-    }
-    return subtotal;
-  }
-
-  calculateTotal(): number {
-    return this.calculateSubtotal();
-  }
-
-  calculateTotalWithVAT(): number {
-    const totalHT = this.calculateTotal();
-    return totalHT * 1.2; // 20% VAT
   }
 
   onSubmit(): void {
@@ -380,6 +280,8 @@ calculateTTCPrice(lineGroup: FormGroup): void {
             this.loading = false;
             if (response.success) {
               this.successMessage = 'Purchase order updated successfully';
+              // Reload reglements after saving
+              this.loadReglements();
               setTimeout(() => {
                 this.router.navigate(['/purchase-orders']);
               }, 2000);
@@ -399,6 +301,11 @@ calculateTTCPrice(lineGroup: FormGroup): void {
             this.loading = false;
             if (response.success) {
               this.successMessage = 'Purchase order created successfully';
+              // Set the purchaseOrderId so we can add reglements
+              this.purchaseOrderId = response.data?.id || null;
+              this.isEditMode = true;
+              // Reload reglements after saving
+              this.loadReglements();
               setTimeout(() => {
                 this.router.navigate(['/purchase-orders']);
               }, 2000);
@@ -418,5 +325,207 @@ calculateTTCPrice(lineGroup: FormGroup): void {
 
   onCancel(): void {
     this.router.navigate(['/purchase-orders']);
+  }
+  
+  // ========== Reglements UI Methods ==========
+  private loadReglements(): void {
+    if (!this.purchaseOrderId) return;
+    this.financialService.getReglementsByPurchaseOrder(this.purchaseOrderId).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse[]>) => {
+        if (res.success) this.reglements = res.data || [];
+      },
+      error: (e) => console.error('Error loading reglements', e)
+    });
+  }
+
+  openAddReglementModal(): void {
+    this.isAddingReglement = true;
+  }
+
+  saveNewReglement(): void {
+    if (!this.purchaseOrderId) return;
+    const payload: CreateReglementRequest = {
+      nature: this.newReglement.nature,
+      numero: this.newReglement.numero,
+      montant: parseFloat(this.newReglement.montant) || 0,
+      date: this.newReglement.date,
+      banque: this.newReglement.banque || null,
+      dateEcheance: this.newReglement.dateEcheance || null,
+      type: 'Fournisseur',
+      fournisseurId: this.purchaseOrderForm.get('fournisseurId')?.value || null,
+      commandeAchatId: this.purchaseOrderId
+    } as any;
+    this.financialService.createReglement(payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.isAddingReglement = false;
+          this.newReglement = { nature: 'Espèce', numero: '', montant: 0, date: new Date().toISOString().substring(0,10), banque: '', dateEcheance: '' };
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error creating reglement', e)
+    });
+  }
+
+  cancelAddReglement(): void {
+    this.isAddingReglement = false;
+  }
+
+  startEditReglement(r: ReglementResponse): void {
+    this.editingReglementId = r.id;
+    this.editReglement = { ...r, date: (r.date || '').substring(0,10), dateEcheance: r.dateEcheance ? r.dateEcheance.substring(0,10) : '' };
+  }
+
+  saveEditReglement(): void {
+    if (this.editingReglementId == null) return;
+    const payload: UpdateReglementRequest = {
+      id: this.editingReglementId,
+      nature: this.editReglement.nature,
+      numero: this.editReglement.numero,
+      montant: parseFloat(this.editReglement.montant) || 0,
+      date: this.editReglement.date,
+      banque: this.editReglement.banque || null,
+      dateEcheance: this.editReglement.dateEcheance || null,
+      type: 'Fournisseur',
+      fournisseurId: this.purchaseOrderForm.get('fournisseurId')?.value || null,
+      commandeAchatId: this.purchaseOrderId || null
+    } as any;
+    this.financialService.updateReglement(this.editingReglementId, payload).subscribe({
+      next: (res: FinancialApiResponse<ReglementResponse>) => {
+        if (res.success) {
+          this.editingReglementId = null;
+          this.loadReglements();
+        }
+      },
+      error: (e) => console.error('Error updating reglement', e)
+    });
+  }
+
+  cancelEditReglement(): void {
+    this.editingReglementId = null;
+  }
+
+  confirmDeleteReglement(r: ReglementResponse): void {
+    if (!confirm('Supprimer ce règlement ?')) return;
+    this.financialService.deleteReglement(r.id).subscribe({
+      next: (res: FinancialApiResponse<boolean>) => {
+        if (res.success) this.loadReglements();
+      },
+      error: (e) => console.error('Error deleting reglement', e)
+    });
+  }
+
+  reglementsTotal(): number {
+    return (this.reglements || []).reduce((sum, r) => sum + (r.montant || 0), 0);
+  }
+
+  getRemainingAmount(): number {
+    const orderTotal = this.calculateTotalWithVAT();
+    const reglementsTotal = this.reglementsTotal();
+    return Math.max(0, orderTotal - reglementsTotal);
+  }
+
+  // Add the missing methods
+  calculateTTCPrice(lineGroup: FormGroup): void {
+    const prixHT = parseFloat(lineGroup.get('prixUnitaireHT')?.value) || 0;
+    const tauxTVA = parseFloat(lineGroup.get('tauxTVA')?.value) || 0;
+    const prixTTC = prixHT * (1 + tauxTVA / 100);
+    
+    console.log('Calculating TTC in purchase form:', { prixHT, tauxTVA, prixTTC });
+    
+    // Round to 3 decimal places to avoid floating point precision issues
+    const roundedPrixTTC = Math.round(prixTTC * 1000) / 1000;
+    
+    lineGroup.get('prixUnitaireTTC')?.setValue(roundedPrixTTC, { emitEvent: false });
+  }
+
+  refreshFilteredProducts(): void {
+    if (this.showProductDropdownForIndex !== null) {
+      // If a dropdown is currently shown, refresh its content
+      this.showProductDropdown(this.showProductDropdownForIndex);
+    }
+  }
+
+  showProductDropdown(index: number): void {
+    this.showProductDropdownForIndex = index;
+    // Implementation would go here if needed
+  }
+
+  // Add the missing methods that are referenced in the template
+  getProductDisplayName(produitId: number): string {
+    if (!produitId) return '';
+    const product = this.products.find(p => p.id === produitId);
+    return product ? `${product.reference} - ${product.designation}` : '';
+  }
+
+  onProductSearch(event: any, index: number): void {
+    const searchTerm = event.target.value.toLowerCase();
+    const selectedProductIds = this.getSelectedProductIds(index);
+    
+    if (searchTerm) {
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id) &&
+        (product.reference.toLowerCase().includes(searchTerm) || 
+         product.designation.toLowerCase().includes(searchTerm))
+      );
+    } else {
+      // When no search term, show all products except already selected ones
+      this.filteredProducts[index] = this.products.filter(product => 
+        !selectedProductIds.includes(product.id)
+      );
+    }
+    this.showProductDropdownForIndex = index;
+  }
+
+  hideProductDropdown(index: number, event: any): void {
+    // Delay hiding to allow click events to register
+    setTimeout(() => {
+      this.showProductDropdownForIndex = null;
+    }, 200);
+  }
+
+  selectProduct(index: number, product: ProductResponse): void {
+    console.log('Selecting product:', product);
+    const lineGroup = this.lignes.at(index) as FormGroup;
+    
+    if (lineGroup) {
+      // Set all the product-related values
+      lineGroup.patchValue({
+        produitId: product.id,
+        prixUnitaireHT: product.prixAchatHT || 0,
+        tauxTVA: product.tauxTVA || 0
+      });
+      
+      // Calculate TTC price after setting the values
+      setTimeout(() => {
+        this.calculateTTCPrice(lineGroup);
+        console.log('Line group after selection:', lineGroup.value);
+      }, 0);
+    }
+    
+    // Hide the dropdown
+    this.showProductDropdownForIndex = null;
+    
+    // Clear the filtered products for this index
+    if (this.filteredProducts[index]) {
+      delete this.filteredProducts[index];
+    }
+    
+    // Refresh filtered products for other lines to exclude this newly selected product
+    this.refreshFilteredProducts();
+  }
+
+  // Helper method to get selected product IDs except for the current line
+  private getSelectedProductIds(excludeIndex: number): number[] {
+    const selectedIds: number[] = [];
+    this.lignes.controls.forEach((line, index) => {
+      if (index !== excludeIndex) {
+        const produitId = line.get('produitId')?.value;
+        if (produitId) {
+          selectedIds.push(produitId);
+        }
+      }
+    });
+    return selectedIds;
   }
 }

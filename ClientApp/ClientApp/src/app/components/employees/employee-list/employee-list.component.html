@@ -1,164 +1,90 @@
 <div class="container-fluid">
-  <!-- Header Section -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h2 class="mb-2">
-            <i class="fas fa-users"></i>
-            Gestion des Employés
-          </h2>
-          <p class="text-muted mb-0">
-            <span class="badge bg-info">{{ totalCount }}</span> employé(s) trouvé(s)
-          </p>
-        </div>
-        <div class="btn-group" role="group">
-          <button 
-            type="button" 
-            class="btn btn-success" 
-            routerLink="/employees/create"
-            *ngIf="canCreateEmployee()">
-            <i class="fas fa-plus"></i>
-            Nouvel Employé
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-outline-primary" 
-            (click)="exportToCsv()"
-            *ngIf="canViewStatistics()">
-            <i class="fas fa-download"></i>
-            Exporter CSV
-          </button>
-          <button 
-            type="button" 
-            class="btn btn-outline-info" 
-            routerLink="/employees/statistics"
-            *ngIf="canViewStatistics()">
-            <i class="fas fa-chart-bar"></i>
-            Statistiques
-          </button>
-        </div>
-      </div>
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">Employee Management</h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a routerLink="/dashboard" class="text-decoration-none">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Employees</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="d-flex gap-2">
+      <button 
+        type="button" 
+        class="btn btn-outline-primary" 
+        (click)="toggleAdvancedSearch()"
+        *ngIf="canEditEmployee()">
+        <i class="fas fa-filter me-2"></i>
+        {{ showAdvancedSearch ? 'Hide Filters' : 'Show Filters' }}
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-primary" 
+        routerLink="/employees/create"
+        *ngIf="canEditEmployee()">
+        <i class="fas fa-plus me-2"></i>Add Employee
+      </button>
     </div>
   </div>
 
-  <!-- Search Section -->
-  <div class="row mb-4">
+  <!-- Advanced Search Form -->
+  <div class="row mb-4" *ngIf="showAdvancedSearch && canEditEmployee()">
     <div class="col-12">
       <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>Advanced Search
+          </h5>
+        </div>
         <div class="card-body">
-          <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
-            <!-- Basic Search -->
-            <div class="row mb-3">
-              <div class="col-md-8">
-                <div class="input-group">
-                  <span class="input-group-text">
-                    <i class="fas fa-search"></i>
-                  </span>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    formControlName="searchTerm"
-                    placeholder="Rechercher par nom, prénom, CIN, email..."
-                    autocomplete="off">
-                </div>
+          <form [formGroup]="searchForm">
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control" formControlName="searchTerm" placeholder="Name, CIN, Email...">
               </div>
-              <div class="col-md-4">
-                <div class="btn-group w-100" role="group">
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                    Rechercher
-                  </button>
-                  <button 
-                    type="button" 
-                    class="btn btn-outline-secondary" 
-                    (click)="toggleAdvancedSearch()">
-                    <i class="fas fa-sliders-h"></i>
-                    {{ showAdvancedSearch ? 'Masquer' : 'Filtres avancés' }}
-                  </button>
-                  <button 
-                    type="button" 
-                    class="btn btn-outline-warning" 
-                    (click)="clearSearch()">
-                    <i class="fas fa-times"></i>
-                    Effacer
-                  </button>
-                </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Department</label>
+                <select class="form-select" formControlName="departement">
+                  <option value="">All Departments</option>
+                  <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Position</label>
+                <select class="form-select" formControlName="poste">
+                  <option value="">All Positions</option>
+                  <option *ngFor="let pos of positions" [value]="pos">{{ pos }}</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" formControlName="statut">
+                  <option value="">All Statuses</option>
+                  <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+                </select>
               </div>
             </div>
-
-            <!-- Advanced Search -->
-            <div class="advanced-search" [class.show]="showAdvancedSearch">
-              <hr>
-              <div class="row">
-                <div class="col-md-3">
-                  <label class="form-label">Département</label>
-                  <select class="form-select" formControlName="departement">
-                    <option value="">Tous les départements</option>
-                    <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Poste</label>
-                  <select class="form-select" formControlName="poste">
-                    <option value="">Tous les postes</option>
-                    <option *ngFor="let pos of positions" [value]="pos">{{ pos }}</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Statut</label>
-                  <select class="form-select" formControlName="statut">
-                    <option value="">Tous les statuts</option>
-                    <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Trier par</label>
-                  <div class="row">
-                    <div class="col-8">
-                      <select class="form-select" formControlName="sortBy">
-                        <option value="nom">Nom</option>
-                        <option value="prenom">Prénom</option>
-                        <option value="poste">Poste</option>
-                        <option value="departement">Département</option>
-                        <option value="dateembauche">Date embauche</option>
-                        <option value="salaire">Salaire</option>
-                      </select>
-                    </div>
-                    <div class="col-4">
-                      <select class="form-select" formControlName="sortDirection">
-                        <option value="asc">Croissant</option>
-                        <option value="desc">Décroissant</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Hire Date (from)</label>
+                <input type="date" class="form-control" formControlName="dateEmbaucheFrom">
               </div>
-              <div class="row mt-3">
-                <div class="col-md-3">
-                  <label class="form-label">Date embauche (de)</label>
-                  <input type="date" class="form-control" formControlName="dateEmbaucheFrom">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Date embauche (à)</label>
-                  <input type="date" class="form-control" formControlName="dateEmbaucheTo">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Salaire min (TND)</label>
-                  <input type="number" class="form-control" formControlName="salaireMin" min="0" step="100">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Salaire max (TND)</label>
-                  <input type="number" class="form-control" formControlName="salaireMax" min="0" step="100">
-                </div>
+              <div class="col-md-3">
+                <label class="form-label">Hire Date (to)</label>
+                <input type="date" class="form-control" formControlName="dateEmbaucheTo">
               </div>
-              <div class="row mt-3">
-                <div class="col-12">
-                  <button type="button" class="btn btn-primary" (click)="onAdvancedSearch()">
-                    <i class="fas fa-filter"></i>
-                    Appliquer les filtres
-                  </button>
-                </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-12">
+                <button type="button" class="btn btn-primary" (click)="onAdvancedSearch()">
+                  <i class="fas fa-filter"></i>
+                  Apply Filters
+                </button>
               </div>
             </div>
           </form>
@@ -171,9 +97,9 @@
   <div class="row" *ngIf="isLoading">
     <div class="col-12 text-center">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <p class="mt-2">Chargement des employés...</p>
+      <p class="mt-2">Loading employees...</p>
     </div>
   </div>
 
@@ -185,7 +111,7 @@
         {{ errorMessage }}
         <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="loadEmployees()">
           <i class="fas fa-redo"></i>
-          Réessayer
+          Retry
         </button>
       </div>
     </div>
@@ -198,12 +124,12 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
           <small class="text-muted">
-            Affichage de {{ (currentPage - 1) * pageSize + 1 }} à 
-            {{ Math.min(currentPage * pageSize, totalCount) }} sur {{ totalCount }} employé(s)
+            Showing {{ (currentPage - 1) * pageSize + 1 }} to 
+            {{ Math.min(currentPage * pageSize, totalCount) }} of {{ totalCount }} employee(s)
           </small>
         </div>
         <div class="d-flex align-items-center">
-          <label class="form-label me-2 mb-0">Éléments par page:</label>
+          <label class="form-label me-2 mb-0">Items per page:</label>
           <select class="form-select form-select-sm" style="width: auto;" 
                   [value]="pageSize" (change)="onPageSizeChange(+$any($event).target.value)">
             <option value="5">5</option>
@@ -228,33 +154,29 @@
                   </div>
                 </th>
                 <th scope="col" style="cursor: pointer;" (click)="sortBy('nom')">
-                  Nom
+                  Last Name
                   <i [class]="getSortIcon('nom')"></i>
                 </th>
                 <th scope="col" style="cursor: pointer;" (click)="sortBy('prenom')">
-                  Prénom
+                  First Name
                   <i [class]="getSortIcon('prenom')"></i>
                 </th>
                 <th scope="col">CIN</th>
                 <th scope="col" style="cursor: pointer;" (click)="sortBy('poste')">
-                  Poste
+                  Position
                   <i [class]="getSortIcon('poste')"></i>
                 </th>
                 <th scope="col" style="cursor: pointer;" (click)="sortBy('departement')">
-                  Département
+                  Department
                   <i [class]="getSortIcon('departement')"></i>
                 </th>
                 <th scope="col">Contact</th>
-                <th scope="col" style="cursor: pointer;" (click)="sortBy('salaire')">
-                  Salaire
-                  <i [class]="getSortIcon('salaire')"></i>
-                </th>
                 <th scope="col" style="cursor: pointer;" (click)="sortBy('dateembauche')">
-                  Date embauche
+                  Hire Date
                   <i [class]="getSortIcon('dateembauche')"></i>
                 </th>
-                <th scope="col">Statut</th>
-                <th scope="col">Compte</th>
+                <th scope="col">Status</th>
+                <th scope="col">Account</th>
                 <th scope="col" style="width: 150px;">Actions</th>
               </tr>
             </thead>
@@ -291,16 +213,7 @@
                   </div>
                 </td>
                 <td>
-                  <div class="text-end">
-                    <div class="fw-bold">{{ formatSalary(employee.salaireTotal) }}</div>
-                    <small class="text-muted">
-                      Base: {{ formatSalary(employee.salaireBase) }}
-                      <span *ngIf="employee.prime > 0"> + {{ formatSalary(employee.prime) }}</span>
-                    </small>
-                  </div>
-                </td>
-                <td>
-                  <small>{{ formatDate(employee.dateEmbauche) }}</small>
+                  <small>{{ formatDate(employee.dateEmbauche.toString()) }}</small>
                 </td>
                 <td>
                   <div class="dropdown">
@@ -332,7 +245,7 @@
                   </div>
                   <div *ngIf="!employee.hasUserAccount" class="text-muted">
                     <i class="fas fa-times-circle"></i>
-                    <small>Aucun</small>
+                    <small>None</small>
                   </div>
                 </td>
                 <td>
@@ -341,7 +254,7 @@
                       type="button" 
                       class="btn btn-outline-info" 
                       (click)="viewEmployee(employee.id)"
-                      title="Voir les détails">
+                      title="View Details">
                       <i class="fas fa-eye"></i>
                     </button>
                     <button 
@@ -349,7 +262,7 @@
                       class="btn btn-outline-warning" 
                       (click)="editEmployee(employee.id)"
                       *ngIf="canEditEmployee()"
-                      title="Modifier">
+                      title="Edit">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button 
@@ -357,7 +270,7 @@
                       class="btn btn-outline-danger" 
                       (click)="deleteEmployee(employee)"
                       *ngIf="canDeleteEmployee()"
-                      title="Supprimer">
+                      title="Delete">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
@@ -372,17 +285,17 @@
       <div class="card" *ngIf="employees.length === 0">
         <div class="card-body text-center py-5">
           <i class="fas fa-users fa-3x text-muted mb-3"></i>
-          <h5>Aucun employé trouvé</h5>
-          <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+          <h5>No employees found</h5>
+          <p class="text-muted">Try adjusting your search criteria.</p>
           <button type="button" class="btn btn-primary" (click)="clearSearch()">
             <i class="fas fa-times"></i>
-            Effacer les filtres
+            Clear Filters
           </button>
         </div>
       </div>
 
       <!-- Pagination -->
-      <nav aria-label="Pagination des employés" *ngIf="totalPages > 1">
+      <nav aria-label="Employee Pagination" *ngIf="totalPages > 1">
         <ul class="pagination justify-content-center mt-4">
           <li class="page-item" [class.disabled]="currentPage === 1">
             <a class="page-link" href="#" (click)="onPageChange(1); $event.preventDefault()">

@@ -187,19 +187,19 @@
               <div class="col-md-4">
                 <div class="salary-card">
                   <div class="salary-label">Base Salary</div>
-                  <div class="salary-value">{{ formatCurrency(employee.salaireBase) }}</div>
+                  <div class="salary-value">Salary information removed</div>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="salary-card">
                   <div class="salary-label">Prime</div>
-                  <div class="salary-value">{{ formatCurrency(employee.prime) }}</div>
+                  <div class="salary-value">Salary information removed</div>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="salary-card total-salary">
                   <div class="salary-label">Total Salary</div>
-                  <div class="salary-value">{{ formatCurrency(employee.salaireTotal) }}</div>
+                  <div class="salary-value">Salary information removed</div>
                 </div>
               </div>
             </div>
@@ -270,6 +270,29 @@
             </button>
           </div>
           <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/situation-familiale', employee.id]" 
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-file-invoice-dollar me-2"></i>Situation Familiale
+            </a>
+          </div>
+          <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/etat-de-paie']" 
+              [queryParams]="{ employeId: employee.id }"
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-file-invoice me-2"></i>État de Paie
+            </a>
+          </div>
+          <div class="quick-action-item">
+            <a 
+              [routerLink]="['/hr/historique-paie']"
+              [queryParams]="{ employeId: employee.id }"
+              class="btn btn-outline-info w-100 mb-2">
+              <i class="fas fa-history me-2"></i>Historique de Paie
+            </a>
+          </div>
+          <div class="quick-action-item">
             <button 
               class="btn btn-outline-info w-100 mb-2" 
               (click)="onPrint()">
@@ -319,7 +342,7 @@
           </div>
           <div class="stat-item">
             <div class="stat-label">Total Compensation</div>
-            <div class="stat-value text-success">{{ formatCurrency(employee.salaireTotal) }}</div>
+            <div class="stat-value text-success">Salary information removed</div>
           </div>
         </div>
       </div>

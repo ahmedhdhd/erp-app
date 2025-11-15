@@ -1,0 +1,56 @@
+<div class="container-fluid">
+  <h5 class="mb-3">Financial Dashboard</h5>
+  <div class="row g-2 mb-3">
+    <div class="col-auto">
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom">
+    </div>
+    <div class="col-auto">
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo">
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary btn-sm" (click)="refresh()">Appliquer</button>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card border-success">
+        <div class="card-body">
+          <div class="text-muted">Total reçu (Clients)</div>
+          <div class="display-6">{{ totals.clientReceived | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-warning">
+        <div class="card-body">
+          <div class="text-muted">En attente (Clients)</div>
+          <div class="display-6">{{ totals.clientPending | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-primary">
+        <div class="card-body">
+          <div class="text-muted">Payé (Fournisseurs)</div>
+          <div class="display-6">{{ totals.supplierPaid | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-danger">
+        <div class="card-body">
+          <div class="text-muted">Impayé (Fournisseurs)</div>
+          <div class="display-6">{{ totals.supplierUnpaid | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="alert alert-info">Charts placeholder (bar/line) - integrate chart library later.</div>
+    <button class="btn btn-outline-secondary btn-sm me-2" (click)="print()">Export PDF (print)</button>
+  </div>
+</div>
+
+

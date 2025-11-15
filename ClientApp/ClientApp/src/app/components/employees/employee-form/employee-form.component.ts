@@ -58,7 +58,7 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
     'Consultant',
     'Intern'
   ];
-   statuses = [
+  statuses = [
     { value: 'Actif', label: 'Active' },
     { value: 'Inactif', label: 'Inactive' },
     { value: 'Suspendu', label: 'Suspended' },
@@ -151,8 +151,6 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       telephone: ['', [Validators.required, Validators.pattern(this.phonePattern)]],
       departement: ['', [Validators.required]],
       poste: ['', [Validators.required]],
-      salaireBase: ['', [Validators.required, Validators.min(0), Validators.max(999999.99)]],
-      prime: ['', [Validators.min(0), Validators.max(999999.99)]],
       dateEmbauche: ['', [Validators.required]],
       statut: ['Active', [Validators.required]],
       cin: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]]
@@ -188,8 +186,6 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       telephone: employee.telephone,
       departement: employee.departement,
       poste: employee.poste,
-      salaireBase: employee.salaireBase,
-      prime: employee.prime,
       dateEmbauche: this.formatDateForInput(employee.dateEmbauche.toString()),
       statut: employee.statut,
       cin: employee.cin
@@ -229,8 +225,6 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       departement: formValue.departement,
       email: formValue.email,
       telephone: formValue.telephone,
-      salaireBase: formValue.salaireBase,
-      prime: formValue.prime || 0,
       dateEmbauche: new Date(formValue.dateEmbauche),
       statut: formValue.statut
     };
@@ -264,8 +258,6 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       departement: formValue.departement,
       email: formValue.email,
       telephone: formValue.telephone,
-      salaireBase: formValue.salaireBase,
-      prime: formValue.prime || 0,
       dateEmbauche: new Date(formValue.dateEmbauche),
       statut: formValue.statut
     };
@@ -346,8 +338,6 @@ export class EmployeeFormComponent implements OnInit, OnDestroy {
       telephone: 'Phone Number',
       departement: 'Department',
       poste: 'Position',
-      salaireBase: 'Base Salary',
-      prime: 'Prime',
       dateEmbauche: 'Hire Date',
       statut: 'Status',
       cin: 'CIN'

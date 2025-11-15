@@ -22,6 +22,38 @@ namespace App.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("App.Models.AccountingEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CompteCredit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompteDebit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("JournalId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Montant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JournalId");
+
+                    b.ToTable("AccountingEntries");
+                });
+
             modelBuilder.Entity("App.Models.ActiviteEmploye", b =>
                 {
                     b.Property<int>("Id")
@@ -51,7 +83,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("ActiviteEmployes");
+                    b.ToTable("ActivitesEmployes");
                 });
 
             modelBuilder.Entity("App.Models.AnalyseClient", b =>
@@ -86,7 +118,54 @@ namespace App.Migrations
                     b.HasIndex("ClientId")
                         .IsUnique();
 
-                    b.ToTable("AnalyseClients");
+                    b.ToTable("AnalysesClients");
+                });
+
+            modelBuilder.Entity("App.Models.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ClockInTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ClockOutTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModification")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HoursWorked")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("OvertimeHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeId");
+
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("App.Models.AuditLog", b =>
@@ -274,7 +353,13 @@ namespace App.Migrations
                     b.Property<decimal>("MontantHT")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("MontantReglé")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("MontantTTC")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ResteAPayer")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Statut")
@@ -316,7 +401,13 @@ namespace App.Migrations
                     b.Property<decimal>("MontantHT")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("MontantReglé")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("MontantTTC")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ResteAPayer")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Statut")
@@ -505,7 +596,7 @@ namespace App.Migrations
 
                     b.HasIndex("EmployeId");
 
-                    b.ToTable("DemandeAchats");
+                    b.ToTable("DemandesAchat");
                 });
 
             modelBuilder.Entity("App.Models.Department", b =>
@@ -631,12 +722,6 @@ namespace App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Prime")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("SalaireBase")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("Statut")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -654,6 +739,61 @@ namespace App.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Employes");
+                });
+
+            modelBuilder.Entity("App.Models.EtatDePaie", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CNSS")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("CSS")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("IRPP")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Mois")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NombreDeJours")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrimePresence")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PrimeProduction")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SalaireBase")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SalaireBrut")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SalaireImposable")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SalaireNet")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeId");
+
+                    b.ToTable("EtatsDePaie");
                 });
 
             modelBuilder.Entity("App.Models.FactureAchat", b =>
@@ -833,6 +973,53 @@ namespace App.Migrations
                     b.ToTable("Inventaires");
                 });
 
+            modelBuilder.Entity("App.Models.Journal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FournisseurId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Montant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReglementId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("FournisseurId");
+
+                    b.HasIndex("ReglementId")
+                        .IsUnique();
+
+                    b.ToTable("Journaux");
+                });
+
             modelBuilder.Entity("App.Models.LigneCommandeAchat", b =>
                 {
                     b.Property<int>("Id")
@@ -872,6 +1059,8 @@ namespace App.Migrations
                     b.HasIndex("ProduitId");
 
                     b.ToTable("LigneCommandeAchats");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeVente", b =>
@@ -910,6 +1099,8 @@ namespace App.Migrations
                     b.HasIndex("ProduitId");
 
                     b.ToTable("LigneCommandeVentes");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneDemandeAchat", b =>
@@ -939,7 +1130,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProduitId");
 
-                    b.ToTable("LigneDemandeAchats");
+                    b.ToTable("LigneDemandesAchat");
                 });
 
             modelBuilder.Entity("App.Models.LigneDevis", b =>
@@ -978,6 +1169,8 @@ namespace App.Migrations
                     b.HasIndex("ProduitId");
 
                     b.ToTable("LigneDevis");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureAchat", b =>
@@ -1016,6 +1209,8 @@ namespace App.Migrations
                     b.HasIndex("LigneCommandeId");
 
                     b.ToTable("LigneFactureAchats");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneFactureVente", b =>
@@ -1052,6 +1247,8 @@ namespace App.Migrations
                     b.HasIndex("FactureId");
 
                     b.ToTable("LigneFactureVentes");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneLivraison", b =>
@@ -1116,6 +1313,8 @@ namespace App.Migrations
                     b.HasIndex("ReceptionId");
 
                     b.ToTable("LigneReceptions");
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("App.Models.LigneRetourVente", b =>
@@ -1323,7 +1522,7 @@ namespace App.Migrations
                     b.HasIndex("FournisseurId")
                         .IsUnique();
 
-                    b.ToTable("PerformanceFournisseurs");
+                    b.ToTable("PerformancesFournisseurs");
                 });
 
             modelBuilder.Entity("App.Models.Produit", b =>
@@ -1423,6 +1622,63 @@ namespace App.Migrations
                     b.ToTable("Receptions");
                 });
 
+            modelBuilder.Entity("App.Models.Reglement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Banque")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CommandeAchatId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CommandeVenteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateEcheance")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FournisseurId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Montant")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Nature")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("CommandeAchatId");
+
+                    b.HasIndex("CommandeVenteId");
+
+                    b.HasIndex("FournisseurId");
+
+                    b.ToTable("Reglements");
+                });
+
             modelBuilder.Entity("App.Models.RetourVente", b =>
                 {
                     b.Property<int>("Id")
@@ -1457,6 +1713,59 @@ namespace App.Migrations
                     b.ToTable("RetourVentes");
                 });
 
+            modelBuilder.Entity("App.Models.SituationFamiliale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("ChefDeFamille")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ConjointACharge")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("DateDerniereMaj")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EnfantsEtudiants")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EnfantsHandicapes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EtatCivil")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NombreEnfants")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ParentsACharge")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrimePresence")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PrimeProduction")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SalaireBase")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeId")
+                        .IsUnique();
+
+                    b.ToTable("SituationsFamiliales");
+                });
+
             modelBuilder.Entity("App.Models.TransactionClient", b =>
                 {
                     b.Property<int>("Id")
@@ -1486,7 +1795,7 @@ namespace App.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("TransactionClients");
+                    b.ToTable("TransactionClient");
                 });
 
             modelBuilder.Entity("App.Models.TransactionFournisseur", b =>
@@ -1514,7 +1823,7 @@ namespace App.Migrations
 
                     b.HasIndex("FournisseurId");
 
-                    b.ToTable("TransactionFournisseurs");
+                    b.ToTable("TransactionFournisseur");
                 });
 
             modelBuilder.Entity("App.Models.Utilisateur", b =>
@@ -1587,6 +1896,17 @@ namespace App.Migrations
                     b.ToTable("VariantProduits");
                 });
 
+            modelBuilder.Entity("App.Models.AccountingEntry", b =>
+                {
+                    b.HasOne("App.Models.Journal", "Journal")
+                        .WithMany()
+                        .HasForeignKey("JournalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Journal");
+                });
+
             modelBuilder.Entity("App.Models.ActiviteEmploye", b =>
                 {
                     b.HasOne("App.Models.Employe", null)
@@ -1603,6 +1923,17 @@ namespace App.Migrations
                         .HasForeignKey("App.Models.AnalyseClient", "ClientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("App.Models.Attendance", b =>
+                {
+                    b.HasOne("App.Models.Employe", "Employe")
+                        .WithMany("Attendances")
+                        .HasForeignKey("EmployeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employe");
                 });
 
             modelBuilder.Entity("App.Models.AuditLog", b =>
@@ -1708,6 +2039,17 @@ namespace App.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("App.Models.EtatDePaie", b =>
+                {
+                    b.HasOne("App.Models.Employe", "Employe")
+                        .WithMany("EtatsDePaie")
+                        .HasForeignKey("EmployeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employe");
+                });
+
             modelBuilder.Entity("App.Models.FactureAchat", b =>
                 {
                     b.HasOne("App.Models.CommandeAchat", "Commande")
@@ -1753,6 +2095,31 @@ namespace App.Migrations
                         .HasForeignKey("ProduitId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("App.Models.Journal", b =>
+                {
+                    b.HasOne("App.Models.Client", "Client")
+                        .WithMany("Journaux")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
+                        .WithMany("Journaux")
+                        .HasForeignKey("FournisseurId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("App.Models.Reglement", "Reglement")
+                        .WithOne()
+                        .HasForeignKey("App.Models.Journal", "ReglementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Fournisseur");
+
+                    b.Navigation("Reglement");
                 });
 
             modelBuilder.Entity("App.Models.LigneCommandeAchat", b =>
@@ -1977,6 +2344,37 @@ namespace App.Migrations
                     b.Navigation("Commande");
                 });
 
+            modelBuilder.Entity("App.Models.Reglement", b =>
+                {
+                    b.HasOne("App.Models.Client", "Client")
+                        .WithMany("Reglements")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("App.Models.CommandeAchat", "CommandeAchat")
+                        .WithMany("Reglements")
+                        .HasForeignKey("CommandeAchatId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("App.Models.CommandeVente", "CommandeVente")
+                        .WithMany("Reglements")
+                        .HasForeignKey("CommandeVenteId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("App.Models.Fournisseur", "Fournisseur")
+                        .WithMany("Reglements")
+                        .HasForeignKey("FournisseurId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Client");
+
+                    b.Navigation("CommandeAchat");
+
+                    b.Navigation("CommandeVente");
+
+                    b.Navigation("Fournisseur");
+                });
+
             modelBuilder.Entity("App.Models.RetourVente", b =>
                 {
                     b.HasOne("App.Models.Client", "Client")
@@ -1994,6 +2392,17 @@ namespace App.Migrations
                     b.Navigation("Client");
 
                     b.Navigation("Facture");
+                });
+
+            modelBuilder.Entity("App.Models.SituationFamiliale", b =>
+                {
+                    b.HasOne("App.Models.Employe", "Employe")
+                        .WithOne("SituationFamiliale")
+                        .HasForeignKey("App.Models.SituationFamiliale", "EmployeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employe");
                 });
 
             modelBuilder.Entity("App.Models.TransactionClient", b =>
@@ -2055,7 +2464,11 @@ namespace App.Migrations
 
                     b.Navigation("HistoriqueAchats");
 
+                    b.Navigation("Journaux");
+
                     b.Navigation("Paiements");
+
+                    b.Navigation("Reglements");
 
                     b.Navigation("Retours");
                 });
@@ -2067,6 +2480,8 @@ namespace App.Migrations
                     b.Navigation("Lignes");
 
                     b.Navigation("Receptions");
+
+                    b.Navigation("Reglements");
                 });
 
             modelBuilder.Entity("App.Models.CommandeVente", b =>
@@ -2076,6 +2491,8 @@ namespace App.Migrations
                     b.Navigation("Lignes");
 
                     b.Navigation("Livraisons");
+
+                    b.Navigation("Reglements");
                 });
 
             modelBuilder.Entity("App.Models.DemandeAchat", b =>
@@ -2097,7 +2514,14 @@ namespace App.Migrations
                 {
                     b.Navigation("Activites");
 
+                    b.Navigation("Attendances");
+
                     b.Navigation("DemandesAchat");
+
+                    b.Navigation("EtatsDePaie");
+
+                    b.Navigation("SituationFamiliale")
+                        .IsRequired();
 
                     b.Navigation("Utilisateur");
                 });
@@ -2128,9 +2552,13 @@ namespace App.Migrations
 
                     b.Navigation("HistoriqueAchats");
 
+                    b.Navigation("Journaux");
+
                     b.Navigation("Paiements");
 
                     b.Navigation("Performance");
+
+                    b.Navigation("Reglements");
                 });
 
             modelBuilder.Entity("App.Models.Livraison", b =>

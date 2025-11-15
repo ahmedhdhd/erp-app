@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { SalesService } from '../../../services/sales.service';
 import { InvoiceService } from '../../../services/invoice.service';
 import { QuoteResponse, QuoteListResponse, QuoteSearchRequest, SalesApiResponse, CompanySettingsResponse } from '../../../models/sales.models';
@@ -34,15 +35,7 @@ export class QuoteListComponent implements OnInit {
 
   // Search and filter
   showAdvancedSearch = false;
-  searchForm = {
-    searchTerm: '',
-    clientId: null as number | null,
-    statut: '',
-    dateDebut: null as Date | null,
-    dateFin: null as Date | null,
-    sortBy: 'dateCreation',
-    sortDirection: 'desc' as 'asc' | 'desc'
-  };
+  searchForm: FormGroup;
 
   // Status options
   statusOptions = [
@@ -54,16 +47,65 @@ export class QuoteListComponent implements OnInit {
   ];
 
   constructor(
+    private fb: FormBuilder,
     private salesService: SalesService,
     private invoiceService: InvoiceService,
     private clientService: ClientService,
     private router: Router
-  ) {}
+  ) {
+    // Initialize the reactive form
+    this.searchForm = this.fb.group({
+      searchTerm: [''],
+      clientId: [null],
+      statut: [''],
+      dateDebut: [null],
+      dateFin: [null],
+      sortBy: ['dateCreation'],
+      sortDirection: ['desc']
+    });
+  }
 
   ngOnInit(): void {
     this.loadQuotes();
     this.loadClients();
     this.loadCompanySettings();
+  }
+
+  // Event handlers for form inputs
+  onSearchTermChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchForm.get('searchTerm')?.setValue(target.value);
+  }
+
+  onClientChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const value = target.value === 'null' ? null : +target.value;
+    this.searchForm.get('clientId')?.setValue(value);
+  }
+
+  onStatutChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.searchForm.get('statut')?.setValue(target.value);
+  }
+
+  onDateDebutChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchForm.get('dateDebut')?.setValue(target.value || null);
+  }
+
+  onDateFinChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchForm.get('dateFin')?.setValue(target.value || null);
+  }
+
+  onSortByChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.searchForm.get('sortBy')?.setValue(target.value);
+  }
+
+  onSortDirectionChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.searchForm.get('sortDirection')?.setValue(target.value);
   }
 
   // Load quotes
@@ -142,14 +184,14 @@ export class QuoteListComponent implements OnInit {
     this.errorMessage = null;
 
     const searchRequest: QuoteSearchRequest = {
-      clientId: this.searchForm.clientId,
-      statut: this.searchForm.statut || undefined,
-      dateDebut: this.searchForm.dateDebut || undefined,
-      dateFin: this.searchForm.dateFin || undefined,
+      clientId: this.searchForm.get('clientId')?.value || undefined,
+      statut: this.searchForm.get('statut')?.value || undefined,
+      dateDebut: this.searchForm.get('dateDebut')?.value || undefined,
+      dateFin: this.searchForm.get('dateFin')?.value || undefined,
       page: this.currentPage,
       pageSize: this.pageSize,
-      sortBy: this.searchForm.sortBy,
-      sortDirection: this.searchForm.sortDirection
+      sortBy: this.searchForm.get('sortBy')?.value,
+      sortDirection: this.searchForm.get('sortDirection')?.value
     };
 
     this.salesService.searchQuotes(searchRequest).subscribe({
@@ -182,7 +224,8 @@ export class QuoteListComponent implements OnInit {
     this.loadQuotes();
   }
 
-  onPageSizeChange(newPageSize: number): void {
+  onPageSizeChange(event: any): void {
+    const newPageSize = +event.target.value;
     this.pageSize = newPageSize;
     this.currentPage = 1;
     this.loadQuotes();
@@ -190,20 +233,21 @@ export class QuoteListComponent implements OnInit {
 
   // Sorting
   sortBy(field: string): void {
-    if (this.searchForm.sortBy === field) {
-      this.searchForm.sortDirection = this.searchForm.sortDirection === 'asc' ? 'desc' : 'asc';
+    if (this.searchForm.get('sortBy')?.value === field) {
+      const currentDirection = this.searchForm.get('sortDirection')?.value;
+      this.searchForm.get('sortDirection')?.setValue(currentDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      this.searchForm.sortBy = field;
-      this.searchForm.sortDirection = 'asc';
+      this.searchForm.get('sortBy')?.setValue(field);
+      this.searchForm.get('sortDirection')?.setValue('asc');
     }
     this.loadQuotes();
   }
 
   getSortIcon(field: string): string {
-    if (this.searchForm.sortBy !== field) {
+    if (this.searchForm.get('sortBy')?.value !== field) {
       return 'fas fa-sort';
     }
-    return this.searchForm.sortDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+    return this.searchForm.get('sortDirection')?.value === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
   }
 
   // Selection
@@ -373,7 +417,7 @@ export class QuoteListComponent implements OnInit {
 
   // Clear search
   clearSearch(): void {
-    this.searchForm = {
+    this.searchForm.reset({
       searchTerm: '',
       clientId: null,
       statut: '',
@@ -381,7 +425,7 @@ export class QuoteListComponent implements OnInit {
       dateFin: null,
       sortBy: 'dateCreation',
       sortDirection: 'desc'
-    };
+    });
     this.currentPage = 1;
     this.loadQuotes();
   }

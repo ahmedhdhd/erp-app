@@ -1,0 +1,59 @@
+<div class="container-fluid">
+  <h5 class="mb-3">Journal Financier</h5>
+  <div class="row g-2 mb-3">
+    <div class="col-auto">
+      <select class="form-select form-select-sm" [(ngModel)]="request.type">
+        <option [ngValue]="undefined">Tous</option>
+        <option value="Client">Client</option>
+        <option value="Fournisseur">Fournisseur</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <input type="text" class="form-control form-control-sm" placeholder="Propriétaire (nom)" [(ngModel)]="ownerName" />
+    </div>
+    <div class="col-auto">
+      <input type="text" class="form-control form-control-sm" placeholder="Type de paiement" [(ngModel)]="paymentType" />
+    </div>
+    <div class="col-auto">
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="request.dateFrom" />
+    </div>
+    <div class="col-auto">
+      <input type="date" class="form-control form-control-sm" [(ngModel)]="request.dateTo" />
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary btn-sm" (click)="search()">Filtrer</button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Date</th>
+          <th>Propriétaire</th>
+          <th>Type</th>
+          <th class="text-end">Montant</th>
+          <th>Règlement</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let j of items">
+          <td>{{ j.reference }}</td>
+          <td>{{ j.date | date:'yyyy-MM-dd' }}</td>
+          <td>{{ j.client?.raisonSociale || j.fournisseur?.raisonSociale || j.clientId || j.fournisseurId }}</td>
+          <td>{{ j.type }}</td>
+          <td class="text-end">{{ j.montant | number:'1.2-2' }}</td>
+          <td>{{ j.reglementId }}</td>
+          <td>{{ j.description }}</td>
+        </tr>
+        <tr *ngIf="!items || items.length === 0">
+          <td colspan="6" class="text-center text-muted">Aucune écriture</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+

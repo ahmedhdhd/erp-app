@@ -39,13 +39,28 @@ export class GoodsReceiptComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (id) {
+    const idStr = this.route.snapshot.paramMap.get('id');
+    const id = idStr ? Number(idStr) : NaN;
+    
+    // Validate that id is a valid number
+    if (idStr && !isNaN(id) && id > 0) {
       this.loadPurchaseOrder(id);
+    } else {
+      this.error = 'Invalid purchase order ID';
+      this.loading = false;
+      console.error('Invalid purchase order ID:', idStr);
     }
   }
 
   loadPurchaseOrder(id: number): void {
+    // Validate the ID before making the API call
+    if (isNaN(id) || id <= 0) {
+      this.error = 'Invalid purchase order ID';
+      this.loading = false;
+      console.error('Attempted to load purchase order with invalid ID:', id);
+      return;
+    }
+    
     this.loading = true;
     this.purchaseService.getPurchaseOrder(id).subscribe({
       next: (response) => {

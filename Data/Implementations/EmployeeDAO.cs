@@ -43,7 +43,7 @@ namespace App.Data.Implementations
 			return (items, total);
 		}
 
-		public async Task<(IEnumerable<Employe> Items, int TotalCount)> SearchAsync(string? searchTerm, string? departement, string? poste, string? statut, decimal? salaireMin, decimal? salaireMax, DateTime? dateFrom, DateTime? dateTo, int page, int pageSize, string sortBy, string sortDirection)
+		public async Task<(IEnumerable<Employe> Items, int TotalCount)> SearchAsync(string? searchTerm, string? departement, string? poste, string? statut, DateTime? dateFrom, DateTime? dateTo, int page, int pageSize, string sortBy, string sortDirection)
 		{
 			var query = _db.Employes.AsQueryable();
 
@@ -61,8 +61,6 @@ namespace App.Data.Implementations
 			if (!string.IsNullOrWhiteSpace(departement)) query = query.Where(e => e.Departement == departement);
 			if (!string.IsNullOrWhiteSpace(poste)) query = query.Where(e => e.Poste == poste);
 			if (!string.IsNullOrWhiteSpace(statut)) query = query.Where(e => e.Statut == statut);
-			if (salaireMin.HasValue) query = query.Where(e => e.SalaireBase >= salaireMin.Value);
-			if (salaireMax.HasValue) query = query.Where(e => e.SalaireBase <= salaireMax.Value);
 			if (dateFrom.HasValue) query = query.Where(e => e.DateEmbauche >= dateFrom.Value);
 			if (dateTo.HasValue) query = query.Where(e => e.DateEmbauche <= dateTo.Value);
 
@@ -78,9 +76,6 @@ namespace App.Data.Implementations
 					break;
 				case "poste":
 					query = desc ? query.OrderByDescending(e => e.Poste) : query.OrderBy(e => e.Poste);
-					break;
-				case "salairebase":
-					query = desc ? query.OrderByDescending(e => e.SalaireBase) : query.OrderBy(e => e.SalaireBase);
 					break;
 				case "dateembauche":
 					query = desc ? query.OrderByDescending(e => e.DateEmbauche) : query.OrderBy(e => e.DateEmbauche);
@@ -172,5 +167,3 @@ namespace App.Data.Implementations
 		}
 	}
 }
-
-

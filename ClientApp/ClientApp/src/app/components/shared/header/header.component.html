@@ -22,6 +22,23 @@
           </a>
         </li>
 
+        <!-- Financial -->
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('Comptable') || hasRole('Acheteur') || hasRole('Vendeur')">
+          <a class="nav-link dropdown-toggle" href="#" role="button"
+             id="financeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-coins"></i>
+            Finance
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="financeDropdown">
+            <li><a class="dropdown-item" routerLink="/financial/dashboard"><i class="fas fa-chart-line me-2"></i>Dashboard</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/journal"><i class="fas fa-book me-2"></i>General Journal</a></li>
+                        <li><a class="dropdown-item" routerLink="/financial/supplier-journal"><i class="fas fa-book me-2"></i>Supplier Journal</a></li>
+            <li><a class="dropdown-item" routerLink="/financial/customer-journal"><i class="fas fa-book me-2"></i>Customer Journal</a></li>
+
+            <li><a class="dropdown-item" routerLink="/financial/accounting"><i class="fas fa-balance-scale me-2"></i>Accounting Entries</a></li>
+          </ul>
+        </li>
+
         <!-- Employee Management -->
         <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('RH') || hasRole('Manager')">
           <a class="nav-link dropdown-toggle" href="#" role="button" 
@@ -34,6 +51,20 @@
             <li><a class="dropdown-item" routerLink="/employees/create" *ngIf="hasRole('Admin') || hasRole('RH')">Add Employee</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" routerLink="/employees/statistics" *ngIf="hasRole('Admin') || hasRole('RH') || hasRole('Manager')">Statistics</a></li>
+          </ul>
+        </li>
+
+        <!-- HR Management -->
+        <li class="nav-item dropdown" *ngIf="hasRole('Admin') || hasRole('RH')">
+          <a class="nav-link dropdown-toggle" href="#" role="button" 
+             id="hrDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-file-invoice-dollar"></i>
+            HR Management
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="hrDropdown">
+            <li><a class="dropdown-item" routerLink="/hr/etat-de-paie"><i class="fas fa-file-invoice me-2"></i>État de Paie</a></li>
+            <li><a class="dropdown-item" routerLink="/hr/attendance"><i class="fas fa-clock me-2"></i>Gestion des Présences</a></li>
+            <li><a class="dropdown-item" routerLink="/employees"><i class="fas fa-users me-2"></i>Gestion des Employés</a></li>
           </ul>
         </li>
 
@@ -92,7 +123,8 @@
             <i class="fas fa-shopping-cart"></i>
             Purchases
           </a>
-          <ul class="dropdown-menu" aria-labelledby="purchasesDropdown">
+          <ul class="dropdown-menu" aria-labelledby="purchasesDropdown"><li><a class="dropdown-item" routerLink="/purchases"><i class="fas fa-tachometer-alt me-2"></i>Purchases Dashboard</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" routerLink="/purchase-orders"><i class="fas fa-list me-2"></i>Purchase Orders</a></li>
             <li><a class="dropdown-item" routerLink="/purchase-orders/new" *ngIf="hasRole('Admin') || hasRole('Acheteur')"><i class="fas fa-plus me-2"></i>New Purchase Order</a></li>
             <li><hr class="dropdown-divider"></li>
@@ -118,6 +150,13 @@
           </ul>
         </li>
 
+        <!-- Product Recommendations -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/recommendations" routerLinkActive="active">
+            <i class="fas fa-lightbulb"></i>
+            Recommendations
+          </a>
+        </li>
 
         <!-- Admin Section -->
         <li class="nav-item dropdown" *ngIf="isAdmin()">

@@ -10,9 +10,6 @@ export interface Employee {
   departement: string;
   email: string;
   telephone: string;
-  salaireBase: number;
-  prime: number;
-  salaireTotal: number;
   dateEmbauche: Date;
   statut: string;
   hasUserAccount: boolean;
@@ -31,8 +28,6 @@ export interface CreateEmployeeRequest {
   departement: string;
   email: string;
   telephone: string;
-  salaireBase: number;
-  prime: number;
   dateEmbauche: Date;
   statut: string;
 }
@@ -46,8 +41,6 @@ export interface UpdateEmployeeRequest {
   departement: string;
   email: string;
   telephone: string;
-  salaireBase: number;
-  prime: number;
   dateEmbauche: Date;
   statut: string;
 }
@@ -59,8 +52,6 @@ export interface EmployeeSearchRequest {
   statut?: string;
   dateEmbaucheFrom?: Date;
   dateEmbaucheTo?: Date;
-  salaireMin?: number;
-  salaireMax?: number;
   page: number;
   pageSize: number;
   sortBy: string;
@@ -85,7 +76,6 @@ export interface EmployeeStatsResponse {
   inactiveEmployees: number;
   employeesByDepartment: { [key: string]: number };
   employeesByStatus: { [key: string]: number };
-  averageSalary: number;
   newEmployeesThisMonth: number;
   newEmployeesThisYear: number;
 }
@@ -98,7 +88,6 @@ export interface DepartmentResponse {
 export interface PositionResponse {
   name: string;
   employeeCount: number;
-  averageSalary: number;
 }
 
 export interface EmployeeApiResponse<T> {
@@ -124,8 +113,6 @@ export interface EmployeeFormData {
   departement: string;
   email: string;
   telephone: string;
-  salaireBase: number;
-  prime: number;
   dateEmbauche: string; // For form handling as string
   statut: string;
 }

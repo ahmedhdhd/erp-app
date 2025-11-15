@@ -20,6 +20,7 @@ namespace App.Services
 		public async Task<EmployeeApiResponse<EmployeeListResponse>> GetAllAsync(int page, int pageSize, string? searchTerm)
 		{
 			var (items, total) = await _dao.GetAllAsync(page, pageSize, searchTerm);
+
 			var dtos = items.Select(MapToDTO).ToList();
 			return Success(new EmployeeListResponse
 			{
@@ -40,8 +41,6 @@ namespace App.Services
 				request.Departement,
 				request.Poste,
 				request.Statut,
-				request.SalaireMin,
-				request.SalaireMax,
 				request.DateEmbaucheFrom,
 				request.DateEmbaucheTo,
 				request.Page,
@@ -82,8 +81,6 @@ namespace App.Services
 					Departement = request.Departement,
 					Email = request.Email ?? string.Empty,
 					Telephone = request.Telephone ?? string.Empty,
-					SalaireBase = request.SalaireBase,
-					Prime = request.Prime,
 					DateEmbauche = request.DateEmbauche,
 					Statut = request.Statut
 				};
@@ -117,8 +114,6 @@ namespace App.Services
 				existing.Departement = request.Departement;
 				existing.Email = request.Email ?? string.Empty;
 				existing.Telephone = request.Telephone ?? string.Empty;
-				existing.SalaireBase = request.SalaireBase;
-				existing.Prime = request.Prime;
 				existing.DateEmbauche = request.DateEmbauche;
 				existing.Statut = request.Statut;
 
@@ -163,7 +158,6 @@ namespace App.Services
 				InactiveEmployees = employees.Count(e => !string.Equals(e.Statut, "Actif", StringComparison.OrdinalIgnoreCase)),
 				EmployeesByDepartment = employees.GroupBy(e => e.Departement).ToDictionary(g => g.Key ?? string.Empty, g => g.Count()),
 				EmployeesByStatus = employees.GroupBy(e => e.Statut).ToDictionary(g => g.Key ?? string.Empty, g => g.Count()),
-				AverageSalary = employees.Any() ? employees.Average(e => e.SalaireBase + e.Prime) : 0,
 				NewEmployeesThisMonth = employees.Count(e => e.DateEmbauche.Year == DateTime.Now.Year && e.DateEmbauche.Month == DateTime.Now.Month),
 				NewEmployeesThisYear = employees.Count(e => e.DateEmbauche.Year == DateTime.Now.Year)
 			};
@@ -190,8 +184,7 @@ namespace App.Services
 				.Select(g => new PositionResponse
 				{
 					Name = g.Key ?? string.Empty,
-					EmployeeCount = g.Count(),
-					AverageSalary = g.Any() ? g.Average(e => e.SalaireBase + e.Prime) : 0
+					EmployeeCount = g.Count()
 				})
 				.OrderByDescending(x => x.EmployeeCount)
 				.ToList();
@@ -222,9 +215,6 @@ namespace App.Services
 				Departement = e.Departement,
 				Email = e.Email,
 				Telephone = e.Telephone,
-				SalaireBase = e.SalaireBase,
-				Prime = e.Prime,
-				SalaireTotal = e.SalaireBase + e.Prime,
 				DateEmbauche = e.DateEmbauche,
 				Statut = e.Statut,
 				HasUserAccount = e.Utilisateur != null,
@@ -257,5 +247,3 @@ namespace App.Services
 		}
 	}
 }
-
-

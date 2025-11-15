@@ -12,8 +12,6 @@ namespace App.Data.Interfaces
 			string? departement,
 			string? poste,
 			string? statut,
-			decimal? salaireMin,
-			decimal? salaireMax,
 			System.DateTime? dateFrom,
 			System.DateTime? dateTo,
 			int page,

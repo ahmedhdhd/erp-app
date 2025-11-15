@@ -3,7 +3,7 @@
 
 export const environment = {
   production: true,
-  apiUrl: 'https://erpappservice.azurewebsites.net/api',
+  apiUrl: 'https://erpappservice-bvepgja9g2e7ewet.germanywestcentral-01.azurewebsites.net/api',
   appName: 'ERP System',
   version: '1.0.0'
 };

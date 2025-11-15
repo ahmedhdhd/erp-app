@@ -24,5 +24,7 @@ namespace App.Models
         public List<CommandeAchat> CommandesAchat { get; set; } = new List<CommandeAchat>();
         public List<FactureAchat> Factures { get; set; } = new List<FactureAchat>();
         public List<PaiementFournisseur> Paiements { get; set; } = new List<PaiementFournisseur>();
+        public List<Reglement> Reglements { get; set; } = new List<Reglement>();
+        public List<Journal> Journaux { get; set; } = new List<Journal>();
     }
 }

@@ -1,0 +1,36 @@
+<div class="container-fluid">
+  <h5 class="mb-3">Accounting Entries</h5>
+  <div class="row g-2 mb-3">
+    <div class="col-auto"><input type="date" class="form-control form-control-sm" [(ngModel)]="dateFrom"></div>
+    <div class="col-auto"><input type="date" class="form-control form-control-sm" [(ngModel)]="dateTo"></div>
+    <div class="col-auto"><input type="text" class="form-control form-control-sm" [(ngModel)]="account" placeholder="Compte"></div>
+    <div class="col-auto"><button class="btn btn-primary btn-sm" (click)="search()">Filtrer</button></div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Référence Journal</th>
+          <th>Compte Débit</th>
+          <th>Compte Crédit</th>
+          <th class="text-end">Montant</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of items">
+          <td>{{ a.date | date:'yyyy-MM-dd' }}</td>
+          <td>{{ a.journalId }}</td>
+          <td>{{ a.compteDebit }}</td>
+          <td>{{ a.compteCredit }}</td>
+          <td class="text-end">{{ a.montant | number:'1.2-2' }}</td>
+        </tr>
+        <tr *ngIf="!items || items.length === 0">
+          <td colspan="5" class="text-center text-muted">Aucune écriture</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+

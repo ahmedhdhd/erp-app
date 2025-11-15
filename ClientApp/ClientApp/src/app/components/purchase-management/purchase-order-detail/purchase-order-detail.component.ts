@@ -26,13 +26,29 @@ export class PurchaseOrderDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       if (params['id']) {
-        this.purchaseOrderId = +params['id'];
-        this.loadPurchaseOrder(this.purchaseOrderId);
+        const id = +params['id'];
+        // Validate that id is a valid number
+        if (!isNaN(id) && id > 0) {
+          this.purchaseOrderId = id;
+          this.loadPurchaseOrder(this.purchaseOrderId);
+        } else {
+          this.error = 'Invalid purchase order ID';
+          this.loading = false;
+          console.error('Invalid purchase order ID:', params['id']);
+        }
       }
     });
   }
 
   loadPurchaseOrder(id: number): void {
+    // Validate the ID before making the API call
+    if (isNaN(id) || id <= 0) {
+      this.error = 'Invalid purchase order ID';
+      this.loading = false;
+      console.error('Attempted to load purchase order with invalid ID:', id);
+      return;
+    }
+    
     this.loading = true;
     this.error = null;
 
@@ -54,13 +70,16 @@ export class PurchaseOrderDetailComponent implements OnInit {
   }
 
   editPurchaseOrder(): void {
-    if (this.purchaseOrderId) {
+    if (this.purchaseOrderId && !isNaN(this.purchaseOrderId) && this.purchaseOrderId > 0) {
       this.router.navigate(['/purchase-orders', this.purchaseOrderId, 'edit']);
+    } else {
+      console.error('Cannot edit purchase order: Invalid ID', this.purchaseOrderId);
+      this.error = 'Cannot edit purchase order: Invalid ID';
     }
   }
 
   deletePurchaseOrder(): void {
-    if (this.purchaseOrderId && confirm('Are you sure you want to delete this purchase order?')) {
+    if (this.purchaseOrderId && !isNaN(this.purchaseOrderId) && this.purchaseOrderId > 0 && confirm('Are you sure you want to delete this purchase order?')) {
       this.purchaseService.deletePurchaseOrder(this.purchaseOrderId).subscribe({
         next: (response: PurchaseApiResponse<void>) => {
           if (response.success) {
@@ -74,6 +93,9 @@ export class PurchaseOrderDetailComponent implements OnInit {
           console.error(err);
         }
       });
+    } else if (this.purchaseOrderId && (isNaN(this.purchaseOrderId) || this.purchaseOrderId <= 0)) {
+      this.error = 'Cannot delete purchase order: Invalid ID';
+      console.error('Cannot delete purchase order: Invalid ID', this.purchaseOrderId);
     }
   }
 

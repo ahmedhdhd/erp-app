@@ -1,0 +1,161 @@
+<div class="container-fluid">
+  <h2>Gestion des Présences</h2>
+  
+  <!-- Search Form -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>Filtres de Recherche</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <label for="dateFilter" class="form-label">Date</label>
+          <input type="date" class="form-control" id="dateFilter" [(ngModel)]="selectedDate" (change)="onSearch()">
+        </div>
+        <div class="col-md-3">
+          <label for="employeeFilter" class="form-label">Employé</label>
+          <select class="form-select" id="employeeFilter" [(ngModel)]="selectedEmployeeId" (change)="onSearch()">
+            <option value="">Tous les employés</option>
+            <option *ngFor="let employee of employees" [value]="employee.id">
+              {{ employee.nom }} {{ employee.prenom }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="statusFilter" class="form-label">Statut</label>
+          <select class="form-select" id="statusFilter" [(ngModel)]="selectedStatus" (change)="onSearch()">
+            <option value="">Tous les statuts</option>
+            <option value="Present">Présent</option>
+            <option value="Absent">Absent</option>
+            <option value="Late">En retard</option>
+            <option value="HalfDay">Demi-journée</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-primary me-2" (click)="onSearch()">
+            <i class="fas fa-search"></i> Rechercher
+          </button>
+          <button class="btn btn-success" (click)="onAddAttendance()">
+            <i class="fas fa-plus"></i> Ajouter Présence
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Attendance Form -->
+  <div class="card mb-4" *ngIf="isAdding">
+    <div class="card-header">
+      <h5>Ajouter une Présence</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="onSubmitAttendance()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="employee" class="form-label">Employé *</label>
+            <select class="form-select" id="employee" [(ngModel)]="newAttendance.employeId" name="employee" required>
+              <option value="">Sélectionnez un employé</option>
+              <option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.nom }} {{ employee.prenom }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="date" class="form-label">Date *</label>
+            <input type="date" class="form-control" id="date" [(ngModel)]="newAttendance.date" name="date" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="clockInTime" class="form-label">Heure d'Entrée</label>
+            <input type="time" class="form-control" id="clockInTime" [(ngModel)]="newAttendance.clockInTime" name="clockInTime">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="clockOutTime" class="form-label">Heure de Sortie</label>
+            <input type="time" class="form-control" id="clockOutTime" [(ngModel)]="newAttendance.clockOutTime" name="clockOutTime">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="status" class="form-label">Statut</label>
+            <select class="form-select" id="status" [(ngModel)]="newAttendance.status" name="status">
+              <option value="Present">Présent</option>
+              <option value="Absent">Absent</option>
+              <option value="Late">En retard</option>
+              <option value="HalfDay">Demi-journée</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" [(ngModel)]="newAttendance.notes" name="notes" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" (click)="onCancelAdd()">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Attendance Table -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Liste des Présences</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Employé</th>
+              <th>Date</th>
+              <th>Heure d'Entrée</th>
+              <th>Heure de Sortie</th>
+              <th>Heures Travaillées</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let attendance of attendances">
+              <td>
+                <span *ngIf="attendance.employe">
+                  {{ attendance.employe.nom }} {{ attendance.employe.prenom }}
+                </span>
+                <span *ngIf="!attendance.employe">
+                  Employé #{{ attendance.employeId }}
+                </span>
+              </td>
+              <td>{{ attendance.date | date:'dd/MM/yyyy' }}</td>
+              <td>{{ attendance.clockInTime ? (attendance.clockInTime | date:'HH:mm') : '-' }}</td>
+              <td>{{ attendance.clockOutTime ? (attendance.clockOutTime | date:'HH:mm') : '-' }}</td>
+              <td>{{ calculateHoursWorked(attendance) }}h</td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': attendance.status === 'Present',
+                  'bg-danger': attendance.status === 'Absent',
+                  'bg-warning': attendance.status === 'Late',
+                  'bg-info': attendance.status === 'HalfDay'
+                }">
+                  {{ attendance.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="onUpdateAttendance(attendance)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="onDeleteAttendance(attendance.id)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="attendances.length === 0">
+              <td colspan="7" class="text-center">Aucune présence trouvée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

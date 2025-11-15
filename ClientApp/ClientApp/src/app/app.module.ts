@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -64,21 +64,34 @@ import { OrderDetailComponent } from './components/sales/order-detail/order-deta
 import { CompanySettingsComponent } from './components/company-settings/company-settings.component';
 import { StockMovementComponent } from './components/stock-management/stock-movement/stock-movement.component';
 
-
 // Shared Components
 import { HeaderComponent } from './components/shared/header/header.component';
+import { JournalListComponent } from './components/financial/journal-list/journal-list.component';
+import { FinancialDashboardComponent } from './components/financial/dashboard/financial-dashboard.component';
+import { AccountingListComponent } from './components/financial/accounting/accounting-list.component';
+import { SupplierJournalComponent } from './components/financial/supplier-journal/supplier-journal.component';
+import { CustomerJournalComponent } from './components/financial/customer-journal/customer-journal.component';
 
-// Services and Guards
-import { AuthService } from './services/auth.service';
-import { EmployeeService } from './services/employee.service';
+// HR Components
+import { SituationFamilialeComponent } from './components/hr/situation-familiale/situation-familiale.component';
+import { EtatDePaieComponent } from './components/hr/etat-de-paie/etat-de-paie.component';
+import { AttendanceComponent } from './components/hr/attendance/attendance.component';
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
+import { AttendanceService } from './services/attendance.service';
+
+import { PurchaseService } from './services/purchase.service';
+import { ConfigService } from './services/config.service';
 import { ProductService } from './services/product.service';
 import { ClientService } from './services/client.service';
-import { ConfigService } from './services/config.service';
-import { PurchaseService } from './services/purchase.service';
+import { AuthService } from './services/auth.service';
+import { EmployeeService } from './services/employee.service';
 import { SalesService } from './services/sales.service';
+import { FinancialService } from './services/financial.service';
 import { InvoiceService } from './services/invoice.service';
-import { AuthGuard, AdminGuard, GuestGuard } from './guards/auth.guard';
+import { RecommendationService } from './services/recommendation.service';
+import { AdminGuard, AuthGuard, GuestGuard } from './guards/auth.guard';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { PurchaseManagementComponent } from './components/purchase-management/purchase-management.component';
 
 @NgModule({
   declarations: [
@@ -112,6 +125,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     SupplierDetailComponent,
     SupplierStatisticsComponent,
     // Purchase Management Components
+    PurchaseManagementComponent,
     PurchaseOrderListComponent,
     PurchaseOrderFormComponent,
     PurchaseOrderDetailComponent,
@@ -130,6 +144,16 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HeaderComponent,
     // Company Settings Components
     CompanySettingsComponent,
+    JournalListComponent,
+    FinancialDashboardComponent,
+    AccountingListComponent,
+    SupplierJournalComponent,
+    CustomerJournalComponent,
+    // HR Components
+    SituationFamilialeComponent,
+    EtatDePaieComponent,
+    AttendanceComponent,
+    RecommendationsComponent,
   ],
   imports: [
     BrowserModule,
@@ -149,6 +173,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PurchaseService,
     SalesService,
     InvoiceService,
+    FinancialService,
+    AttendanceService,
+    RecommendationService,
     AuthGuard,
     AdminGuard,
     GuestGuard,
